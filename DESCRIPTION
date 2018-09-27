@@ -11,11 +11,15 @@ License: GPL (>=3)
 Depends: 
     methods,
     R (>= 3.4.0),
-    Rcpp (>= 0.12.18),
-    
+    Rcpp (>= 0.12.18)
 Imports: 
     rstan (>= 2.17.3),
-    rstantools (>= 1.5.1)
+    rstantools (>= 1.5.1),
+    dplyr,
+    purrr,
+    magrittr,
+    tidyr,
+    stringr
 LinkingTo: 
     BH (>= 1.66.0-1),
     Rcpp (>= 0.12.18),

@@ -1,6 +1,38 @@
-fit_nb = function(input_vec,
-                  weights = NULL,
-                  init = c(10, 1)) {
+# global imports
+#' @importFrom magrittr %>%
+#' @importFrom magrittr %<>%
+#' @import dplyr
+#' @import purrr
+#' @import tidyr
+empty_fun = function(){
+
+}
+
+
+
+#' @title Fit a negative binomial
+#'
+#' @description Fit a negative binomial distribution to a set of counts
+#'
+#' @param input_dat a data frame with one column called "counts"
+#' @param nb_init optional vector of mean, dispersion initialization point
+fit_nb = function(input_dat,
+                  nb_init = c(10, 1)) {
+
+  input_vec = input_dat$counts # feeding it a data frame with one column of counts
+
+  fn_to_min = function(param_vec){
+    # param_vec[1] nb mean
+    # param_vec[2] nb size
+    -sum(dnbinom(input_vec,
+                 mu = param_vec[1],
+                 size = param_vec[2],
+                 log = TRUE))
+  }
+
+  stats::nlminb(start = nb_init,
+                objective = fn_to_min,
+                lower = rep(.Machine$double.xmin, 2))
 
 }
 
@@ -75,6 +107,7 @@ fit_gamma = function(input_vec,
 #' @return a data frame with a row for each variant_id that specificies the
 #'   posterior mean TS, upper and lower HDI bounds, a binary call of functional
 #'   or non-functional, and other appropriate outputs
+#' @export
 fit_mpra_model = function(mpra_data,
                           annotations = NULL,
                           out_dir,
@@ -103,6 +136,12 @@ fit_mpra_model = function(mpra_data,
     stop('variant_id entries in mpra_data are not all unique!')
   }
 
+  if (!missing(annotations)) {
+    if (!all(mpra_data$variant_id %in% annotations$variant_id)) {
+      stop('Some mpra_data$variant_id\'s missing from annotations')
+    }
+  }
+
   if (ts_hdi_prob < 0 | ts_hdi_prob > 1) {
     stop('ts_hdi_prob must be between 0 and 1!')
   }
@@ -121,14 +160,16 @@ fit_mpra_model = function(mpra_data,
   pring('Fitting priors...')
   if (is.null(annotations)) {
     pring('Fitting MARGINAL priors...')
-    priors = fit_marg_prior(mpra_data)
+    priors = fit_marg_prior(mpra_data, n_cores = n_cores)
   } else {
     print('Fitting annotation-based conditional priors...')
-    priors = fit_cond_prior(mpra_data, annotations)
+    priors = fit_cond_prior(mpra_data, annotations, n_cores = n_cores)
   }
 
   #### Run samplers ----
   print('Running model samplers...')
+
+
 
 }
 
