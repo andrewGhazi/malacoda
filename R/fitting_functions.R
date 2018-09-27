@@ -1,11 +1,137 @@
-fit_nb = function() {
+fit_nb = function(input_vec,
+                  weights = NULL,
+                  init = c(10, 1)) {
 
 }
 
-fit_gamma = function() {
+fit_gamma = function(input_vec,
+                     weights = NULL,
+                     init = c(10, 1)) {
+
+  # if fails to fit, stop() with error message suggesting
+
 
 }
 
-fit_mpra_model = function() {
-  # the main workhorse
+#' Fit a Bayesian MPRA model
+#'
+#' @description This function fits a negative-binomial based Bayesian model to
+#'   MPRA data. Optional annotations can be included to allow for more
+#'   informative conditional priors.
+#'
+#' @param mpra_data a data frame of MPRA data with 1 column called variant_id,
+#'   an allele column, and additional columns per sequencing sample. Each row is
+#'   for a single barcode.
+#' @param annotations a optional data frame of annotations with identical
+#'   variant_ids and an arbitrary number of functional annotations. If omitted,
+#'   the prior for a given variant is influenced by all other variants in the
+#'   assay equally.
+#' @param out_dir path to output directory
+#' @param save_nonfunctional logical indicating whether or not to save the
+#'   sampler results for variants identified as non-functional
+#' @param n_cores number of cores across which to parallelize variant MPRA
+#'   samplers
+#' @param n_chains number of MCMC chains to run in each sampler
+#' @param tot_samp total number of MCMC draws to take, spread evenly across
+#'   chains
+#' @param n_warmup total number of warmup draws to take from each MCMC chain
+#' @param ts_hdi_prob probability mass to include in the highest density
+#'   interval on transcription shift to call MPRA-functional variants.
+#' @param ts_rope optional length 2 numeric vector describing the boundaries of
+#'   the transcription shift region of practical equivalence
+#'
+#' @details \code{mpra_data} must contain the following groups of columns:
+#'   \itemize{ \item{variant_id} \item{allele - either 'ref' or 'alt'} \item{at
+#'   least one column of MPRA counts whose column name(s) matches 'DNA'}
+#'   \item{at least one column of MPRA counts whose column name(s) matches
+#'   'RNA'} }
+#'
+#'   \code{annotations} must contain the same variant_id's used in mpra_data.
+#'   Additional columns are used as informative predictors: when estimating the
+#'   priors for one variant, other variants with similar annotations will be
+#'   upweighted in the prior-fitting process.
+#'
+#'   Sampler results will be saved to out_dir. By default, only the sampler
+#'   results for variants identified as MPRA-functional will be saved. This
+#'   behavior can be changed by setting \code{save_nonfunctional} to TRUE.
+#'
+#'   We've set the sampler parameters (n_chains to n_warmup) to values that work
+#'   reasonably well at reasonable speeds for typical MPRA data on typical
+#'   hardware. Final analyses and/or models fit to larger MPRA experiments will
+#'   likely want to increase n_chains and tot_samp considerably to ensure
+#'   precise convergence.
+#'
+#'   \code{ts_rope} can be used to define a "Region Of Practical Equivalence"
+#'   for transcription shift. This is some small-ish region around 0 where
+#'   observed posterior samples are "practically equivalent" to 0. Enabling this
+#'   option will return the fraction of transcription shift posterior samples
+#'   that fall within the defined ROPE along with the usual model outputs. If
+#'   this fraction is small, one can say that there is very little posterior
+#'   belief that the variant's transcription shift is practically equivalent to
+#'   0. If used, the user must be cognizant of defining the region in accordance
+#'   with observed noise and effect size levels. Note that the output ROPE
+#'   fractions ARE NOT p-values.
+#'
+#' @return a data frame with a row for each variant_id that specificies the
+#'   posterior mean TS, upper and lower HDI bounds, a binary call of functional
+#'   or non-functional, and other appropriate outputs
+fit_mpra_model = function(mpra_data,
+                          annotations = NULL,
+                          out_dir,
+                          save_nonfunctional = FALSE,
+                          n_cores = 1,
+                          n_chains = 4,
+                          tot_samp = 1e4,
+                          n_warmup = 500,
+                          ts_hdi_prob = .95,
+                          ts_rope = NULL) {
+
+  #### Input checks ----
+  if (missing(mpra_data)) {
+    stop('mpra_data is missing: You must provide MPRA data to fit a MPRA model!')
+  }
+
+  if (missing(out_dir)) {
+    warning('out_dir is missing: Results will not be saved')
+  }
+
+  if (!dir.exists(out_dir)) {
+    stop('specified out_dir does not exist')
+  }
+
+  if (any(duplicated(mpra_data$variant_id))) {
+    stop('variant_id entries in mpra_data are not all unique!')
+  }
+
+  if (ts_hdi_prob < 0 | ts_hdi_prob > 1) {
+    stop('ts_hdi_prob must be between 0 and 1!')
+  }
+
+  #### Initial cleanup ----
+
+  mpra_data %<>%
+    arrange(variant_id)
+
+  if (!missing(annotations)) {
+    annotations %<>%
+      arrange(variant_id)
+  }
+
+  #### Fit priors ----
+  pring('Fitting priors...')
+  if (is.null(annotations)) {
+    pring('Fitting MARGINAL priors...')
+    priors = fit_marg_prior(mpra_data)
+  } else {
+    print('Fitting annotation-based conditional priors...')
+    priors = fit_cond_prior(mpra_data, annotations)
+  }
+
+  #### Run samplers ----
+  print('Running model samplers...')
+
+}
+
+fit_crispr_model = function(crispr_data) {
+
 }

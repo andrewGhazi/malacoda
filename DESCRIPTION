@@ -2,16 +2,17 @@ Package: malacoda
 Title: What the Package Does (One Line, Title Case)
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Andrew",
+           family = "Ghazi",
            role = c("aut", "cre"),
-           email = "first.last@example.com")
+           email = "arghazi@bcm.edu")
 Description: What the package does (one paragraph).
 License: GPL (>=3)
 Depends: 
     methods,
     R (>= 3.4.0),
-    Rcpp (>= 0.12.18)
+    Rcpp (>= 0.12.18),
+    
 Imports: 
     rstan (>= 2.17.3),
     rstantools (>= 1.5.1)

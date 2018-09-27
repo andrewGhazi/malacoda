@@ -3,5 +3,6 @@
 import(Rcpp)
 import(methods)
 import(rstantools)
+importFrom(magrittr,"%>%")
 importFrom(rstan,sampling)
 useDynLib(malacoda, .registration = TRUE)
