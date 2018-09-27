@@ -1,5 +1,5 @@
 Package: malacoda
-Title: What the Package Does (One Line, Title Case)
+Title: Bayesian analysis of high-throughput genomic assays
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "Andrew",
