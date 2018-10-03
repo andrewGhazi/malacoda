@@ -21,7 +21,8 @@ Imports:
     tidyr,
     stringr,
     parallel,
-    stats
+    stats,
+    coda
 LinkingTo: 
     BH (>= 1.66.0-1),
     Rcpp (>= 0.12.18),
