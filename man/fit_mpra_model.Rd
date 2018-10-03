@@ -85,5 +85,6 @@ This function fits a negative-binomial based Bayesian model to
   fractions ARE NOT p-values.
 }
 \note{
-Sampler results for individaul variants will be saved to the specified out_dir as they can be several megabytes each
+Sampler results for individaul variants will be saved to the specified
+  out_dir as they can be several megabytes each
 }
