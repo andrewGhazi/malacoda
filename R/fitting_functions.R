@@ -24,10 +24,10 @@ fit_nb = function(input_dat,
   fn_to_min = function(param_vec){
     # param_vec[1] nb mean
     # param_vec[2] nb size
-    -sum(dnbinom(input_vec,
-                 mu = param_vec[1],
-                 size = param_vec[2],
-                 log = TRUE))
+    -sum(stats::dnbinom(input_vec,
+                        mu = param_vec[1],
+                        size = param_vec[2],
+                        log = TRUE))
   }
 
   stats::nlminb(start = nb_init,
