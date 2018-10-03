@@ -132,6 +132,8 @@ fit_mpra_model = function(mpra_data,
                           ts_hdi_prob = .95,
                           ts_rope = NULL) {
 
+  start_time = Sys.time()
+
   #### Input checks ----
   if (missing(mpra_data)) {
     stop('mpra_data is missing: You must provide MPRA data to fit a MPRA model!')
@@ -198,7 +200,7 @@ fit_mpra_model = function(mpra_data,
     group_by(sample_id) %>%
     summarise(depth_factor = sum(counts) / 1e6)
 
-  mpra_data %>%
+  analysis_res = mpra_data %>%
     group_by(variant_id) %>%
     nest(.key = variant_dat) %>%
     mutate(sampler_stats = mcmapply(run_mpra_sampler,
@@ -215,9 +217,14 @@ fit_mpra_model = function(mpra_data,
                                                     ts_hdi_prob = ts_hdi_prob,
                                                     ts_rope = ts_rope),
                                     mc.cores = n_cores,
-                                    SIMPLIFY = FALSE))
+                                    SIMPLIFY = FALSE)) %>%
+    unnest(... = sampler_stats) %>%
+    arrange(desc(abs(ts_post_mean)))
 
-
+  end_time = Sys.time()
+  print(paste0('MPRA data for ', n_distinct(mpra_data$variant_id), ' variants analyzed in ',
+               round(digits = 3, end_time - start_time), ' seconds'))
+  return(analysis_res)
 }
 
 fit_crispr_model = function(crispr_data) {
