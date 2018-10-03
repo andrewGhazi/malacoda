@@ -118,6 +118,8 @@ fit_gamma = function(input_vec,
 #' @return a data frame with a row for each variant_id that specificies the
 #'   posterior mean TS, upper and lower HDI bounds, a binary call of functional
 #'   or non-functional, and other appropriate outputs
+#' @note Sampler results for individaul variants will be saved to the specified
+#'   out_dir as they can be several megabytes each
 #' @export
 fit_mpra_model = function(mpra_data,
                           annotations = NULL,
@@ -157,6 +159,12 @@ fit_mpra_model = function(mpra_data,
     stop('ts_hdi_prob must be between 0 and 1!')
   }
 
+  # make sure the out_directory ends in a slash, if not, add it
+  dir_ends_in_slash = grepl('/$', out_dir)
+  if (!dir_ends_in_slash){
+    out_dir = paste0(out_dir, '/')
+  }
+
   #### Initial cleanup ----
 
   mpra_data %<>%
@@ -171,7 +179,10 @@ fit_mpra_model = function(mpra_data,
   pring('Fitting priors...')
   if (is.null(annotations)) {
     pring('Fitting MARGINAL priors...')
-    priors = fit_marg_prior(mpra_data, n_cores = n_cores)
+    priors = fit_marg_prior(mpra_data,
+                            n_cores = n_cores,
+                            rep_cutoff = .15,
+                            plot_rep_cutoff = TRUE)
   } else {
     print('Fitting annotation-based conditional priors...')
     priors = fit_cond_prior(mpra_data, annotations, n_cores = n_cores)
@@ -180,6 +191,31 @@ fit_mpra_model = function(mpra_data,
   #### Run samplers ----
   print('Running model samplers...')
 
+  n_rna = mpra_data %>% select(matches('RNA')) %>% ncol
+  n_dna = mpra_data %>% select(matches('DNA')) %>% ncol
+  sample_depths = mpra_data %>%
+    gather(sample_id, counts, matches('DNA|RNA')) %>%
+    group_by(sample_id) %>%
+    summarise(depth_factor = sum(counts) / 1e6)
+
+  mpra_data %>%
+    group_by(variant_id) %>%
+    nest(.key = variant_dat) %>%
+    mutate(sampler_stats = mcmapply(run_mpra_sampler,
+                                    variant_id, variant_dat,
+                                    MoreArgs = list(priors = priors,
+                                                    n_chains = n_chains,
+                                                    n_warmup = n_warmup,
+                                                    tot_samp = tot_samp,
+                                                    n_rna = n_rna,
+                                                    n_dna = n_dna,
+                                                    depth_factors = sample_depths,
+                                                    out_dir = out_dir,
+                                                    save_nonfunctional = save_nonfunctional,
+                                                    ts_hdi_prob = ts_hdi_prob,
+                                                    ts_rope = ts_rope),
+                                    mc.cores = n_cores,
+                                    SIMPLIFY = FALSE))
 
 
 }

@@ -84,3 +84,6 @@ This function fits a negative-binomial based Bayesian model to
   with observed noise and effect size levels. Note that the output ROPE
   fractions ARE NOT p-values.
 }
+\note{
+Sampler results for individaul variants will be saved to the specified out_dir as they can be several megabytes each
+}
