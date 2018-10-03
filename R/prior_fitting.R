@@ -120,7 +120,7 @@ fit_marg_prior = function(mpra_data,
                    ' out of ',
                    nrow(dna_nb_fits),
                    ' (', round(sum(!dna_nb_fits$converged) / nrow(dna_nb_fits) * 100, digits = 3), '%)',
-                   ' DNA-allele-samples failed to converge when fitting negative binomial parameters. A small fraction failing is acceptable.'))
+                   ' DNA-allele-samples failed to converge when fitting negative binomial parameters. A small fraction (<5%) failing is acceptable.'))
   }
 
   dna_nb_fits %<>%
