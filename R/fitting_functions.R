@@ -62,8 +62,8 @@ fit_gamma = function(input_vec,
 #'   informative conditional priors.
 #'
 #' @param mpra_data a data frame of MPRA data with 1 column called variant_id,
-#'   an allele column, and additional columns per sequencing sample. Each row is
-#'   for a single barcode.
+#'   an allele column, a barcode column, and additional columns per sequencing
+#'   sample. Each row is for a single barcode.
 #' @param annotations a optional data frame of annotations with identical
 #'   variant_ids and an arbitrary number of functional annotations. If omitted,
 #'   the prior for a given variant is influenced by all other variants in the
@@ -83,10 +83,11 @@ fit_gamma = function(input_vec,
 #'   the transcription shift region of practical equivalence
 #'
 #' @details \code{mpra_data} must contain the following groups of columns:
-#'   \itemize{ \item{variant_id} \item{allele - either 'ref' or 'alt'} \item{at
-#'   least one column of MPRA counts whose column name(s) matches 'DNA'}
-#'   \item{at least one column of MPRA counts whose column name(s) matches
-#'   'RNA'} }
+#'   \itemize{ \item{variant_id} \item{allele - either 'ref' or 'alt'}
+#'   \item{barcode - a unique index sequence for that row (ideally the same
+#'   barcode used in the assay)} \item{at least one column of MPRA counts whose
+#'   column name(s) matches 'DNA'} \item{at least one column of MPRA counts
+#'   whose column name(s) matches 'RNA'} }
 #'
 #'   \code{annotations} must contain the same variant_id's used in mpra_data.
 #'   Additional columns are used as informative predictors: when estimating the
