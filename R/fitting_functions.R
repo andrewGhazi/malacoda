@@ -38,10 +38,20 @@ fit_nb = function(input_dat,
 
 fit_gamma = function(input_vec,
                      weights = NULL,
-                     init = c(10, 1)) {
+                     gamma_init = c(1, 1)) {
 
-  # if fails to fit, stop() with error message suggesting
+  # if fails to fit, stop() with error message suggesting different inits
 
+  fn_to_min = function(ab_vec){
+    -sum(dgamma(input_vec,
+                shape = ab_vec[1],
+                rate = ab_vec[2],
+                log = TRUE))
+  }
+
+  stats::nlminb(start = gamma_init,
+                objective = fn_to_min,
+                lower = rep(.Machine$double.xmin, 2))
 
 }
 
