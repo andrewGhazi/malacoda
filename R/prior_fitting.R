@@ -150,6 +150,7 @@ fit_marg_prior = function(mpra_data,
     group_by(barcode) %>%
     summarise(mean_depth_adj_count = mean(depth_adj_count))
 
+  print('Fitting marginal RNA mean priors...')
   rna_m_prior = mpra_data %>%
     select(variant_id, allele, barcode, matches('RNA')) %>%
     filter(barcode %in% well_represented$barcode) %>%
@@ -166,6 +167,7 @@ fit_marg_prior = function(mpra_data,
 
   # the +.1 is to give some non-infinite log-density to 0's. See plot below. It seems to work well.
 
+  print('Fitting marginal RNA dispersion priors...')
   rna_p_prior = mpra_data %>%
     select(variant_id, allele, barcode, matches('RNA')) %>%
     filter(barcode %in% well_represented$barcode) %>%
