@@ -65,6 +65,15 @@ fit_marg_prior = function(mpra_data, n_cores = 1){
            phi_est = map_dbl(nb_fit, ~.x$par[2]),
            acid_type = factor(stringr::str_extract(sample_id, 'DNA|RNA')))
 
+  dna_gamma_prior = dna_nb_fits %>%
+    group_by(allele, sample_id) %>%
+    summarise(mu_prior = list(fit_gamma(depth_adj_mu_est)),
+              phi_prior = list(fit_gamma(phi_est))) %>%
+    ungroup %>%
+    gather(prior_type, prior, matches('prior')) %>%
+    mutate(alpha_est = map_dbl(prior, ~.x$par[1]),
+           beta_est = map_dbl(prior, ~.x$par[2])) # doesn't line up :(
+
 
 
 }
