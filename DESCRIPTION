@@ -6,7 +6,7 @@ Authors@R:
            family = "Ghazi",
            role = c("aut", "cre"),
            email = "arghazi@bcm.edu")
-Description: What the package does (one paragraph).
+Description: This package is used for Bayesian analysis of high-throughput genomic assays, such as MPRA and CRISPR screens. The output counts, whether MPRA barcodes or CRISPR gRNAs, are modelled as coming from a negative binomial distribution with empirical gamma priors. The empirical priors can be refined through the use of user-input annotations, further improving model performance.
 License: GPL (>=3)
 Depends: 
     methods,
@@ -19,7 +19,9 @@ Imports:
     purrr,
     magrittr,
     tidyr,
-    stringr
+    stringr,
+    parallel,
+    stats
 LinkingTo: 
     BH (>= 1.66.0-1),
     Rcpp (>= 0.12.18),
