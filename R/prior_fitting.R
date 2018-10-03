@@ -34,12 +34,70 @@ find_prior_weights = function(annotations){
 
 }
 
-fit_marg_prior = function(mpra_data, n_cores = 1){
+get_representation_cutoff = function(mpra_data,
+                                     sample_depths,
+                                     rep_cutoff,
+                                     plot_rep_cutoff = FALSE){
+
+  all_dna = mpra_data %>%
+    select(variant_id, allele, matches('DNA')) %>%
+    gather(sample_id, counts, matches('DNA|RNA')) %>%
+    left_join(sample_depths,
+              by = 'sample_id') %>%
+    mutate(depth_adj_count = counts / depth_factor)
+
+
+  if (plot_rep_cutoff){
+     rep_cutoff_plot = all_dna %>%
+      ggplot(aes(depth_adj_count)) +
+      geom_histogram(bins = 40,
+                     color = 'black',
+                     fill = 'grey50') +
+      geom_vline(xintercept = quantile(all_dna$depth_adj_count,
+                                       probs = rep_cutoff),
+                 lty = 2) +
+      scale_x_log10() +
+      facet_grid(sample_id ~ .) +
+      labs(x = 'Depth Adjusted DNA barcode count',
+           title = 'DNA barcode abundance and cutoff',
+           subtitle = paste0('Using depth-adjusted DNA barcode count cutoff of ',
+                             round(quantile(all_dna$depth_adj_count,
+                                            probs = rep_cutoff),
+                                   digits = 3)))
+
+     print(rep_cutoff_plot)
+  }
+
+  well_represented = all_dna %>%
+    filter(depth_adj_count > quantile(all_dna$depth_adj_count,
+                                      probs = rep_cutoff)) %>%
+    select(variant_id) %>%
+    unique
+
+  return(well_represented)
+
+}
+
+#' Fit a marginal prior
+#'
+#' @param mpra_data a data frame of mpra data
+#' @param n_cores number of cores to parallelize across
+#' @param plot_rep_cutoff logical indicating whether to plot the representation cutoff used
+#' @param rep_cutoff fraction indicating the depth-adjusted DNA count quantile to use as the cutoff
+fit_marg_prior = function(mpra_data,
+                          n_cores = 1,
+                          plot_rep_cutoff = TRUE,
+                          rep_cutoff = .2){
 
   sample_depths = mpra_data %>%
     gather(sample_id, counts, matches('DNA|RNA')) %>%
     group_by(sample_id) %>%
     summarise(depth_factor = sum(counts) / 1e6)
+
+  well_represented = get_representation_cutoff(mpra_data,
+                                               sample_depths,
+                                               rep_cutoff = rep_cutoff,
+                                               plot_rep_cutoff = plot_rep_cutoff)
 
   print('Fitting marginal DNA prior...')
 
@@ -74,7 +132,20 @@ fit_marg_prior = function(mpra_data, n_cores = 1){
     mutate(alpha_est = map_dbl(prior, ~.x$par[1]),
            beta_est = map_dbl(prior, ~.x$par[2])) # doesn't line up :(
 
+  rna_nb_fits = mpra_data %>%
+    select(variant_id, allele, matches('RNA')) %>%
+    gather(sample_id, counts, matches('DNA|RNA')) %>%
+    group_by(variant_id, allele, sample_id) %>%
+    nest(.key = count_dat) %>%
+    mutate(nb_fit = mclapply(count_dat, fit_nb, mc.cores = n_cores),
+           converged = map_lgl(nb_fit, ~.x$convergence == 0))
 
+  if (!all(rna_nb_fits$converged)) {
+    warning(paste0(sum(!dna_nb_fits$converged),
+                   ' out of ',
+                   nrow(dna_nb_fits),
+                   ' DNA-allele-samples failed to converge when fitting negative binomial parameters. A small fraction failing is acceptable.'))
+  }
 
 }
 
