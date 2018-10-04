@@ -4,7 +4,7 @@
 \alias{generate_distance_matrix}
 \title{Generate a distance matrix from a matrix of annotations}
 \usage{
-generate_distance_matrix(annotations, log_distance = TRUE,
+generate_distance_matrix(annotations, log_distance = FALSE,
   scale_annotations = TRUE)
 }
 \arguments{
