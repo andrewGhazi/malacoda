@@ -10,7 +10,7 @@
 #'
 #' @importFrom magrittr %>%
 generate_distance_matrix = function(annotations,
-                                    log_distance = TRUE,
+                                    log_distance = FALSE,
                                     scale_annotations = TRUE){
 
   if(nrow(annotations) > 10000){
@@ -58,7 +58,71 @@ generate_distance_matrix = function(annotations,
   }
 }
 
-find_prior_weights = function(annotations){
+find_prior_weights = function(given_id,
+                              scaled_annotations,
+                              dist_mat,
+                              min_dist_kernel,
+                              kernel_fold_change = 1.3,
+                              min_num_neighbors = 30){
+
+  n_annotations = ncol(annotations) - 1
+  given_annotations = scaled_annotations %>%
+    filter(variant_id == given_id)
+
+  pos_vec = given_annotations$value
+
+  same_annotation_pos = scaled_annotations %>%
+    filter(variant_id != given_id) %>%
+    group_by(variant_id) %>%
+    summarise(same_pos = all(value == pos_vec)) %>%
+    filter(same_pos)
+
+  if(nrow(same_annotation_pos) >= min_num_neighbors){
+    print('>= min_num_neighbors at the exact same annotation position. Using these evenly for prior estimation.')
+
+    weight_res = scaled_annotations %>%
+      filter(variant_id != given_id) %>%
+      mutate(same_pos = variant_id %in% same_annotation_pos$variant_id,
+             weight = case_when(same_pos ~ 1,
+                                !same_pos ~ 0)) %>%
+      select(variant_id, weight)
+    return(weight_res)
+
+  }
+
+  dist_to_others = scaled_annotations %>%
+    filter(variant_id != given_id) %>%
+    group_by(variant_id) %>%
+    mutate(dist = value - pos_vec)
+
+  weight_df = dist_to_others %>%
+    select(-value) %>%
+    summarise(mv_dens = dmvt(dist, sigma = diag(min_dist_kernel, n_annotations), log = FALSE)) %>% # Using a t kernel
+    mutate(frac_weight = mv_dens / sum(mv_dens)) %>%
+    arrange(desc(frac_weight)) %>%
+    mutate(cs = cumsum(frac_weight),
+           n = 1:n())
+
+  if (weight_df$cs[min_num_neighbors] > .99){
+    # If the first 30 (min_num_neighbors) weights account for more than 99% of
+    # all weight, we need to increase the kernel and try again
+
+    while (weight_df$cs[min_num_neighbors] > .99) {
+      min_dist_kernel = kernel_fold_change * min_dist_kernel
+      weight_df = dist_to_others %>%
+        select(-value) %>%
+        summarise(mv_dens = dmvt(dist, sigma = diag(min_dist_kernel, n_annotations), log = FALSE)) %>% # Using a t kernel
+        mutate(frac_weight = mv_dens / sum(mv_dens)) %>%
+        arrange(desc(frac_weight)) %>%
+        mutate(cs = cumsum(frac_weight),
+               n = 1:n())
+    }
+  }
+
+  weight_res = weight_df %>%
+    select(variant_id, my_dens)
+
+  return(weight_res)
 
 }
 
@@ -332,8 +396,27 @@ fit_cond_prior = function(mpra_data,
 
   # generate annotation distance matrix
   dist_mat = generate_distance_matrix(annotations = annotations)
+  scaled_annotations = annotations %>%
+    mutate_at(.vars = vars(-variant_id),
+              .funs = scale) %>%
+    gather(annotation, value, -variant_id) %>%
+    arrange(variant_id, annotation)
+
+  min_dist_kernel = dist_mat[upper.tri(dist_mat)] %>%
+    unlist() %>%
+    sort() %>% #sort all observed distances
+    .[. > 0] %>%
+    quantile(probs = .001)
 
   # For each variant, get a vector of weights for all other variants in the assay
+  mpra_data %>%
+    select(variant_id) %>%
+    unique() %>%
+    mutate(annotation_weights = map(variant_id, find_prior_weights,
+                                    scaled_annotations = scaled_annotations,
+                                    dist_mat = dist_mat,
+                                    min_dist_kernel = min_dist_kernel))
+
 
   # Perform weighted density estimation for each variant
 }
