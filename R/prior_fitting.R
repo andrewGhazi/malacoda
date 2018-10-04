@@ -78,7 +78,7 @@ find_prior_weights = function(given_id,
     filter(same_pos)
 
   if(nrow(same_annotation_pos) >= min_num_neighbors){
-    print('>= min_num_neighbors at the exact same annotation position. Using these evenly for prior estimation.')
+    print('>= min_num_neighbors at the exact same annotation position. Using these evenly for prior estimation while not using others.')
 
     weight_res = scaled_annotations %>%
       filter(variant_id != given_id) %>%
@@ -120,7 +120,7 @@ find_prior_weights = function(given_id,
   }
 
   weight_res = weight_df %>%
-    select(variant_id, my_dens)
+    select(variant_id, weight = mv_dens)
 
   return(weight_res)
 
@@ -340,7 +340,7 @@ fit_cond_prior = function(mpra_data,
     stop('There are duplicate annotations for some variants!')
   }
 
-  # DNA prior fitting ----
+  #### DNA prior fitting ----
 
   print('Fitting marginal DNA prior...')
   sample_depths = mpra_data %>%
@@ -394,6 +394,14 @@ fit_cond_prior = function(mpra_data,
 
   #### Fit conditional RNA prior ----
 
+  mean_dna_abundance = mpra_data %>%
+    select(variant_id, allele, barcode, matches('DNA')) %>%
+    gather(sample_id, counts, matches('DNA|RNA')) %>%
+    left_join(sample_depths,
+              by = 'sample_id') %>%
+    mutate(depth_adj_count = counts / depth_factor) %>%
+    group_by(barcode) %>%
+    summarise(mean_depth_adj_count = mean(depth_adj_count))
   # generate annotation distance matrix
   dist_mat = generate_distance_matrix(annotations = annotations)
   scaled_annotations = annotations %>%
@@ -409,17 +417,117 @@ fit_cond_prior = function(mpra_data,
     quantile(probs = .001)
 
   # For each variant, get a vector of weights for all other variants in the assay
-  mpra_data %>%
+  print('Weighting variants in annotation space')
+  prior_weights = mpra_data %>%
     select(variant_id) %>%
     unique() %>%
-    mutate(annotation_weights = map(variant_id, find_prior_weights,
-                                    scaled_annotations = scaled_annotations,
-                                    dist_mat = dist_mat,
-                                    min_dist_kernel = min_dist_kernel))
+    mutate(annotation_weights = mclapply(variant_id, find_prior_weights,
+                                         scaled_annotations = scaled_annotations,
+                                         dist_mat = dist_mat,
+                                         min_dist_kernel = min_dist_kernel,
+                                         mc.cores = n_cores))
 
 
   # Perform weighted density estimation for each variant
+  if (n_cores == 1) {
+    rna_m_priors = prior_weights %>%
+      mutate(variant_m_prior = map2(variant_id, annotation_weights,
+                                    fit_one_m_prior,
+                                    mpra_data = mpra_data,
+                                    sample_depths = sample_depths,
+                                    well_represented = well_represented,
+                                    mean_dna_abundance = mean_dna_abundance))
+
+    rna_p_priors = prior_weights %>%
+      mutate(variant_m_prior = map2(variant_id, annotation_weights,
+                                    fit_one_p_prior,
+                                    mpra_data = mpra_data,
+                                    sample_depths = sample_depths,
+                                    well_represented = well_represented,
+                                    mean_dna_abundance = mean_dna_abundance))
+  } else if (n_cores > 1) {
+    rna_m_priors = prior_weights %>%
+      mutate(variant_m_prior = mcmapply(fit_one_m_prior,
+                                        variant_id, annotation_weights,
+                                        MoreArgs = list(mpra_data = mpra_data,
+                                                        sample_depths = sample_depths,
+                                                        well_represented = well_represented,
+                                                        mean_dna_abundance = mean_dna_abundance),
+                                        mc.cores = n_cores,
+                                        SIMPLIFY = FALSE))
+    rna_p_priors = prior_weights %>%
+      mutate(variant_p_prior = mcmapply(fit_one_p_prior,
+                                        variant_id, annotation_weights,
+                                        MoreArgs = list(mpra_data = mpra_data,
+                                                        sample_depths = sample_depths,
+                                                        well_represented = well_represented,
+                                                        mean_dna_abundance = mean_dna_abundance),
+                                        mc.cores = n_cores,
+                                        SIMPLIFY = FALSE))
+  }
+
+  both_rna = rna_m_priors %>%
+    left_join(rna_p_priors %>% select(-annotation_weights), by = 'variant_id')
+
+  res_list = list(dna_prior = dna_gamma_prior,
+                  rna_priors = both_rna)
+
+  return(res_list)
 }
+
+fit_one_m_prior = function(given_id,
+                           annotation_weights,
+                           mpra_data,
+                           sample_depths,
+                           well_represented,
+                           mean_dna_abundance){
+
+mpra_data %>%
+    filter(barcode %in% well_represented$barcode) %>%
+    filter(variant_id != given_id) %>%
+    select(-matches('DNA')) %>%
+    left_join(annotation_weights, by = 'variant_id') %>%
+    gather(sample_id, counts, matches('RNA')) %>%
+    left_join(sample_depths, by = 'sample_id') %>%
+    left_join(mean_dna_abundance, by = 'barcode') %>%
+    mutate(count_remnant = .1 + counts / depth_factor / mean_depth_adj_count) %>%
+    group_by(allele) %>%
+    summarise(mu_prior = list(fit_gamma(count_remnant,
+                                        weights = weight))) %>% # WEIGHTS!
+    gather(prior_type, prior, matches('prior')) %>%
+    mutate(alpha_est = map_dbl(prior, ~.x$par[1]),
+           beta_est = map_dbl(prior, ~.x$par[2])) %>%
+    mutate(acid_type = 'RNA')
+}
+
+fit_one_p_prior = function(given_id,
+                           annotation_weights,
+                           mpra_data,
+                           sample_depths,
+                           well_represented,
+                           mean_dna_abundance){
+
+  mpra_data %>%
+    filter(barcode %in% well_represented$barcode) %>%
+    filter(variant_id != given_id) %>%
+    select(-matches('DNA')) %>%
+    left_join(annotation_weights, by = 'variant_id') %>%
+    gather(sample_id, counts, matches('RNA')) %>%
+    group_by(allele, barcode) %>%
+    summarise(mean_est = mean(counts),
+              var_est = var(counts),
+              size_guess = mean_est^2 / (var_est - mean_est),
+              weight = weight[1]) %>%
+    filter(size_guess > 0 & is.finite(size_guess)) %>% # negative size guess = var < mean = underdispersed
+    filter(size_guess < quantile(size_guess, probs = .99)) %>%
+    summarise(phi_prior = list(fit_gamma(size_guess,
+                                         weights = weight))) %>% # WEIGHTS!
+    gather(prior_type, prior, matches('prior')) %>%
+    mutate(alpha_est = map_dbl(prior, ~.x$par[1]),
+           beta_est = map_dbl(prior, ~.x$par[2])) %>%
+    mutate(acid_type = 'RNA')
+}
+
 
 #' Score an annotation source
 #'
