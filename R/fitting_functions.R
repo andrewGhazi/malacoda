@@ -42,12 +42,22 @@ fit_gamma = function(input_vec,
 
   # if fails to fit, stop() with error message suggesting different inits
 
-  fn_to_min = function(ab_vec){
-    -sum(dgamma(input_vec,
-                shape = ab_vec[1],
-                rate = ab_vec[2],
-                log = TRUE))
+  if(missing(weights)){
+    fn_to_min = function(ab_vec){
+      -sum(dgamma(input_vec,
+                  shape = ab_vec[1],
+                  rate = ab_vec[2],
+                  log = TRUE))
+    }
+  } else {
+    fn_to_min = function(ab_vec){
+      -sum(weights*dgamma(input_vec,
+                          shape = ab_vec[1],
+                          rate = ab_vec[2],
+                          log = TRUE))
+    }
   }
+
 
   stats::nlminb(start = gamma_init,
                 objective = fn_to_min,
