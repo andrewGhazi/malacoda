@@ -4,10 +4,13 @@
 \alias{generate_distance_matrix}
 \title{Generate a distance matrix from a matrix of annotations}
 \usage{
-generate_distance_matrix(annotations, log_distance = TRUE)
+generate_distance_matrix(annotations, log_distance = TRUE,
+  scale_annotations = TRUE)
 }
 \arguments{
 \item{log_distance}{a logical indicating to use the log1p of the distances (TRUE) or the raw euclidean distances (FALSE)}
+
+\item{scale_annotations}{logical indicating whether to base::scale to center and scale annotations}
 
 \item{annotation_dat}{an n x d data frame of annotations}
 }
