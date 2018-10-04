@@ -5,24 +5,52 @@
 #'
 #' @param annotation_dat an n x d data frame of annotations
 #' @param log_distance a logical indicating to use the log1p of the distances (TRUE) or the raw euclidean distances (FALSE)
+#' @param scale_annotations logical indicating whether to base::scale to center and scale annotations
 #'
 #'
 #' @importFrom magrittr %>%
 generate_distance_matrix = function(annotations,
-                                    log_distance = TRUE){
+                                    log_distance = TRUE,
+                                    scale_annotations = TRUE){
 
-  annotations =
-  if (log_distance) {
+  if(nrow(annotations) > 10000){
+    warning('Computing distance matrix for more than 10000 variants, I hope you have enough memory!')
+  }
+
+  if (log_distance & scale_annotations) {
     annotations %>%
+      dplyr::mutate_at(.vars = vars(-variant_id),
+                       .funs = scale) %>%
       as.data.frame() %>%
+      tibble::column_to_rownames('variant_id') %>%
       as.matrix %>%
       scale %>%
       dist %>%
       as.matrix %>%
       log1p
+  } else if (log_distance & !scale_annotations) {
+    annotations %>%
+      as.data.frame() %>%
+      tibble::column_to_rownames('variant_id') %>%
+      as.matrix %>%
+      scale %>%
+      dist %>%
+      as.matrix %>%
+      log1p
+  } else if (!log_distance & scale_annotations){
+    annotations %>%
+      dplyr::mutate_at(.vars = vars(-variant_id),
+                       .funs = scale) %>%
+      as.data.frame() %>%
+      tibble::column_to_rownames('variant_id') %>%
+      as.matrix %>%
+      scale %>%
+      dist %>%
+      as.matrix
   } else {
     annotations %>%
       as.data.frame() %>%
+      tibble::column_to_rownames('variant_id') %>%
       as.matrix %>%
       scale %>%
       dist %>%
@@ -209,9 +237,105 @@ fit_marg_prior = function(mpra_data,
 
 }
 
-fit_cond_prior = function(mpra_data, annotations){
+#' Fit a informative conditional prior
+#'
+#' @description Use informative annotations to bias prior estimation towards
+#'   alleles that show similar annotations
+#'
+#' @details The
+#'
+#' @return A data frame with a weighted conditional prior for each variant
+#'
+#' @param mpra_data a data frame of mpra data
+#' @param annotations a data frame of annotations for the same variants in
+#'   mpra_data
+#' @param n_cores number of cores to parallelize across
+#' @param plot_rep_cutoff logical indicating whether to plot the representation
+#'   cutoff used
+#' @param rep_cutoff fraction indicating the depth-adjusted DNA count quantile
+#'   to use as the cutoff
+#' @param min_neighbors The minimum number of neighbors in annotation spcae that
+#'   must contribute to prior estimation
+#' @param kernel_fold_increase The amount to iteratively increase kernel width
+#'   by when estimating conditional priors. Smaller values (closer to 1) will
+#'   yield more refined priors but take longer.
+fit_cond_prior = function(mpra_data,
+                          annotations,
+                          n_cores = 1,
+                          plot_rep_cutoff = TRUE,
+                          rep_cutoff = .15,
+                          min_neighbors = 30,
+                          kernel_fold_increase = 1.2){
+
+  # Input checks ----
+  if(!all(mpra_data$variant_id %in% annotations$variant_id)){
+    stop('There aren\'t annotations for each variant!')
+  }
+
+  if(any(duplicated(annotations$variant_id))){
+    stop('There are duplicate annotations for some variants!')
+  }
+
+  # DNA prior fitting ----
 
   print('Fitting marginal DNA prior...')
+  sample_depths = mpra_data %>%
+    gather(sample_id, counts, matches('DNA|RNA')) %>%
+    group_by(sample_id) %>%
+    summarise(depth_factor = sum(counts) / 1e6)
+
+  print('Determining well-represented variants, see plot...')
+  well_represented = get_representation_cutoff(mpra_data,
+                                               sample_depths,
+                                               rep_cutoff = rep_cutoff,
+                                               plot_rep_cutoff = plot_rep_cutoff)
+
+
+  print('Fitting marginal DNA prior (annotations cannot provide DNA-level prior information)...')
+
+  dna_nb_fits = mpra_data %>%
+    filter(barcode %in% well_represented$barcode) %>%
+    select(variant_id, allele, matches('DNA')) %>%
+    gather(sample_id, counts, matches('DNA|RNA')) %>%
+    group_by(variant_id, allele, sample_id) %>%
+    nest(.key = count_dat) %>%
+    filter(map_lgl(count_dat, ~!all(.x$counts == 0))) %>% # some borderline barcodes are 0 in some samples
+    mutate(nb_fit = mclapply(count_dat, fit_nb, mc.cores = n_cores),
+           converged = map_lgl(nb_fit, ~.x$convergence == 0))
+
+  if (!all(dna_nb_fits$converged)) {
+    warning(paste0(sum(!dna_nb_fits$converged),
+                   ' out of ',
+                   nrow(dna_nb_fits),
+                   ' (', round(sum(!dna_nb_fits$converged) / nrow(dna_nb_fits) * 100, digits = 3), '%)',
+                   ' DNA-allele-samples failed to converge when fitting negative binomial parameters. A small fraction (<5%) failing is acceptable.'))
+  }
+
+  dna_nb_fits %<>%
+    filter(converged) %>%
+    left_join(sample_depths, by = 'sample_id') %>%
+    mutate(depth_adj_mu_est = map2_dbl(nb_fit, depth_factor, ~.x$par[1] / .y),
+           phi_est = map_dbl(nb_fit, ~.x$par[2]),
+           acid_type = factor(stringr::str_extract(sample_id, 'DNA|RNA'))) %>%
+    filter(phi_est < quantile(phi_est, probs = .995)) # cut out severely underdispersed alleles
+
+  dna_gamma_prior = dna_nb_fits %>%
+    summarise(mu_prior = list(fit_gamma(depth_adj_mu_est)),
+              phi_prior = list(fit_gamma(phi_est))) %>%
+    ungroup %>%
+    gather(prior_type, prior, matches('prior')) %>%
+    mutate(alpha_est = map_dbl(prior, ~.x$par[1]),
+           beta_est = map_dbl(prior, ~.x$par[2]),
+           acid_type = 'DNA') # doesn't line up :(
+
+  #### Fit conditional RNA prior ----
+
+  # generate annotation distance matrix
+  dist_mat = generate_distance_matrix(annotations = annotations)
+
+  # For each variant, get a vector of weights for all other variants in the assay
+
+  # Perform weighted density estimation for each variant
 }
 
 #' Score an annotation source
