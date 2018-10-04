@@ -22,7 +22,8 @@ Imports:
     stringr,
     parallel,
     stats,
-    coda
+    coda,
+    mvtnorm
 LinkingTo: 
     BH (>= 1.66.0-1),
     Rcpp (>= 0.12.18),
