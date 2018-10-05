@@ -39,7 +39,7 @@ run_mpra_sampler = function(variant_id, variant_dat, variant_prior,
     vb_res = rstan::vb(stanmodels$bc_mpra_model,
                        data = data_list)
 
-    vb_hdi = rstan::extract(sampler_res,
+    vb_hdi = rstan::extract(vb_res,
                             pars = 'transcription_shift')$transcription_shift %>%
       as.matrix %>%
       coda::mcmc() %>%
@@ -52,8 +52,10 @@ run_mpra_sampler = function(variant_id, variant_dat, variant_prior,
                                     warmup = n_warmup,
                                     iter = n_per_chain,
                                     cores = 1)
+      note = 'mcmc used for posterior evaluation'
     } else{
       sampler_res = vb_res
+      note = 'VB used for posterior evaluation'
     }
 
   } else {
@@ -63,6 +65,7 @@ run_mpra_sampler = function(variant_id, variant_dat, variant_prior,
                                   warmup = n_warmup,
                                   iter = n_per_chain,
                                   cores = 1)
+    note = 'mcmc used for posterior evaluation'
   }
 
   ts_vec = rstan::extract(sampler_res,
@@ -93,7 +96,8 @@ run_mpra_sampler = function(variant_id, variant_dat, variant_prior,
                       is_functional = is_functional,
                       ts_hdi = list(ts_hdi_obj),
                       hdi_lower = ts_hdi_obj[1],
-                      hdi_upper = ts_hdi_obj[2])
+                      hdi_upper = ts_hdi_obj[2],
+                      note = note)
 
   if(!missing(ts_rope)) {
     ts_rope_mass = sum(ts_vec < ts_rope[2] & ts_vec > ts_rope[1]) / tot_samp
