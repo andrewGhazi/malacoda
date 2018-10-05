@@ -129,7 +129,8 @@ find_prior_weights = function(given_id,
 get_well_represented = function(mpra_data,
                                      sample_depths,
                                      rep_cutoff,
-                                     plot_rep_cutoff = FALSE){
+                                     plot_rep_cutoff = FALSE,
+                                verbose = TRUE){
 
   all_dna = mpra_data %>%
     select(variant_id, allele, barcode, matches('DNA')) %>%
@@ -167,6 +168,12 @@ get_well_represented = function(mpra_data,
                                       probs = rep_cutoff)) %>%
     select(barcode) %>%
     unique
+
+  if (verbose) {
+    print(paste0(nrow(well_represented) , ' out of ', n_distinct(mpra_data$barcode),
+                 ' (', round(100* nrow(well_represented) / n_distinct(mpra_data$barcode), digits = 2),'%)',
+                 ' barcodes in input are well represented in the DNA pools.'))
+  }
 
   return(well_represented)
 
