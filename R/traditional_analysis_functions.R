@@ -13,7 +13,7 @@
 #' @return a data frame of activities
 #' @note the output is returned in a "tall" format, with sample_id's gathered
 #'   into one column
-compute_activites = function(mpra_data,
+compute_activities = function(mpra_data,
                              rep_cutoff = .15,
                              plot_rep_cutoff = TRUE){
 
