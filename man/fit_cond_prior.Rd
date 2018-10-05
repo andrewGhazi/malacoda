@@ -6,7 +6,7 @@
 \usage{
 fit_cond_prior(mpra_data, annotations, n_cores = 1,
   plot_rep_cutoff = TRUE, rep_cutoff = 0.15, min_neighbors = 30,
-  kernel_fold_increase = 1.2)
+  kernel_fold_increase = 1.3)
 }
 \arguments{
 \item{mpra_data}{a data frame of mpra data}
