@@ -157,9 +157,6 @@ fit_mpra_model = function(mpra_data,
     stop('specified out_dir does not exist')
   }
 
-  if (any(duplicated(mpra_data$variant_id))) {
-    stop('variant_id entries in mpra_data are not all unique!')
-  }
 
   if (!missing(annotations)) {
     if (!all(mpra_data$variant_id %in% annotations$variant_id)) {
