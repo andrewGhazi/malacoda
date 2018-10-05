@@ -187,9 +187,10 @@ fit_mpra_model = function(mpra_data,
       arrange(variant_id)
   }
 
+  annotations_given = !is.null(annotations)
   #### Fit priors ----
-  pring('Fitting priors...')
-  if (is.null(annotations)) {
+  pring('No annotations provided, fitting marginal priors...')
+  if (!annotations_given) {
     pring('Fitting MARGINAL priors...')
     priors = fit_marg_prior(mpra_data,
                             n_cores = n_cores,
@@ -197,7 +198,13 @@ fit_mpra_model = function(mpra_data,
                             plot_rep_cutoff = TRUE)
   } else {
     print('Fitting annotation-based conditional priors...')
-    priors = fit_cond_prior(mpra_data, annotations, n_cores = n_cores)
+    priors = fit_cond_prior(mpra_data,
+                            annotations,
+                            n_cores = n_cores,
+                            plot_rep_cutoff = TRUE,
+                            rep_cutoff = .15,
+                            min_neighbors = 30,
+                            kernel_fold_increase = 1.3)
   }
 
   #### Run samplers ----
@@ -210,26 +217,64 @@ fit_mpra_model = function(mpra_data,
     group_by(sample_id) %>%
     summarise(depth_factor = sum(counts) / 1e6)
 
-  analysis_res = mpra_data %>%
-    group_by(variant_id) %>%
-    nest(.key = variant_dat) %>%
-    mutate(sampler_stats = mcmapply(run_mpra_sampler,
-                                    variant_id, variant_dat,
-                                    MoreArgs = list(priors = priors,
-                                                    n_chains = n_chains,
-                                                    n_warmup = n_warmup,
-                                                    tot_samp = tot_samp,
-                                                    n_rna = n_rna,
-                                                    n_dna = n_dna,
-                                                    depth_factors = sample_depths,
-                                                    out_dir = out_dir,
-                                                    save_nonfunctional = save_nonfunctional,
-                                                    ts_hdi_prob = ts_hdi_prob,
-                                                    ts_rope = ts_rope),
-                                    mc.cores = n_cores,
-                                    SIMPLIFY = FALSE)) %>%
-    unnest(... = sampler_stats) %>%
-    arrange(desc(abs(ts_post_mean)))
+  if (annotations_given) {
+
+    # attach the conditional priors in the form expected by run_mpra_sampler
+    sampler_input = mpra_data %>%
+      group_by(variant_id) %>%
+      nest(.key = variant_dat) %>%
+      mutate(variant_prior = map(variant_id,
+                                 format_conditional_prior,
+                                 cond_priors = priors))
+
+    analysis_res =  sampler_input %>%
+      mutate(sampler_stats = mcmapply(run_mpra_sampler,
+                                      variant_id, variant_dat, variant_prior,
+                                      MoreArgs = list(n_chains = n_chains,
+                                                      n_warmup = n_warmup,
+                                                      tot_samp = tot_samp,
+                                                      n_rna = n_rna,
+                                                      n_dna = n_dna,
+                                                      depth_factors = sample_depths,
+                                                      out_dir = out_dir,
+                                                      save_nonfunctional = save_nonfunctional,
+                                                      ts_hdi_prob = ts_hdi_prob,
+                                                      ts_rope = ts_rope),
+                                      mc.cores = n_cores,
+                                      SIMPLIFY = FALSE)) %>%
+      unnest(... = sampler_stats,
+             .drop = TRUE,
+             .preserve = c(variant_dat, variant_prior)) %>%
+      arrange(desc(abs(ts_post_mean)))
+  } else {
+    # This block uses the marg priors
+
+    analysis_res = mpra_data %>%
+      group_by(variant_id) %>%
+      nest(.key = variant_dat) %>%
+      mutate(variant_prior = list(priors)) %>% # give the same marg prior to every variant
+      mutate(sampler_stats = mcmapply(run_mpra_sampler,
+                                      variant_id, variant_dat, variant_prior,
+                                      MoreArgs = list(n_chains = n_chains,
+                                                      n_warmup = n_warmup,
+                                                      tot_samp = tot_samp,
+                                                      n_rna = n_rna,
+                                                      n_dna = n_dna,
+                                                      depth_factors = sample_depths,
+                                                      out_dir = out_dir,
+                                                      save_nonfunctional = save_nonfunctional,
+                                                      ts_hdi_prob = ts_hdi_prob,
+                                                      ts_rope = ts_rope),
+                                      mc.cores = n_cores,
+                                      SIMPLIFY = FALSE)) %>%
+      unnest(... = sampler_stats,
+             .drop = TRUE,
+             .preserve = c(variant_dat, variant_prior)) %>%
+      arrange(desc(abs(ts_post_mean)))
+  }
+
+  save(analysis_res,
+       file)
 
   end_time = Sys.time()
   print(paste0('MPRA data for ', n_distinct(mpra_data$variant_id), ' variants analyzed in ',
