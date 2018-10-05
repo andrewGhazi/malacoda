@@ -8,12 +8,10 @@ run_mpra_sampler = function(variant_id, variant_dat, variant_prior,
                             out_dir,
                             save_nonfunctional,
                             ts_hdi_prob,
-                            vb = FALSE,
+                            vb_pass = FALSE,
                             ts_rope = NULL) {
 
-  if(vb){
-    stop('Variational approximations are not implemented yet!')
-  }
+
 
   priors = variant_prior
   n_per_chain = ceiling((tot_samp + n_chains * n_warmup) / n_chains)
@@ -37,12 +35,35 @@ run_mpra_sampler = function(variant_id, variant_dat, variant_prior,
                    rna_p_a = priors %>% arrange(desc(allele)) %>% filter(acid_type == 'RNA', !grepl('mu', prior_type)) %>% pull(alpha_est),
                    rna_p_b = priors %>% arrange(desc(allele)) %>% filter(acid_type == 'RNA', !grepl('mu', prior_type)) %>% pull(beta_est))
 
-  sampler_res = rstan::sampling(stanmodels$bc_mpra_model,
-                                data = data_list,
-                                chains = n_chains,
-                                warmup = n_warmup,
-                                iter = n_per_chain,
-                                cores = 1)
+  if(vb_pass){
+    vb_res = rstan::vb(stanmodels$bc_mpra_model,
+                       data = data_list)
+
+    vb_hdi = rstan::extract(sampler_res,
+                            pars = 'transcription_shift')$transcription_shift %>%
+      as.matrix %>%
+      coda::mcmc() %>%
+      coda::HPDinterval(prob = .4)
+
+    if(!between(0, vb_hdi[1], vb_hdi[2])){
+      sampler_res = rstan::sampling(stanmodels$bc_mpra_model,
+                                    data = data_list,
+                                    chains = n_chains,
+                                    warmup = n_warmup,
+                                    iter = n_per_chain,
+                                    cores = 1)
+    } else{
+      sampler_res = vb_res
+    }
+
+  } else {
+    sampler_res = rstan::sampling(stanmodels$bc_mpra_model,
+                                  data = data_list,
+                                  chains = n_chains,
+                                  warmup = n_warmup,
+                                  iter = n_per_chain,
+                                  cores = 1)
+  }
 
   ts_vec = rstan::extract(sampler_res,
                           pars = 'transcription_shift')$transcription_shift

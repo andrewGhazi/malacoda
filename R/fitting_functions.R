@@ -87,6 +87,7 @@ fit_gamma = function(input_vec,
 #' @param tot_samp total number of MCMC draws to take, spread evenly across
 #'   chains
 #' @param n_warmup total number of warmup draws to take from each MCMC chain
+#' @param vb_pass logical indicating whether to use a variational first pass
 #' @param ts_hdi_prob probability mass to include in the highest density
 #'   interval on transcription shift to call MPRA-functional variants.
 #' @param ts_rope optional length 2 numeric vector describing the boundaries of
@@ -114,6 +115,11 @@ fit_gamma = function(input_vec,
 #'   likely want to increase n_chains and tot_samp considerably to ensure
 #'   precise convergence.
 #'
+#'   \code{vb_pass} indicates whether to use a first pass variational check to
+#'   see if a given variant is worth running the MCMC sampler. It does this by
+#'   checking if a 40% HDI on the variational transcription shift posterior
+#'   excludes 0. If \code{vb_pass} is set to  FALSE, all variants get MCMC.
+#'
 #'   \code{ts_rope} can be used to define a "Region Of Practical Equivalence"
 #'   for transcription shift. This is some small-ish region around 0 where
 #'   observed posterior samples are "practically equivalent" to 0. Enabling this
@@ -139,6 +145,7 @@ fit_mpra_model = function(mpra_data,
                           n_chains = 4,
                           tot_samp = 1e4,
                           n_warmup = 500,
+                          vb_pass = TRUE,
                           ts_hdi_prob = .95,
                           ts_rope = NULL) {
 
