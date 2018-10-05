@@ -8,7 +8,12 @@ run_mpra_sampler = function(variant_id, variant_dat, variant_prior,
                             out_dir,
                             save_nonfunctional,
                             ts_hdi_prob,
+                            vb = FALSE,
                             ts_rope = NULL) {
+
+  if(vb){
+    stop('Variational approximations are not implemented yet!')
+  }
 
   priors = variant_prior
   n_per_chain = ceiling((tot_samp + n_chains * n_warmup) / n_chains)
