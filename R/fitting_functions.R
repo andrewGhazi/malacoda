@@ -186,9 +186,9 @@ fit_mpra_model = function(mpra_data,
 
   annotations_given = !is.null(annotations)
   #### Fit priors ----
-  pring('No annotations provided, fitting marginal priors...')
+  print('No annotations provided, fitting marginal priors...')
   if (!annotations_given) {
-    pring('Fitting MARGINAL priors...')
+    print('Fitting MARGINAL priors...')
     priors = fit_marg_prior(mpra_data,
                             n_cores = n_cores,
                             rep_cutoff = .15,
@@ -213,6 +213,10 @@ fit_mpra_model = function(mpra_data,
     gather(sample_id, counts, matches('DNA|RNA')) %>%
     group_by(sample_id) %>%
     summarise(depth_factor = sum(counts) / 1e6)
+
+  if(missing(ts_rope)){
+    ts_rope = NULL
+  }
 
   if (annotations_given) {
 
