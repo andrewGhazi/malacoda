@@ -1,5 +1,4 @@
-run_mpra_sampler = function(variant_id, variant_dat,
-                            priors,
+run_mpra_sampler = function(variant_id, variant_dat, variant_prior,
                             n_chains,
                             tot_samp,
                             n_warmup,
@@ -11,6 +10,7 @@ run_mpra_sampler = function(variant_id, variant_dat,
                             ts_hdi_prob,
                             ts_rope = NULL) {
 
+  priors = variant_prior
   n_per_chain = ceiling((tot_samp + n_chains * n_warmup) / n_chains)
 
   data_list = list(n_rna_samples = n_rna,
@@ -50,6 +50,11 @@ run_mpra_sampler = function(variant_id, variant_dat,
                                  prob = ts_hdi_prob)
 
   is_functional = !between(0, ts_hdi_obj[1], ts_hdi_obj[2])
+
+  dir_ends_in_slash = grepl('/$', out_dir)
+  if (!dir_ends_in_slash){
+    out_dir = paste0(out_dir, '/')
+  }
 
   if (save_nonfunctional | is_functional){
     save(sampler_res,
