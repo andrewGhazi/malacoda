@@ -4,7 +4,8 @@
 #'
 #' @param sampler_result a stanfit object
 #' @param activities a dataframe of activities
-#' @param color_by_sample optional logical indicating whether to color dots by sample
+#' @param color_by_sample optional logical indicating whether to color dots by
+#'   sample
 #' @return a posterior beeswarm ggplot object
 posterior_beeswarm = function(sampler_result,
                               activities,
