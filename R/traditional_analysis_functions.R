@@ -56,6 +56,10 @@ compute_activites = function(mpra_data,
       filter(is.finite(activity))
   }
 
+  activities %<>%
+    mutate(allele = factor(case_when(tolower(allele) == 'ref' ~ 'ref',
+                                     tolower(allele) != 'ref' ~ 'alt'), levels = c('ref', 'alt')))
+
 
   return(activities)
 
