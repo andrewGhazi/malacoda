@@ -126,7 +126,7 @@ find_prior_weights = function(given_id,
 
 }
 
-get_representation_cutoff = function(mpra_data,
+get_well_represented = function(mpra_data,
                                      sample_depths,
                                      rep_cutoff,
                                      plot_rep_cutoff = FALSE){
@@ -189,7 +189,7 @@ fit_marg_prior = function(mpra_data,
     summarise(depth_factor = sum(counts) / 1e6)
 
   print('Determining well-represented variants, see plot...')
-  well_represented = get_representation_cutoff(mpra_data,
+  well_represented = get_well_represented(mpra_data,
                                                sample_depths,
                                                rep_cutoff = rep_cutoff,
                                                plot_rep_cutoff = plot_rep_cutoff)
@@ -349,7 +349,7 @@ fit_cond_prior = function(mpra_data,
     summarise(depth_factor = sum(counts) / 1e6)
 
   print('Determining well-represented variants, see plot...')
-  well_represented = get_representation_cutoff(mpra_data,
+  well_represented = get_well_represented(mpra_data,
                                                sample_depths,
                                                rep_cutoff = rep_cutoff,
                                                plot_rep_cutoff = plot_rep_cutoff)

@@ -23,10 +23,12 @@ compute_activites = function(mpra_data,
     summarise(depth_factor = sum(counts) / 1e6)
 
   print('Determining well-represented variants, see plot...')
-  well_represented = get_representation_cutoff(mpra_data,
+  well_represented = get_well_represented(mpra_data,
                                                sample_depths,
                                                rep_cutoff = rep_cutoff,
                                                plot_rep_cutoff = plot_rep_cutoff)
+
+
 
   mean_dna_abundance = mpra_data %>%
     filter(barcode %in% well_represented$barcode) %>%
@@ -45,11 +47,27 @@ compute_activites = function(mpra_data,
     mutate(depth_adj_count = count / depth_factor,
            activity = log(depth_adj_count / mean_depth_adj_dna))
 
+
   return(activities)
 
 }
 
 
-run_activity_tests = function(mpra_activities){
+test_one_variant = function(variant_activities,
+                            test_type = 't'){
+
+  variant_activities %>%
+    summarise(test_res = list(t.test(x = activity[tolower(allele) == 'ref'],
+                                     y = activity[tolower(allele) != 'ref'])))
+
+}
+
+run_activity_tests = function(mpra_activities,
+                              test_type = 't'){
+
+  activity_tests = mpra_activities %>%
+    group_by(variant_id) %>%
+    nest(.key = act_dat) %>%
+    mutate(test_result = map(act_dat, test_one_variant))
 
 }
