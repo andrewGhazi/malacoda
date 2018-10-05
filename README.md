@@ -13,7 +13,11 @@ It uses a negative-binomial-based Bayesian model that offers numerous advantages
 -   Informative annotations (such as DNase hypersensitivity estimates or gene scores) can be included to further refine the empirical priors by conditional density estimation.
 -   The R interface provides clear and interpretable outputs and figures.
 
-malacoda runs a custom Stan model for fast posterior evaluation.
+Other features include:
+
+-   custom Stan models for fast posterior evaluation
+-   variational Bayes support through `rstan::vb` that allows for quick first pass checks
+-   Annotation checking - quantitatively evaluate how much a given genomic annotation source improves empirical prior estimation by prior ratios
 
 Installation
 ------------
@@ -33,3 +37,8 @@ This is a basic example which shows you how to solve a common problem:
 ``` r
 ## basic example code
 ```
+
+Example output
+--------------
+
+![An example activity beeswarm with overlaid activity mean posteriors](man/figures/posterior_beeswarm_example.png)

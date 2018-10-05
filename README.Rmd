@@ -47,3 +47,7 @@ This is a basic example which shows you how to solve a common problem:
 ```{r example}
 ## basic example code
 ```
+
+## Example output
+
+![An example activity beeswarm with overlaid activity mean posteriors](man/figures/posterior_beeswarm_example.png)
