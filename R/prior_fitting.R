@@ -97,7 +97,7 @@ find_prior_weights = function(given_id,
 
   weight_df = dist_to_others %>%
     select(-value) %>%
-    summarise(mv_dens = dmvt(dist, sigma = diag(min_dist_kernel, n_annotations), log = FALSE)) %>% # Using a t kernel
+    summarise(mv_dens = mvtnorm::dmvt(dist, sigma = diag(min_dist_kernel, n_annotations), log = FALSE)) %>% # Using a t kernel
     mutate(frac_weight = mv_dens / sum(mv_dens)) %>%
     arrange(desc(frac_weight)) %>%
     mutate(cs = cumsum(frac_weight),
@@ -329,7 +329,7 @@ fit_cond_prior = function(mpra_data,
                           plot_rep_cutoff = TRUE,
                           rep_cutoff = .15,
                           min_neighbors = 30,
-                          kernel_fold_increase = 1.2){
+                          kernel_fold_increase = 1.3){
 
   # Input checks ----
   if(!all(mpra_data$variant_id %in% annotations$variant_id)){
@@ -342,7 +342,7 @@ fit_cond_prior = function(mpra_data,
 
   #### DNA prior fitting ----
 
-  print('Fitting marginal DNA prior...')
+  print('Evaluating data depth/DNA representation properties...')
   sample_depths = mpra_data %>%
     gather(sample_id, counts, matches('DNA|RNA')) %>%
     group_by(sample_id) %>%
@@ -355,7 +355,7 @@ fit_cond_prior = function(mpra_data,
                                                plot_rep_cutoff = plot_rep_cutoff)
 
 
-  print('Fitting marginal DNA prior (annotations cannot provide DNA-level prior information)...')
+  print('Fitting marginal DNA prior...')
 
   dna_nb_fits = mpra_data %>%
     filter(barcode %in% well_represented$barcode) %>%
@@ -556,5 +556,18 @@ score_annotation = function(mpra_data,
                             nb_params = NULL,
                             conditional_prior = NULL,
                             marginal_prior = NULL){
+
+}
+
+format_conditional_prior = function(given_id, cond_priors){
+  dna_prior = cond_priors$dna_prior
+  rna_prior = cond_priors$rna_priors %>%
+    filter(variant_id == given_id) %>%
+    select(-annotation_weights) %>%
+    gather(prior_name, prior, matches('prior')) %>%
+    unnest() %>%
+    select(-variant_id, -prior_name)
+
+  return(bind_rows(dna_prior, rna_prior))
 
 }
