@@ -1,18 +1,18 @@
 Package: malacoda
 Title: Bayesian analysis of high-throughput genomic assays
 Version: 0.0.0.9000
-Authors@R: 
+Authors@R:
     person(given = "Andrew",
            family = "Ghazi",
            role = c("aut", "cre"),
            email = "arghazi@bcm.edu")
 Description: This package is used for Bayesian analysis of high-throughput genomic assays, such as MPRA and CRISPR screens. The output counts, whether MPRA barcodes or CRISPR gRNAs, are modelled as coming from a negative binomial distribution with empirical gamma priors. The empirical priors can be refined through the use of user-input annotations, further improving model performance.
 License: GPL (>=3)
-Depends: 
+Depends:
     methods,
     R (>= 3.4.0),
     Rcpp (>= 0.12.18)
-Imports: 
+Imports:
     rstan (>= 2.17.3),
     rstantools (>= 1.5.1),
     dplyr,
@@ -24,7 +24,7 @@ Imports:
     stats,
     coda,
     mvtnorm
-LinkingTo: 
+LinkingTo:
     BH (>= 1.66.0-1),
     Rcpp (>= 0.12.18),
     RcppEigen (>= 0.3.3.4.0),
@@ -35,3 +35,6 @@ LazyData: true
 NeedsCompilation: yes
 SystemRequirements: GNU make
 RoxygenNote: 6.1.0
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr
