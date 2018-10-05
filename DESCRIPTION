@@ -23,7 +23,9 @@ Imports:
     parallel,
     stats,
     coda,
-    mvtnorm
+    mvtnorm,
+    broom,
+    ggbeeswarm
 LinkingTo:
     BH (>= 1.66.0-1),
     Rcpp (>= 0.12.18),
