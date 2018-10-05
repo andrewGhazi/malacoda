@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-malacoda
-========
+malacoda <img src="man/figures/logo.png" align="right" />
+=========================================================
 
 The goal of malacoda is to enable Bayesian analysis of high-throughput genomic assays like massively parallel reporter assays (MPRA) and CRISPR screens.
 
