@@ -8,7 +8,8 @@ run_mpra_sampler = function(variant_id, variant_dat, variant_prior,
                             out_dir,
                             save_nonfunctional,
                             ts_hdi_prob,
-                            vb_pass = FALSE,
+                            vb_pass = TRUE,
+                            vb_prob = .8,
                             ts_rope = NULL) {
 
 
@@ -24,8 +25,8 @@ run_mpra_sampler = function(variant_id, variant_dat, variant_prior,
                    alt_dna_counts = variant_dat %>% filter(tolower(allele) != 'ref') %>% select(matches('DNA')) %>% as.matrix,
                    ref_rna_counts = variant_dat %>% filter(tolower(allele) == 'ref') %>% select(matches('RNA')) %>% as.matrix,
                    alt_rna_counts = variant_dat %>% filter(tolower(allele) != 'ref') %>% select(matches('RNA')) %>% as.matrix,
-                   rna_depths = sample_depths %>% filter(grepl('RNA', sample_id)) %>% pull(depth_factor),
-                   dna_depths = sample_depths %>% filter(grepl('DNA', sample_id)) %>% pull(depth_factor),
+                   rna_depths = depth_factors %>% filter(grepl('RNA', sample_id)) %>% pull(depth_factor),
+                   dna_depths = depth_factors %>% filter(grepl('DNA', sample_id)) %>% pull(depth_factor),
                    dna_m_a = priors %>% filter(acid_type == 'DNA', grepl('mu', prior_type)) %>% pull(alpha_est),
                    dna_m_b = priors %>% filter(acid_type == 'DNA', grepl('mu', prior_type)) %>% pull(beta_est),
                    dna_p_a = priors %>% filter(acid_type == 'DNA', !grepl('mu', prior_type)) %>% pull(alpha_est),
@@ -43,7 +44,7 @@ run_mpra_sampler = function(variant_id, variant_dat, variant_prior,
                             pars = 'transcription_shift')$transcription_shift %>%
       as.matrix %>%
       coda::mcmc() %>%
-      coda::HPDinterval(prob = .4)
+      coda::HPDinterval(prob = vb_prob)
 
     if(!between(0, vb_hdi[1], vb_hdi[2])){
       sampler_res = rstan::sampling(stanmodels$bc_mpra_model,
