@@ -185,6 +185,7 @@ get_well_represented = function(mpra_data,
 #' @param n_cores number of cores to parallelize across
 #' @param plot_rep_cutoff logical indicating whether to plot the representation cutoff used
 #' @param rep_cutoff fraction indicating the depth-adjusted DNA count quantile to use as the cutoff
+#' @export
 fit_marg_prior = function(mpra_data,
                           n_cores = 1,
                           plot_rep_cutoff = TRUE,
@@ -311,11 +312,29 @@ fit_marg_prior = function(mpra_data,
 #' Fit a informative conditional prior
 #'
 #' @description Use informative annotations to bias prior estimation towards
-#'   alleles that show similar annotations
+#'   alleles that show similar annotations in the provided annotation space.
 #'
-#' @details The
+#' @details The empirical prior returned by this object is "conditional" in the
+#'   sense that the prior estimation weights are conditional on the annotations.
 #'
-#' @return A data frame with a weighted conditional prior for each variant
+#'   The DNA prior is still estimated marginally because the annotations should
+#'   not be able to provide any information on the DNA inputs (which are
+#'   presumably only affected by the preparation of the oligonucleotide library
+#'   at the vendor).
+#'
+#'   The RNA prior is estimated from the RNA observations of
+#'   other variants in the assay that are nearby in annotation space. A
+#'   multivariate t distribution centered on the variant in question is used to
+#'   weight all other variants in the assay. It is initialized with a very small
+#'   width, and if there are fewer than \code{min_neighbors} that provide
+#'   substantial input to the prior, the width is iteratively increased by a
+#'   factor of \code{kernel_fold_increase} until that condition is satisfied.
+#'   This prevents the prior estimation for variants in sparse regions of
+#'   annotation space from being influenced too heavily by their nearest
+#'   neighbors.
+#'
+#' @return A list of two data frames. The first is for the DNA and the second is
+#'   by-variant RNA priors.
 #'
 #' @param mpra_data a data frame of mpra data
 #' @param annotations a data frame of annotations for the same variants in
@@ -330,6 +349,7 @@ fit_marg_prior = function(mpra_data,
 #' @param kernel_fold_increase The amount to iteratively increase kernel width
 #'   by when estimating conditional priors. Smaller values (closer to 1) will
 #'   yield more refined priors but take longer.
+#' @export
 fit_cond_prior = function(mpra_data,
                           annotations,
                           n_cores = 1,
@@ -417,11 +437,14 @@ fit_cond_prior = function(mpra_data,
     gather(annotation, value, -variant_id) %>%
     arrange(variant_id, annotation)
 
+  n_annotations = ncol(annotations) - 1
+
   min_dist_kernel = dist_mat[upper.tri(dist_mat)] %>%
     unlist() %>%
     sort() %>% #sort all observed distances
     .[. > 0] %>%
-    quantile(probs = .001)
+    quantile(probs = .001) %>%
+    {. ^ (1 / n_annotations)} # adjustment for the number of annotations provided
 
   # For each variant, get a vector of weights for all other variants in the assay
   print('Weighting variants in annotation space')
