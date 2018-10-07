@@ -49,20 +49,20 @@ This will fit the model to each input in the assay (using some example variants 
 
 <table style="width:100%;">
 <colgroup>
-<col width="12%" />
 <col width="13%" />
-<col width="18%" />
-<col width="18%" />
 <col width="14%" />
-<col width="10%" />
-<col width="10%" />
+<col width="15%" />
+<col width="15%" />
+<col width="15%" />
+<col width="11%" />
+<col width="11%" />
 </colgroup>
 <thead>
 <tr class="header">
 <th align="left">variant_id</th>
 <th align="right">ts_post_mean</th>
-<th align="right">ref_act_post_mean</th>
-<th align="right">alt_act_post_mean</th>
+<th align="right">ref_post_mean</th>
+<th align="right">alt_post_mean</th>
 <th align="left">is_functional</th>
 <th align="right">hdi_lower</th>
 <th align="right">hdi_upper</th>

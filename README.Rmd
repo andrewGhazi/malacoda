@@ -57,14 +57,14 @@ fit_mpra_model(mpra_data = umpra_example,
 
 This will fit the model to each input in the assay (using some example variants from [Ulirsch et al., Cell, 2016](https://www.ncbi.nlm.nih.gov/pubmed/27259154)) using a marginal prior, save the outputs for each variant at the specified directory, and return a data frame of summary statistics for each variant, including binary calls of functional/non-functional, posterior means on activity levels & transcription shift.
 
-|variant_id  | ts_post_mean| ref_act_post_mean| alt_act_post_mean|is_functional | hdi_lower| hdi_upper|
-|:-----------|------------:|-----------------:|-----------------:|:-------------|---------:|---------:|
-|3_141301451 |        1.482|            -0.516|             0.966|TRUE          |     1.180|     1.761|
-|15_65882173 |       -1.133|            -2.489|            -3.623|FALSE         |    -2.434|     0.119|
-|X_55054636  |       -1.094|             0.212|            -0.882|TRUE          |    -1.387|    -0.799|
-|1_158620477 |        1.059|            -1.323|            -0.264|TRUE          |     0.461|     1.652|
-|10_46003631 |       -0.886|            -2.299|            -3.185|FALSE         |    -2.137|     0.300|
-|1_158497964 |       -0.798|            -0.178|            -0.976|TRUE          |    -1.371|    -0.222|
+|variant_id  | ts_post_mean| ref_post_mean| alt_post_mean|is_functional | hdi_lower| hdi_upper|
+|:-----------|------------:|-------------:|-------------:|:-------------|---------:|---------:|
+|3_141301451 |        1.482|        -0.516|         0.966|TRUE          |     1.180|     1.761|
+|15_65882173 |       -1.133|        -2.489|        -3.623|FALSE         |    -2.434|     0.119|
+|X_55054636  |       -1.094|         0.212|        -0.882|TRUE          |    -1.387|    -0.799|
+|1_158620477 |        1.059|        -1.323|        -0.264|TRUE          |     0.461|     1.652|
+|10_46003631 |       -0.886|        -2.299|        -3.185|FALSE         |    -2.137|     0.300|
+|1_158497964 |       -0.798|        -0.178|        -0.976|TRUE          |    -1.371|    -0.222|
 
 More sophisticated analyses that use annotations to create informative priors for more sensitive analysis will be described in an upcoming vignette. The required functionality to do so currently exists with `fit_cond_prior`. Other features like annotation checking and traditional NHST analysis will also be explained in the vignette.
 
