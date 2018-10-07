@@ -316,8 +316,9 @@ fit_mpra_model = function(mpra_data,
        file = paste0(out_dir, 'analysis_res.RData'))
 
   end_time = Sys.time()
+  time_diff = end_time - start_time
   print(paste0('MPRA data for ', n_distinct(mpra_data$variant_id), ' variants analyzed in ',
-               round(digits = 3, end_time - start_time), ' seconds'))
+               round(digits = 3, end_time - start_time), ' ', attr(time_diff, 'units')))
   return(analysis_res)
 }
 
