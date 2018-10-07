@@ -16,8 +16,10 @@ It uses a negative-binomial-based Bayesian model that offers numerous advantages
 Other features include:
 
 -   custom Stan models for fast posterior evaluation
--   variational Bayes support through `rstan::vb` that allows for quick first pass checks
+    -   variational first pass with `rstan::vb` for fast "promising candidate" checks
 -   Annotation checking - quantitatively evaluate how much a given genomic annotation source improves empirical prior estimation by prior ratios
+-   Configurable plotting functions 
+-   Methods for traditional NHST-based MPRA analysis
 
 Installation
 ------------
