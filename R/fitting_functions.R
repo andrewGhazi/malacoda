@@ -78,6 +78,8 @@ fit_gamma = function(input_vec,
 #'   variant_ids and an arbitrary number of functional annotations. If omitted,
 #'   the prior for a given variant is influenced by all other variants in the
 #'   assay equally.
+#' @param priors optional objects provided by either fit_marg_prior() or
+#'   fit_cond_prior.
 #' @param out_dir path to output directory
 #' @param save_nonfunctional logical indicating whether or not to save the
 #'   sampler results for variants identified as non-functional
@@ -105,6 +107,10 @@ fit_gamma = function(input_vec,
 #'   priors for one variant, other variants with similar annotations will be
 #'   upweighted in the prior-fitting process.
 #'
+#'   If \code{priors} is provided, any annotations input will be ignored. This
+#'   can be useful when you want to fit models again without having to spend
+#'   time re-fitting the priors.
+#'
 #'   Sampler results will be saved to out_dir. By default, only the sampler
 #'   results for variants identified as MPRA-functional will be saved. This
 #'   behavior can be changed by setting \code{save_nonfunctional} to TRUE.
@@ -118,7 +124,9 @@ fit_gamma = function(input_vec,
 #'   \code{vb_pass} indicates whether to use a first pass variational check to
 #'   see if a given variant is worth running the MCMC sampler. It does this by
 #'   checking if a 40% HDI on the variational transcription shift posterior
-#'   excludes 0. If \code{vb_pass} is set to  FALSE, all variants get MCMC.
+#'   excludes 0. This speeds up posterior evaluation considerably, but gives
+#'   approximate results. If \code{vb_pass} is set to FALSE, all variants get
+#'   MCMC.
 #'
 #'   \code{ts_rope} can be used to define a "Region Of Practical Equivalence"
 #'   for transcription shift. This is some small-ish region around 0 where
@@ -141,6 +149,7 @@ fit_mpra_model = function(mpra_data,
                           annotations = NULL,
                           out_dir,
                           save_nonfunctional = FALSE,
+                          priors = NULL,
                           n_cores = 1,
                           n_chains = 4,
                           tot_samp = 1e4,
@@ -152,6 +161,11 @@ fit_mpra_model = function(mpra_data,
   start_time = Sys.time()
 
   #### Input checks ----
+
+  if(missing(ts_rope)){
+    ts_rope = NULL
+  }
+
   if (missing(mpra_data)) {
     stop('mpra_data is missing: You must provide MPRA data to fit a MPRA model!')
   }
@@ -191,25 +205,40 @@ fit_mpra_model = function(mpra_data,
       arrange(variant_id)
   }
 
-  annotations_given = !is.null(annotations)
-  #### Fit priors ----
-  print('No annotations provided, fitting marginal priors...')
-  if (!annotations_given) {
-    print('Fitting MARGINAL priors...')
-    priors = fit_marg_prior(mpra_data,
-                            n_cores = n_cores,
-                            rep_cutoff = .15,
-                            plot_rep_cutoff = TRUE)
+  if (missing(priors)) {
+    annotations_given = !is.null(annotations)
+    #### Fit priors ----
+    print('No annotations provided, fitting marginal priors...')
+    if (!annotations_given) {
+      print('Fitting MARGINAL priors...')
+      priors = fit_marg_prior(mpra_data,
+                              n_cores = n_cores,
+                              rep_cutoff = .15,
+                              plot_rep_cutoff = TRUE)
+    } else {
+      print('Fitting annotation-based conditional priors...')
+      priors = fit_cond_prior(mpra_data,
+                              annotations,
+                              n_cores = n_cores,
+                              plot_rep_cutoff = TRUE,
+                              rep_cutoff = .15,
+                              min_neighbors = 30,
+                              kernel_fold_increase = 1.3)
+
+      print('Conditional prior fitting done, ')
+      save(priors,
+           file = paste0(out_dir, 'conditional_prior.RData'))
+    }
   } else {
-    print('Fitting annotation-based conditional priors...')
-    priors = fit_cond_prior(mpra_data,
-                            annotations,
-                            n_cores = n_cores,
-                            plot_rep_cutoff = TRUE,
-                            rep_cutoff = .15,
-                            min_neighbors = 30,
-                            kernel_fold_increase = 1.3)
+    if (class(priors) == 'list'){
+      print('Input prior class is list, interpreting as conditional priors.')
+      annotations_given = TRUE
+    } else {
+      print('Input prior class is not list, interpreting as marginal priors.')
+      annotations_given = FALSE
+    }
   }
+
 
   #### Run samplers ----
   print('Running model samplers...')
@@ -221,9 +250,7 @@ fit_mpra_model = function(mpra_data,
     group_by(sample_id) %>%
     summarise(depth_factor = sum(counts) / 1e6)
 
-  if(missing(ts_rope)){
-    ts_rope = NULL
-  }
+
 
   if (annotations_given) {
 
@@ -247,7 +274,9 @@ fit_mpra_model = function(mpra_data,
                                                       out_dir = out_dir,
                                                       save_nonfunctional = save_nonfunctional,
                                                       ts_hdi_prob = ts_hdi_prob,
-                                                      ts_rope = ts_rope),
+                                                      ts_rope = ts_rope,
+                                                      vb_pass = vb_pass,
+                                                      vb_prob = .8),
                                       mc.cores = n_cores,
                                       SIMPLIFY = FALSE)) %>%
       unnest(... = sampler_stats,
@@ -272,7 +301,9 @@ fit_mpra_model = function(mpra_data,
                                                       out_dir = out_dir,
                                                       save_nonfunctional = save_nonfunctional,
                                                       ts_hdi_prob = ts_hdi_prob,
-                                                      ts_rope = ts_rope),
+                                                      ts_rope = ts_rope,
+                                                      vb_pass = vb_pass,
+                                                      vb_prob = .8),
                                       mc.cores = n_cores,
                                       SIMPLIFY = FALSE)) %>%
       unnest(... = sampler_stats,
