@@ -45,7 +45,8 @@ Example output
 
 ### Plot output
 
-"Posterior beeswarms" show individual activity point estimates with overlaid posteriors.
+"Posterior beeswarms" show individual activity point estimates with overlaid posteriors. Optional colors indicate sequencing sample which can be used to diagnose unwanted sample bias.
+
 ![An example activity beeswarm with overlaid activity mean posteriors](man/figures/posterior_beeswarm_example.png)
 
 ### Annotation analysis 
