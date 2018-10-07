@@ -230,7 +230,7 @@ fit_mpra_model = function(mpra_data,
            file = paste0(out_dir, 'conditional_prior.RData'))
     }
   } else {
-    if (class(priors) == 'list'){
+    if (all(class(priors) == 'list')){
       print('Input prior class is list, interpreting as conditional priors.')
       annotations_given = TRUE
     } else {
