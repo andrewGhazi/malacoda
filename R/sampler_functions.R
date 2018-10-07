@@ -100,7 +100,7 @@ run_mpra_sampler = function(variant_id, variant_dat, variant_prior,
                       hdi_upper = ts_hdi_obj[2],
                       note = note)
 
-  if(!missing(ts_rope)) {
+  if(!is.null(ts_rope)) {
     ts_rope_mass = sum(ts_vec < ts_rope[2] & ts_vec > ts_rope[1]) / tot_samp
     res_df$ts_rope_mass = ts_rope_mass
   }
