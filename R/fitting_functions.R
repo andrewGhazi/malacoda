@@ -313,7 +313,7 @@ fit_mpra_model = function(mpra_data,
   }
 
   save(analysis_res,
-       file)
+       file = paste0(out_dir, 'analysis_res.RData'))
 
   end_time = Sys.time()
   print(paste0('MPRA data for ', n_distinct(mpra_data$variant_id), ' variants analyzed in ',
