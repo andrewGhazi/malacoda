@@ -47,15 +47,15 @@ fit_mpra_model(mpra_data = umpra_example,
 
 This will fit the model to each input in the assay (using some example variants from [Ulirsch et al., Cell, 2016](https://www.ncbi.nlm.nih.gov/pubmed/27259154)) using a marginal prior, save the outputs for each variant at the specified directory, and return a data frame of summary statistics for each variant, including binary calls of functional/non-functional, posterior means on activity levels & transcription shift.
 
-<table>
+<table style="width:100%;">
 <colgroup>
-<col width="15%" />
 <col width="12%" />
-<col width="17%" />
-<col width="17%" />
 <col width="13%" />
-<col width="11%" />
-<col width="11%" />
+<col width="18%" />
+<col width="18%" />
+<col width="14%" />
+<col width="10%" />
+<col width="10%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -70,58 +70,58 @@ This will fit the model to each input in the assay (using some example variants 
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">3_141301451_2-3</td>
-<td align="right">1.4816049</td>
-<td align="right">-0.5157271</td>
-<td align="right">0.9658778</td>
+<td align="left">3_141301451</td>
+<td align="right">1.482</td>
+<td align="right">-0.516</td>
+<td align="right">0.966</td>
 <td align="left">TRUE</td>
-<td align="right">1.1798534</td>
-<td align="right">1.7612962</td>
+<td align="right">1.180</td>
+<td align="right">1.761</td>
 </tr>
 <tr class="even">
-<td align="left">15_65882173_1-3</td>
-<td align="right">-1.1333697</td>
-<td align="right">-2.4892236</td>
-<td align="right">-3.6225933</td>
+<td align="left">15_65882173</td>
+<td align="right">-1.133</td>
+<td align="right">-2.489</td>
+<td align="right">-3.623</td>
 <td align="left">FALSE</td>
-<td align="right">-2.4338554</td>
-<td align="right">0.1193949</td>
+<td align="right">-2.434</td>
+<td align="right">0.119</td>
 </tr>
 <tr class="odd">
-<td align="left">X_55054636_1-3</td>
-<td align="right">-1.0939627</td>
-<td align="right">0.2121652</td>
-<td align="right">-0.8817975</td>
+<td align="left">X_55054636</td>
+<td align="right">-1.094</td>
+<td align="right">0.212</td>
+<td align="right">-0.882</td>
 <td align="left">TRUE</td>
-<td align="right">-1.3866239</td>
-<td align="right">-0.7985301</td>
+<td align="right">-1.387</td>
+<td align="right">-0.799</td>
 </tr>
 <tr class="even">
-<td align="left">1_158620477_1-3</td>
-<td align="right">1.0585773</td>
-<td align="right">-1.3230732</td>
-<td align="right">-0.2644959</td>
+<td align="left">1_158620477</td>
+<td align="right">1.059</td>
+<td align="right">-1.323</td>
+<td align="right">-0.264</td>
 <td align="left">TRUE</td>
-<td align="right">0.4608663</td>
-<td align="right">1.6522472</td>
+<td align="right">0.461</td>
+<td align="right">1.652</td>
 </tr>
 <tr class="odd">
-<td align="left">10_46003631_1-2</td>
-<td align="right">-0.8861219</td>
-<td align="right">-2.2985647</td>
-<td align="right">-3.1846866</td>
+<td align="left">10_46003631</td>
+<td align="right">-0.886</td>
+<td align="right">-2.299</td>
+<td align="right">-3.185</td>
 <td align="left">FALSE</td>
-<td align="right">-2.1369677</td>
-<td align="right">0.2996165</td>
+<td align="right">-2.137</td>
+<td align="right">0.300</td>
 </tr>
 <tr class="even">
-<td align="left">1_158497964_1-3</td>
-<td align="right">-0.7976947</td>
-<td align="right">-0.1780716</td>
-<td align="right">-0.9757663</td>
+<td align="left">1_158497964</td>
+<td align="right">-0.798</td>
+<td align="right">-0.178</td>
+<td align="right">-0.976</td>
 <td align="left">TRUE</td>
-<td align="right">-1.3712642</td>
-<td align="right">-0.2220852</td>
+<td align="right">-1.371</td>
+<td align="right">-0.222</td>
 </tr>
 </tbody>
 </table>
