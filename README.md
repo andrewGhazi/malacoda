@@ -1,6 +1,6 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-malacoda <img src="man/figures/logo.png" align="right" title="Evil tail"/>
+malacoda <img src="man/figures/logo.png" align="right" title="evil tail"/>
 ==========================================================================
 
 The goal of malacoda is to enable Bayesian analysis of high-throughput genomic assays like massively parallel reporter assays (MPRA) and CRISPR screens.
@@ -32,10 +32,9 @@ devtools::install_github("andrewGhazi/malacoda")
 Example
 -------
 
-This is a basic example which shows you how to solve a common problem:
+This is a basic example which shows you how to fit the simplest form of the model:
 
 ``` r
-## basic example code
 library(malacoda)
 marg_prior = fit_marg_prior(umpra_example)
 fit_mpra_model(mpra_data = umpra_example,
@@ -46,7 +45,86 @@ fit_mpra_model(mpra_data = umpra_example,
                save_nonfunctional = TRUE)
 ```
 
-This will fit the model to each input in the assay (using some example data from [Ulirsch et al., Cell, 2016](https://www.ncbi.nlm.nih.gov/pubmed/27259154)) using a marginal prior, save the outputs for each variant at the specified directory, and return a data frame of summary statistics for each variant, including binary calls of functional/non-functional, posterior means on activity levels & transcription shift.
+This will fit the model to each input in the assay (using some example variants from [Ulirsch et al., Cell, 2016](https://www.ncbi.nlm.nih.gov/pubmed/27259154)) using a marginal prior, save the outputs for each variant at the specified directory, and return a data frame of summary statistics for each variant, including binary calls of functional/non-functional, posterior means on activity levels & transcription shift.
+
+<table>
+<colgroup>
+<col width="15%" />
+<col width="12%" />
+<col width="17%" />
+<col width="17%" />
+<col width="13%" />
+<col width="11%" />
+<col width="11%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">variant_id</th>
+<th align="right">ts_post_mean</th>
+<th align="right">ref_act_post_mean</th>
+<th align="right">alt_act_post_mean</th>
+<th align="left">is_functional</th>
+<th align="right">hdi_lower</th>
+<th align="right">hdi_upper</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">3_141301451_2-3</td>
+<td align="right">1.4816049</td>
+<td align="right">-0.5157271</td>
+<td align="right">0.9658778</td>
+<td align="left">TRUE</td>
+<td align="right">1.1798534</td>
+<td align="right">1.7612962</td>
+</tr>
+<tr class="even">
+<td align="left">15_65882173_1-3</td>
+<td align="right">-1.1333697</td>
+<td align="right">-2.4892236</td>
+<td align="right">-3.6225933</td>
+<td align="left">FALSE</td>
+<td align="right">-2.4338554</td>
+<td align="right">0.1193949</td>
+</tr>
+<tr class="odd">
+<td align="left">X_55054636_1-3</td>
+<td align="right">-1.0939627</td>
+<td align="right">0.2121652</td>
+<td align="right">-0.8817975</td>
+<td align="left">TRUE</td>
+<td align="right">-1.3866239</td>
+<td align="right">-0.7985301</td>
+</tr>
+<tr class="even">
+<td align="left">1_158620477_1-3</td>
+<td align="right">1.0585773</td>
+<td align="right">-1.3230732</td>
+<td align="right">-0.2644959</td>
+<td align="left">TRUE</td>
+<td align="right">0.4608663</td>
+<td align="right">1.6522472</td>
+</tr>
+<tr class="odd">
+<td align="left">10_46003631_1-2</td>
+<td align="right">-0.8861219</td>
+<td align="right">-2.2985647</td>
+<td align="right">-3.1846866</td>
+<td align="left">FALSE</td>
+<td align="right">-2.1369677</td>
+<td align="right">0.2996165</td>
+</tr>
+<tr class="even">
+<td align="left">1_158497964_1-3</td>
+<td align="right">-0.7976947</td>
+<td align="right">-0.1780716</td>
+<td align="right">-0.9757663</td>
+<td align="left">TRUE</td>
+<td align="right">-1.3712642</td>
+<td align="right">-0.2220852</td>
+</tr>
+</tbody>
+</table>
 
 More sophisticated analyses that use annotations to create informative priors for more sensitive analysis will be described in an upcoming vignette. The required functionality to do so currently exists with `fit_cond_prior`. Other features like annotation checking and traditional NHST analysis will also be explained in the vignette.
 
