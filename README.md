@@ -38,15 +38,15 @@ This is a basic example which shows you how to solve a common problem:
 ## basic example code
 library(malacoda)
 marg_prior = fit_marg_prior(umpra_example)
-fit_mpra_model(mpra_data = umpra,
+fit_mpra_model(mpra_data = umpra_example,
                out_dir = '/path/to/outputs/',
                priors = marg_prior,
-               n_cores = 20,
+               n_cores = getOption('mc.cores', 2L),
                vb_pass = TRUE,
                save_nonfunctional = TRUE)
 ```
 
-This will fit the model to each input in the assay using a marginal prior, save the outputs for each variant at the specified directory, and return a data frame of summary statistics for each variant, including binary calls of functional/non-functional, posterior means on activity levels & transcription shift.
+This will fit the model to each input in the assay (using some example data from [Ulirsch et al., Cell, 2016](https://www.ncbi.nlm.nih.gov/pubmed/27259154)) using a marginal prior, save the outputs for each variant at the specified directory, and return a data frame of summary statistics for each variant, including binary calls of functional/non-functional, posterior means on activity levels & transcription shift.
 
 More sophisticated analyses that use annotations to create informative priors for more sensitive analysis will be described in an upcoming vignette. The required functionality to do so currently exists with `fit_cond_prior`. Other features like annotation checking and traditional NHST analysis will also be explained in the vignette.
 
