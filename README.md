@@ -43,4 +43,11 @@ This is a basic example which shows you how to solve a common problem:
 Example output
 --------------
 
+### Plot output
+
+"Posterior beeswarms" show individual activity point estimates with overlaid posteriors.
 ![An example activity beeswarm with overlaid activity mean posteriors](man/figures/posterior_beeswarm_example.png)
+
+### Annotation analysis 
+
+<prior ratio plot goes here> 
