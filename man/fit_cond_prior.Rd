@@ -30,12 +30,30 @@ by when estimating conditional priors. Smaller values (closer to 1) will
 yield more refined priors but take longer.}
 }
 \value{
-A data frame with a weighted conditional prior for each variant
+A list of two data frames. The first is for the DNA and the second is
+  by-variant RNA priors.
 }
 \description{
 Use informative annotations to bias prior estimation towards
-  alleles that show similar annotations
+  alleles that show similar annotations in the provided annotation space.
 }
 \details{
-The
+The empirical prior returned by this object is "conditional" in the
+  sense that the prior estimation weights are conditional on the annotations.
+
+  The DNA prior is still estimated marginally because the annotations should
+  not be able to provide any information on the DNA inputs (which are
+  presumably only affected by the preparation of the oligonucleotide library
+  at the vendor).
+
+  The RNA prior is estimated from the RNA observations of
+  other variants in the assay that are nearby in annotation space. A
+  multivariate t distribution centered on the variant in question is used to
+  weight all other variants in the assay. It is initialized with a very small
+  width, and if there are fewer than \code{min_neighbors} that provide
+  substantial input to the prior, the width is iteratively increased by a
+  factor of \code{kernel_fold_increase} until that condition is satisfied.
+  This prevents the prior estimation for variants in sparse regions of
+  annotation space from being influenced too heavily by their nearest
+  neighbors.
 }
