@@ -5,9 +5,9 @@
 \title{Fit a Bayesian MPRA model}
 \usage{
 fit_mpra_model(mpra_data, annotations = NULL, out_dir,
-  save_nonfunctional = FALSE, n_cores = 1, n_chains = 4,
-  tot_samp = 10000, n_warmup = 500, ts_hdi_prob = 0.95,
-  ts_rope = NULL)
+  save_nonfunctional = FALSE, priors = NULL, n_cores = 1,
+  n_chains = 4, tot_samp = 10000, n_warmup = 500, vb_pass = TRUE,
+  ts_hdi_prob = 0.95, ts_rope = NULL)
 }
 \arguments{
 \item{mpra_data}{a data frame of MPRA data with 1 column called variant_id,
@@ -24,6 +24,9 @@ assay equally.}
 \item{save_nonfunctional}{logical indicating whether or not to save the
 sampler results for variants identified as non-functional}
 
+\item{priors}{optional objects provided by either fit_marg_prior() or
+fit_cond_prior.}
+
 \item{n_cores}{number of cores across which to parallelize variant MPRA
 samplers}
 
@@ -33,6 +36,8 @@ samplers}
 chains}
 
 \item{n_warmup}{total number of warmup draws to take from each MCMC chain}
+
+\item{vb_pass}{logical indicating whether to use a variational first pass}
 
 \item{ts_hdi_prob}{probability mass to include in the highest density
 interval on transcription shift to call MPRA-functional variants.}
@@ -63,6 +68,10 @@ This function fits a negative-binomial based Bayesian model to
   priors for one variant, other variants with similar annotations will be
   upweighted in the prior-fitting process.
 
+  If \code{priors} is provided, any annotations input will be ignored. This
+  can be useful when you want to fit models again without having to spend
+  time re-fitting the priors.
+
   Sampler results will be saved to out_dir. By default, only the sampler
   results for variants identified as MPRA-functional will be saved. This
   behavior can be changed by setting \code{save_nonfunctional} to TRUE.
@@ -72,6 +81,13 @@ This function fits a negative-binomial based Bayesian model to
   hardware. Final analyses and/or models fit to larger MPRA experiments will
   likely want to increase n_chains and tot_samp considerably to ensure
   precise convergence.
+
+  \code{vb_pass} indicates whether to use a first pass variational check to
+  see if a given variant is worth running the MCMC sampler. It does this by
+  checking if a 40% HDI on the variational transcription shift posterior
+  excludes 0. This speeds up posterior evaluation considerably, but gives
+  approximate results. If \code{vb_pass} is set to FALSE, all variants get
+  MCMC.
 
   \code{ts_rope} can be used to define a "Region Of Practical Equivalence"
   for transcription shift. This is some small-ish region around 0 where
