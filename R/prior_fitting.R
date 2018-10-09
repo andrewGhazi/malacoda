@@ -462,6 +462,7 @@ fit_cond_prior = function(mpra_data,
 
 
   # Perform weighted density estimation for each variant
+  print('Fitting annotation-weighted distributions...')
   if (n_cores == 1) {
     rna_m_priors = prior_weights %>%
       mutate(variant_m_prior = map2(variant_id, annotation_weights,
