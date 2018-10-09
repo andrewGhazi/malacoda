@@ -263,7 +263,7 @@ fit_mpra_model = function(mpra_data,
                                  cond_priors = priors))
 
     analysis_res =  sampler_input %>%
-      mutate(sampler_stats = mcmapply(run_mpra_sampler,
+      mutate(sampler_stats = parallel::mcmapply(run_mpra_sampler,
                                       variant_id, variant_dat, variant_prior,
                                       MoreArgs = list(n_chains = n_chains,
                                                       n_warmup = n_warmup,
@@ -290,7 +290,7 @@ fit_mpra_model = function(mpra_data,
       group_by(variant_id) %>%
       nest(.key = variant_dat) %>%
       mutate(variant_prior = list(priors)) %>% # give the same marg prior to every variant
-      mutate(sampler_stats = mcmapply(run_mpra_sampler,
+      mutate(sampler_stats = parallel::mcmapply(run_mpra_sampler,
                                       variant_id, variant_dat, variant_prior,
                                       MoreArgs = list(n_chains = n_chains,
                                                       n_warmup = n_warmup,

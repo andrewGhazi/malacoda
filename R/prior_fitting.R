@@ -65,7 +65,7 @@ find_prior_weights = function(given_id,
                               kernel_fold_change = 1.3,
                               min_num_neighbors = 30){
 
-  n_annotations = ncol(annotations) - 1
+  n_annotations = ncol(scaled_annotations) - 1
   given_annotations = scaled_annotations %>%
     filter(variant_id == given_id)
 
@@ -212,7 +212,7 @@ fit_marg_prior = function(mpra_data,
     group_by(variant_id, allele, sample_id) %>%
     nest(.key = count_dat) %>%
     filter(map_lgl(count_dat, ~!all(.x$counts == 0))) %>% # some borderline barcodes are 0 in some samples
-    mutate(nb_fit = mclapply(count_dat, fit_nb, mc.cores = n_cores),
+    mutate(nb_fit = parallel::mclapply(count_dat, fit_nb, mc.cores = n_cores),
            converged = map_lgl(nb_fit, ~.x$convergence == 0))
 
   if (!all(dna_nb_fits$converged)) {
@@ -391,7 +391,7 @@ fit_cond_prior = function(mpra_data,
     group_by(variant_id, allele, sample_id) %>%
     nest(.key = count_dat) %>%
     filter(map_lgl(count_dat, ~!all(.x$counts == 0))) %>% # some borderline barcodes are 0 in some samples
-    mutate(nb_fit = mclapply(count_dat, fit_nb, mc.cores = n_cores),
+    mutate(nb_fit = parallel::mclapply(count_dat, fit_nb, mc.cores = n_cores),
            converged = map_lgl(nb_fit, ~.x$convergence == 0))
 
   if (!all(dna_nb_fits$converged)) {
@@ -451,7 +451,7 @@ fit_cond_prior = function(mpra_data,
   prior_weights = mpra_data %>%
     select(variant_id) %>%
     unique() %>%
-    mutate(annotation_weights = mclapply(variant_id, find_prior_weights,
+    mutate(annotation_weights = parallel::mclapply(variant_id, find_prior_weights,
                                          scaled_annotations = scaled_annotations,
                                          dist_mat = dist_mat,
                                          min_dist_kernel = min_dist_kernel,
@@ -477,7 +477,7 @@ fit_cond_prior = function(mpra_data,
                                     mean_dna_abundance = mean_dna_abundance))
   } else if (n_cores > 1) {
     rna_m_priors = prior_weights %>%
-      mutate(variant_m_prior = mcmapply(fit_one_m_prior,
+      mutate(variant_m_prior = parallel::mcmapply(fit_one_m_prior,
                                         variant_id, annotation_weights,
                                         MoreArgs = list(mpra_data = mpra_data,
                                                         sample_depths = sample_depths,
@@ -486,7 +486,7 @@ fit_cond_prior = function(mpra_data,
                                         mc.cores = n_cores,
                                         SIMPLIFY = FALSE))
     rna_p_priors = prior_weights %>%
-      mutate(variant_p_prior = mcmapply(fit_one_p_prior,
+      mutate(variant_p_prior = parallel::mcmapply(fit_one_p_prior,
                                         variant_id, annotation_weights,
                                         MoreArgs = list(mpra_data = mpra_data,
                                                         sample_depths = sample_depths,
