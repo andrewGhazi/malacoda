@@ -58,6 +58,7 @@ generate_distance_matrix = function(annotations,
   }
 }
 
+#' @export
 find_prior_weights = function(given_id,
                               scaled_annotations,
                               dist_mat,
@@ -429,6 +430,7 @@ fit_cond_prior = function(mpra_data,
     mutate(depth_adj_count = counts / depth_factor) %>%
     group_by(barcode) %>%
     summarise(mean_depth_adj_count = mean(depth_adj_count))
+
   # generate annotation distance matrix
   dist_mat = generate_distance_matrix(annotations = annotations)
   scaled_annotations = annotations %>%
