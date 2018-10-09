@@ -140,4 +140,4 @@ In addition to the summary statistics table output above, the sampler outputs fo
 Contact
 -------
 
-Please contact me through Github DM or my BCM email address if you use the package, have feature requests / comments, or want a hexagon sticker!
+Please contact me through Github DM or my BCM email address if you use the package or have feature requests / comments.
