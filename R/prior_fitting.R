@@ -66,7 +66,8 @@ find_prior_weights = function(given_id,
                               kernel_fold_change = 1.3,
                               min_num_neighbors = 30){
 
-  n_annotations = ncol(scaled_annotations) - 1
+  n_annotations = dplyr::n_distinct(scaled_annotations$annotation)
+
   given_annotations = scaled_annotations %>%
     filter(variant_id == given_id)
 
@@ -112,7 +113,7 @@ find_prior_weights = function(given_id,
       min_dist_kernel = kernel_fold_change * min_dist_kernel
       weight_df = dist_to_others %>%
         select(-value) %>%
-        summarise(mv_dens = dmvt(dist, sigma = diag(min_dist_kernel, n_annotations), log = FALSE)) %>% # Using a t kernel
+        summarise(mv_dens = mvtnorm::dmvt(dist, sigma = diag(min_dist_kernel, n_annotations), log = FALSE)) %>% # Using a t kernel
         mutate(frac_weight = mv_dens / sum(mv_dens)) %>%
         arrange(desc(frac_weight)) %>%
         mutate(cs = cumsum(frac_weight),
