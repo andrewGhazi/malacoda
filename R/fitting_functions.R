@@ -90,6 +90,8 @@ fit_gamma = function(input_vec,
 #'   chains
 #' @param n_warmup total number of warmup draws to take from each MCMC chain
 #' @param vb_pass logical indicating whether to use a variational first pass
+#' @param vb_prob numeric 0 - 1 indicating probability mass to use as a TS HDI
+#'   for identifying "promising" candidates for MCMC followup
 #' @param ts_hdi_prob probability mass to include in the highest density
 #'   interval on transcription shift to call MPRA-functional variants.
 #' @param ts_rope optional length 2 numeric vector describing the boundaries of
@@ -155,6 +157,7 @@ fit_mpra_model = function(mpra_data,
                           tot_samp = 1e4,
                           n_warmup = 500,
                           vb_pass = TRUE,
+                          vb_prob = .8,
                           ts_hdi_prob = .95,
                           ts_rope = NULL) {
 
@@ -276,7 +279,7 @@ fit_mpra_model = function(mpra_data,
                                                       ts_hdi_prob = ts_hdi_prob,
                                                       ts_rope = ts_rope,
                                                       vb_pass = vb_pass,
-                                                      vb_prob = .8),
+                                                      vb_prob = vb_prob),
                                       mc.cores = n_cores,
                                       SIMPLIFY = FALSE)) %>%
       unnest(... = sampler_stats,
@@ -303,7 +306,7 @@ fit_mpra_model = function(mpra_data,
                                                       ts_hdi_prob = ts_hdi_prob,
                                                       ts_rope = ts_rope,
                                                       vb_pass = vb_pass,
-                                                      vb_prob = .8),
+                                                      vb_prob = vb_prob),
                                       mc.cores = n_cores,
                                       SIMPLIFY = FALSE)) %>%
       unnest(... = sampler_stats,

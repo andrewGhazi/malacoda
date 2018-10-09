@@ -7,7 +7,7 @@
 fit_mpra_model(mpra_data, annotations = NULL, out_dir,
   save_nonfunctional = FALSE, priors = NULL, n_cores = 1,
   n_chains = 4, tot_samp = 10000, n_warmup = 500, vb_pass = TRUE,
-  ts_hdi_prob = 0.95, ts_rope = NULL)
+  vb_prob = 0.8, ts_hdi_prob = 0.95, ts_rope = NULL)
 }
 \arguments{
 \item{mpra_data}{a data frame of MPRA data with 1 column called variant_id,
@@ -38,6 +38,9 @@ chains}
 \item{n_warmup}{total number of warmup draws to take from each MCMC chain}
 
 \item{vb_pass}{logical indicating whether to use a variational first pass}
+
+\item{vb_prob}{numeric 0 - 1 indicating probability mass to use as a TS HDI
+for identifying "promising" candidates for MCMC followup}
 
 \item{ts_hdi_prob}{probability mass to include in the highest density
 interval on transcription shift to call MPRA-functional variants.}
