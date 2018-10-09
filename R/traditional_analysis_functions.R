@@ -13,6 +13,7 @@
 #' @return a data frame of activities
 #' @note the output is returned in a "tall" format, with sample_id's gathered
 #'   into one column
+#' @export
 compute_activities = function(mpra_data,
                              rep_cutoff = .15,
                              plot_rep_cutoff = TRUE){
@@ -110,6 +111,7 @@ test_one_variant = function(variant_activities,
 #'   identically distributed across sequencing samples. Thus activities for the
 #'   same barcodes across different samples are considered as independent
 #'   measurements.
+#' @export
 run_activity_tests = function(mpra_activities,
                               test_type = 't',
                               compute_FDR = TRUE,

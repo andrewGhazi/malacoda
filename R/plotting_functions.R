@@ -7,6 +7,7 @@
 #' @param color_by_sample optional logical indicating whether to color dots by
 #'   sample
 #' @return a posterior beeswarm ggplot object
+#' @export
 posterior_beeswarm = function(sampler_result,
                               activities,
                               color_by_sample = FALSE) {
