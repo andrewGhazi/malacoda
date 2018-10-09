@@ -440,7 +440,7 @@ fit_cond_prior = function(mpra_data,
     gather(annotation, value, -variant_id) %>%
     arrange(variant_id, annotation)
 
-  n_annotations = ncol(annotations) - 1
+  n_annotations = dplyr::n_distinct(scaled_annotations$annotation)
 
   min_dist_kernel = dist_mat[upper.tri(dist_mat)] %>%
     unlist() %>%
@@ -472,7 +472,7 @@ fit_cond_prior = function(mpra_data,
                                     mean_dna_abundance = mean_dna_abundance))
 
     rna_p_priors = prior_weights %>%
-      mutate(variant_m_prior = map2(variant_id, annotation_weights,
+      mutate(variant_p_prior = map2(variant_id, annotation_weights,
                                     fit_one_p_prior,
                                     mpra_data = mpra_data,
                                     sample_depths = sample_depths,
