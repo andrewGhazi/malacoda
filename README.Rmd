@@ -33,9 +33,17 @@ Other features include:
 
 ## Installation
 
+Currently `malacoda` only works on Mac and Linux. If you're a Windows user looking to use the software, open a Github issue, and we'll bump Windows support up the priority list.
+
+The first step is to install `rstan`. This can usually be done with:
+
+```{r gh-installation, eval=FALSE}
+install.packages('rstan', dependencies = TRUE)
+```
+
 You can install malacoda from github with:
 
-```{r gh-installation, eval = FALSE}
+```{r eval = FALSE}
 # install.packages("devtools")
 devtools::install_github("andrewGhazi/malacoda")
 ```

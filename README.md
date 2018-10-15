@@ -22,6 +22,14 @@ Other features include:
 Installation
 ------------
 
+Currently `malacoda` only works on Mac and Linux. If you're a Windows user looking to use the software, open a Github issue, and we'll bump Windows support up the priority list.
+
+The first step is to install `rstan`. This can usually be done with:
+
+``` r
+install.packages('rstan', dependencies = TRUE)
+```
+
 You can install malacoda from github with:
 
 ``` r
