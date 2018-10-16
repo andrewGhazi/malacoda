@@ -17,7 +17,7 @@
 #' @note The priors for DNA counts are always the same (since we have no prior
 #'   knowledge of DNA counts)
 #'
-#'   Note that the
+#'   The current maximum likelihood estimates are sub-par and will be improved. Interpret with caution.
 #' @export
 get_prior_ratios = function(mpra_data,
                             marg_prior,
@@ -33,6 +33,7 @@ get_prior_ratios = function(mpra_data,
                                           plot_rep_cutoff = plot_rep_cutoff)
 
 
+  #### First get the ratios for the mean parameters ----
   mean_dna_abundance = mpra_data %>%
     select(variant_id, allele, barcode, matches('DNA')) %>%
     gather(sample_id, counts, matches('DNA|RNA')) %>%
@@ -72,7 +73,63 @@ get_prior_ratios = function(mpra_data,
                                           MoreArgs = list(log = TRUE),
                                           mc.cores = n_cores,
                                           SIMPLIFY = TRUE),
-           log_prior_ratio = cond_dens - marg_dens)
+           log_prior_ratio = cond_dens - marg_dens,
+           param_type = 'mean') %>%
+    rename(mle_estimate = count_remnant) %>%
+    select(variant_id, allele, barcode, sample_id, param_type, mle_estimate, log_prior_ratio, cond_dens, marg_dens, marg_alpha:beta_est)
+
+  #### Repeat for dispersion parameters ----
+
+  size_guesses = mpra_data %>%
+    select(variant_id, allele, barcode, matches('RNA')) %>%
+    filter(barcode %in% well_represented$barcode) %>%
+    gather(sample_id, counts, matches('DNA|RNA')) %>%
+    group_by(allele, barcode) %>%
+    summarise(mean_est = mean(counts),
+              var_est = var(counts),
+              size_guess = mean_est^2 / (var_est - mean_est)) %>% # this works fine for fitting priors but ideally we'd use an actual MLE function
+    filter(size_guess > 0 & is.finite(size_guess)) %>% # negative size guess = var < mean --> underdispersed
+    filter(size_guess < quantile(size_guess, probs = .99)) %>%
+    ungroup
+
+  rna_cond_phi_prior =  cond_prior$rna_priors %>%
+    select(-annotation_weights, -variant_m_prior) %>%
+    unnest %>% # this leaves a bunch of messy column names
+    select(-prior, -matches('acid_type')) %>%
+    select(-prior_type)
+
+  variants_barcodes = mpra_data %>%
+    select(variant_id, barcode) %>%
+    unique
+
+  across_samples_size_ratios = size_guesses %>%
+    left_join(variants_barcodes, by = 'barcode') %>%
+    left_join(marg_prior %>% select(-prior, -acid_type) %>% filter(grepl('phi', prior_type)), by = c('allele')) %>%
+    rename(marg_alpha = alpha_est,
+           marg_beta = beta_est) %>%
+    select(-prior_type) %>%
+    left_join(rna_cond_phi_prior, by = c('variant_id', 'allele')) %>%
+    mutate(cond_dens = parallel::mcmapply(dgamma,
+                                          size_guess, alpha_est, beta_est,
+                                          MoreArgs = list(log = TRUE),
+                                          mc.cores = n_cores,
+                                          SIMPLIFY = TRUE),
+           marg_dens = parallel::mcmapply(dgamma,
+                                          size_guess, marg_alpha, marg_beta,
+                                          MoreArgs = list(log = TRUE),
+                                          mc.cores = n_cores,
+                                          SIMPLIFY = TRUE),
+           log_prior_ratio = cond_dens - marg_dens,
+           param_type = 'dispersion') %>%
+    rename(mle_estimate = size_guess) %>%
+    select(variant_id, allele, barcode, param_type, mle_estimate, log_prior_ratio, cond_dens, marg_dens, marg_alpha:beta_est)
+
+  size_ratios = data_frame(sample_id = unique(mu_ratios$sample_id),
+                           size_guesses = list(across_samples_size_ratios)) %>%
+    unnest
 
 
+
+  prior_ratios = bind_rows(mu_ratios, size_ratios)
+  return(prior_ratios)
 }

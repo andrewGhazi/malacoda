@@ -40,12 +40,30 @@ posterior_beeswarm = function(sampler_result,
 
 }
 
+#' Get ratio label y
+#'
+#' @description helper function for plot_prior_ratios
 get_label_y = function(ratio_values){
-  .2 * max(density(ratio_values)$y)
+  .3 * max(density(ratio_values)$y)
 }
 
+#' Plot prior ratios
+#'
+#' @description Visualize prior ratios by histogram
+#' @param prior_ratios a data frame of prior ratios from \code{get_prior_ratios}
+#' @param x_limits a length two vector for the x-limits of the histograms
+#' @param n_bins number of bins in the histogram
 plot_prior_ratios = function(prior_ratios,
-                             x_limits = c(-1,1)){
+                             x_limits = c(-1,1),
+                             n_bins = 100) {
+
+
+  suitable = prior_ratios %>% filter(log_prior_ratio > x_limits[1] & log_prior_ratio < x_limits[2])
+
+  if (nrow(suitable) < nrow(prior_ratios)){
+    warning(paste0('Removing ', format(100*(1- nrow(suitable) / nrow(prior_ratios)), digits = 3), '% of parameter estimates from plot x-range. Set x_limits to larger values to avoid'))
+  }
+
 
   fraction_labels = prior_ratios %>%
     group_by(param_type, sample_id) %>%
@@ -55,7 +73,7 @@ plot_prior_ratios = function(prior_ratios,
 
   prior_ratios %>%
     ggplot(aes(log_prior_ratio)) +
-    geom_histogram(bins = 100,
+    geom_histogram(bins = n_bins,
                    aes(y = ..density..)) +
     xlim(c(x_limits[1],x_limits[2])) +
     geom_density() +
@@ -65,6 +83,7 @@ plot_prior_ratios = function(prior_ratios,
               x = x_limits[1] + .75*diff(x_limits),
               aes(label = facet_label,
                   y = y),
-              size = 2)
+              size = 3) +
+    labs(title = 'log(Conditional:Marginal) prior density of maximum-likelihood estimates')
 
 }
