@@ -39,3 +39,32 @@ posterior_beeswarm = function(sampler_result,
                 width = .75)
 
 }
+
+get_label_y = function(ratio_values){
+  .2 * max(density(ratio_values)$y)
+}
+
+plot_prior_ratios = function(prior_ratios,
+                             x_limits = c(-1,1)){
+
+  fraction_labels = prior_ratios %>%
+    group_by(param_type, sample_id) %>%
+    summarise(fraction_improved = format(sum(log_prior_ratio > 0) / n(), digits = 3),
+              facet_label = paste('Fraction above 0:\n', fraction_improved, sep = ''),
+              y = get_label_y(log_prior_ratio))
+
+  prior_ratios %>%
+    ggplot(aes(log_prior_ratio)) +
+    geom_histogram(bins = 100,
+                   aes(y = ..density..)) +
+    xlim(c(x_limits[1],x_limits[2])) +
+    geom_density() +
+    geom_vline(lty = 2, xintercept = 0, color = 'grey35') +
+    facet_grid(param_type ~ sample_id, scales = 'free_y') +
+    geom_text(data = fraction_labels,
+              x = x_limits[1] + .75*diff(x_limits),
+              aes(label = facet_label,
+                  y = y),
+              size = 2)
+
+}
