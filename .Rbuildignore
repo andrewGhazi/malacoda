@@ -3,3 +3,5 @@
 ^\.travis\.yml$
 ^README\.Rmd$
 ^README-.*\.png$
+^data\/u_deepsea_cond_prior\.RData$
+^data\/umpra\.RData$
