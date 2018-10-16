@@ -256,7 +256,7 @@ fit_marg_prior = function(mpra_data,
     gather(sample_id, counts, matches('DNA|RNA')) %>%
     left_join(sample_depths , by = 'sample_id') %>%
     left_join(mean_dna_abundance, by = 'barcode') %>%
-    mutate(count_remnant = .1 + counts / depth_factor / mean_depth_adj_count) %>%
+    mutate(count_remnant = .1 + counts / depth_factor / mean_depth_adj_count) %>% # the variability of the count after accounting for depth and DNA input
     group_by(allele) %>%
     summarise(mu_prior = list(fit_gamma(count_remnant))) %>%
     gather(prior_type, prior, matches('prior')) %>%
@@ -518,7 +518,7 @@ mpra_data %>%
     gather(sample_id, counts, matches('RNA')) %>%
     left_join(sample_depths, by = 'sample_id') %>%
     left_join(mean_dna_abundance, by = 'barcode') %>%
-    mutate(count_remnant = .1 + counts / depth_factor / mean_depth_adj_count) %>%
+    mutate(count_remnant = .1 + counts / depth_factor / mean_depth_adj_count) %>% # the variability of the count after accounting for depth and DNA input
     group_by(allele) %>%
     summarise(mu_prior = list(fit_gamma(count_remnant,
                                         weights = weight))) %>% # WEIGHTS!
