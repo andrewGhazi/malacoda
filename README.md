@@ -22,9 +22,9 @@ Other features include:
 Installation
 ------------
 
-Currently `malacoda` only works on Mac and Linux. If you're a Windows user looking to use the software, open a Github issue, and we'll bump Windows support up the priority list.
+Currently `malacoda` only works on Mac and Linux. If you're a Windows user looking to use the software, open a Github issue, and we'll bump Windows support up the implementation priority list.
 
-The first step is to install `rstan`. This can usually be done with:
+The first step is to install `rstan`. The following command will usually suffice to do this, if not you can find more in-depth installation instructions [on the rstan documentation](https://github.com/stan-dev/rstan/wiki/Installing-RStan-on-Mac-or-Linux).
 
 ``` r
 install.packages('rstan', dependencies = TRUE)
