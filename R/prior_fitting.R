@@ -193,10 +193,7 @@ fit_marg_prior = function(mpra_data,
                           plot_rep_cutoff = TRUE,
                           rep_cutoff = .15){
 
-  sample_depths = mpra_data %>%
-    gather(sample_id, counts, matches('DNA|RNA')) %>%
-    group_by(sample_id) %>%
-    summarise(depth_factor = sum(counts) / 1e6)
+  sample_depths = get_sample_depths(mpra_data)
 
   print('Determining well-represented variants, see plot...')
   well_represented = get_well_represented(mpra_data,
@@ -372,10 +369,7 @@ fit_cond_prior = function(mpra_data,
   #### DNA prior fitting ----
 
   print('Evaluating data depth/DNA representation properties...')
-  sample_depths = mpra_data %>%
-    gather(sample_id, counts, matches('DNA|RNA')) %>%
-    group_by(sample_id) %>%
-    summarise(depth_factor = sum(counts) / 1e6)
+  sample_depths = get_sample_depths(mpra_data)
 
   print('Determining well-represented variants, see plot...')
   well_represented = get_well_represented(mpra_data,

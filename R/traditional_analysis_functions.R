@@ -18,10 +18,7 @@ compute_activities = function(mpra_data,
                              rep_cutoff = .15,
                              plot_rep_cutoff = TRUE){
 
-  sample_depths = mpra_data %>%
-    gather(sample_id, counts, matches('DNA|RNA')) %>%
-    group_by(sample_id) %>%
-    summarise(depth_factor = sum(counts) / 1e6)
+  sample_depths = get_sample_depths(mpra_data)
 
   print('Determining well-represented variants, see plot...')
   well_represented = get_well_represented(mpra_data,
@@ -91,6 +88,23 @@ test_one_variant = function(variant_activities,
   } else {
     stop('test_type input given not supported')
   }
+}
+
+#' Get Sample Depths
+#'
+#' @description Computes the sum of all barcode counts
+#' @param mpra_data a dataframe of MPRA data
+#' @param depth_multiplier a numeric to divide through the depths to make the
+#'   numbers more easily interpretable
+#' @note The \code{depth_multiplier} input has no effect on the downstream
+#'   analysis as it divides out because both RNA and DNA counts are normalized
+#'   by this same factor. It simply sets the scale of depth factors at an easily-readable range.
+get_sample_depths = function(mpra_data,
+                             depth_multiplier = 1e6){
+  mpra_data %>%
+    gather(sample_id, counts, matches('DNA|RNA')) %>%
+    group_by(sample_id) %>%
+    summarise(depth_factor = sum(counts) / depth_multiplier)
 }
 
 #' Run MPRA activity tests

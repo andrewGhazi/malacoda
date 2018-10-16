@@ -248,10 +248,7 @@ fit_mpra_model = function(mpra_data,
 
   n_rna = mpra_data %>% select(matches('RNA')) %>% ncol
   n_dna = mpra_data %>% select(matches('DNA')) %>% ncol
-  sample_depths = mpra_data %>%
-    gather(sample_id, counts, matches('DNA|RNA')) %>%
-    group_by(sample_id) %>%
-    summarise(depth_factor = sum(counts) / 1e6)
+  sample_depths = get_sample_depths(mpra_data)
 
 
 
