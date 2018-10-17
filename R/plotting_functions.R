@@ -87,3 +87,29 @@ plot_prior_ratios = function(prior_ratios,
     labs(title = 'log(Conditional:Marginal) prior density of maximum-likelihood estimates')
 
 }
+
+#' Create ratio by transcription shift hexbins
+#'
+#' @param prior_ratios a dataframe of barcode activities
+#' @param activities a dataframe of barcode activities
+#' @param y_limits
+#'
+#' @details prior_ratios can be produced by get_prior_ratios() and activities
+#'   can be produced by compute_activities
+plot_ratio_hexs = function(prior_ratios,
+                           activities,
+                           y_limits = c(-1,1)){
+  mean_ts = activities %>%
+    group_by(variant_id, allele) %>%
+    summarise(mean_act = mean(activity)) %>%
+    filter(all(c('ref', 'alt') %in% allele)) %>%
+    summarise(ts = mean_act[allele == 'alt'] - mean_act[allele == 'ref'])
+
+  prior_ratios %>%
+    left_join(mean_ts, by = 'variant_id') %>%
+    ggplot(aes(ts, log_prior_ratio)) +
+    ylim(y_limits) +
+    geom_hex() +
+    facet_wrap("sample_id")
+
+}
