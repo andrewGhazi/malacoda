@@ -74,7 +74,7 @@ This will fit the model to each input in the assay (using some example variants 
 |10_46003631 |       -0.886|        -2.299|        -3.185|FALSE         |    -2.137|     0.300|
 |1_158497964 |       -0.798|        -0.178|        -0.976|TRUE          |    -1.371|    -0.222|
 
-More sophisticated analyses that use annotations to create informative priors for higher sensitivity will be described in an upcoming vignette. The required functionality to do so currently exists with `fit_cond_prior`. Other features like annotation checking and traditional NHST analysis will also be explained in the vignette.
+More sophisticated analyses that use annotations to create informative priors for higher sensitivity will be described in an upcoming vignette. The required functionality to do so currently exists with `fit_cond_prior`. Other features like annotation checking and traditional NHST analysis will also be explained in the vignette. In the meantime, most major functions like `fit_cond_prior` have help documentation that should help elucidate how to use them.
 
 ## Example output
 
