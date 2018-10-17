@@ -145,6 +145,14 @@ In addition to the summary statistics table output above, the sampler outputs fo
 
 ![An example activity beeswarm with overlaid activity mean posteriors](man/figures/posterior_beeswarm_example.png)
 
+Upcoming Features
+-----------------
+
+-   Fleshed out CRISPR model support
+    -   Time dependent depletion model
+-   Categorical conditional priors
+    -   Estimate by-group conditional priors for non-continuous annotations (i.e. likely pathogenic vs benign vs VUS)
+
 Contact
 -------
 
