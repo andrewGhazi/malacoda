@@ -5,3 +5,4 @@
 ^README-.*\.png$
 ^data\/u_deepsea_cond_prior\.RData$
 ^data\/umpra\.RData$
+^data/nm\.42180S2\.xlsx$
