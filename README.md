@@ -143,9 +143,11 @@ Example output
 
 In addition to the summary statistics table output above, the sampler outputs for each variant are saved in the user-defined output directory. These are stanfit objects, hence they can be visualized using all the tools provided in packages like [bayesplot](http://mc-stan.org/users/interfaces/bayesplot).
 
-`malacoda` also provides one plotting function of its own (with more planned), `posterior_beeswarm()`. This plots the traditional activity measurements as points in a beeswarm plot along with violins for posteriors on means for each allele. Optional colors can help diagnose unwanted sample-specific bias. That is, all the colors should be mixed within each allele, indicating that activity measurements are not influenced by sample.
+`malacoda` also provides several plotting function of its own (with more planned), `posterior_beeswarm()`. This plots the traditional activity measurements as points in a beeswarm plot along with violins for posteriors on means for each allele. Optional colors can help diagnose unwanted sample-specific bias. That is, all the colors should be mixed within each allele, indicating that activity measurements are not influenced by sample.
 
 ![An example activity beeswarm with overlaid activity mean posteriors](man/figures/posterior_beeswarm_example.png)
+
+Other visualization functions are available for annotation checking. These help visualize the improvement induced by the use of informative conditional priors.
 
 Upcoming Features
 -----------------
