@@ -5,7 +5,9 @@ malacoda <img src="man/figures/logo.png" align="right" title="evil tail"/>
 
 The goal of malacoda is to enable Bayesian analysis of high-throughput genomic assays like massively parallel reporter assays (MPRA) and CRISPR screens.
 
-It uses a negative-binomial-based Bayesian model that offers numerous advantages over traditional null hypothesis significance testing based methods:
+![malacoda Kruschke diagram](man/figures/kruschke2.png)
+
+It uses a negative-binomial-based Bayesian model shown in the Kruschke diagram above. This model offers numerous advantages over traditional null hypothesis significance testing based methods:
 
 -   Models raw data - The model is fit directly to the input counts (MPRA barcodes or gRNAs)
     -   The lack of transformations avoids discarding 0 counts as in traditional methods.
