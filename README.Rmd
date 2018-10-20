@@ -94,7 +94,10 @@ Other visualization functions are available for annotation checking. These help 
     * Time dependent depletion model
 * Categorical conditional priors  
     * Estimate by-group conditional priors for non-continuous annotations (i.e. likely pathogenic vs benign vs VUS)
+* Quality Control functionality
 
 ## Contact
+
+The massively parallel functionalization field is still rapidly changing so there's a lot of experimental structures out there that are not accounted for in this package yet. If you're interested in these methods, feel free to contact me with some example data and I'll be happy to take a look to see if I can adapt the existing models!
 
 Please contact me through Github DM or my BCM email address if you use the package or have feature requests / comments.
