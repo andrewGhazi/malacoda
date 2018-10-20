@@ -15,7 +15,7 @@ data {
   real<lower=0> t0_p_a; // t0_p priors are estimated differently
   real<lower=0> t0_p_b; // I should rename these variables
 
-  real<lower=0> output_m_a[2]; // 1 = ctrl, 2 = case
+  real<lower=0> output_m_a[2]; // 1 = ctrl, 2 = case, priors on output means and phis
   real<lower=0> output_m_b[2];
   real<lower=0> output_p_a[2];
   real<lower=0> output_p_b[2];
