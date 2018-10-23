@@ -26,10 +26,10 @@ Installation
 
 Currently `malacoda` only works on Mac and Linux. If you're a Windows user looking to use the software, open a Github issue, and we'll bump Windows support up the implementation priority list.
 
-The first step is to install `rstan`. The following command will usually suffice to do this, if not you can find more in-depth installation instructions [on the rstan documentation](https://github.com/stan-dev/rstan/wiki/Installing-RStan-on-Mac-or-Linux).
+The first step is to install `rstan` and `Rcpp`. The following command will usually suffice to do this, if not you can find more in-depth installation instructions [on the rstan documentation](https://github.com/stan-dev/rstan/wiki/Installing-RStan-on-Mac-or-Linux).
 
 ``` r
-install.packages('rstan', dependencies = TRUE)
+install.packages(c('Rcpp', 'rstan'), dependencies = TRUE, type = 'source')
 ```
 
 You can install malacoda from github with:
@@ -156,8 +156,11 @@ Upcoming Features
     -   Time dependent depletion model
 -   Categorical conditional priors
     -   Estimate by-group conditional priors for non-continuous annotations (i.e. likely pathogenic vs benign vs VUS)
+-   Quality Control functionality
 
 Contact
 -------
+
+The massively parallel functionalization field is still rapidly changing so there's a lot of experimental structures out there that are not accounted for in this package yet. If you're interested in these methods, feel free to contact me with some example data and I'll be happy to take a look to see if I can adapt the existing models!
 
 Please contact me through Github DM or my BCM email address if you use the package or have feature requests / comments.
