@@ -4,6 +4,7 @@
 #' @import dplyr
 #' @import purrr
 #' @import tidyr
+#' @import tibble
 #' @importFrom rlang .data
 #' @importFrom grDevices rgb
 #' @import ggplot2
