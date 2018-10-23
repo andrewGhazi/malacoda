@@ -26,7 +26,8 @@ Imports:
     mvtnorm,
     broom,
     ggbeeswarm,
-    rlang
+    rlang,
+    ggplot2
 LinkingTo:
     BH (>= 1.66.0-1),
     Rcpp (>= 0.12.18),
