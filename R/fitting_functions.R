@@ -4,6 +4,9 @@
 #' @import dplyr
 #' @import purrr
 #' @import tidyr
+#' @importFrom rlang .data
+#' @import stats
+#' @importFrom grDevices rgb
 empty_fun = function(){
 
 }

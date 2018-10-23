@@ -28,21 +28,21 @@ compute_activities = function(mpra_data,
                                           verbose = TRUE)
 
   mean_dna_abundance = mpra_data %>%
-    filter(barcode %in% well_represented$barcode) %>%
-    select(barcode, matches('DNA')) %>%
-    gather(sample_id, count, -barcode) %>%
+    filter(.data$barcode %in% well_represented$barcode) %>%
+    select(.data$barcode, matches('DNA')) %>%
+    gather("sample_id", count, -.data$barcode) %>%
     left_join(sample_depths, by = 'sample_id') %>%
-    mutate(depth_adj_count = count / depth_factor) %>%
-    group_by(barcode) %>%
-    summarise(mean_depth_adj_dna = mean(depth_adj_count))
+    mutate(depth_adj_count = .data$count / .data$depth_factor) %>%
+    group_by(.data$barcode) %>%
+    summarise(mean_depth_adj_dna = mean(.data$depth_adj_count))
 
   activities_raw = mpra_data %>%
     select(-matches('DNA')) %>%
-    gather(sample_id, count, matches('RNA')) %>%
+    gather("sample_id", count, matches('RNA')) %>%
     left_join(sample_depths, by = 'sample_id') %>%
     left_join(mean_dna_abundance, by = 'barcode') %>%
-    mutate(depth_adj_count = count / depth_factor,
-           activity = log(depth_adj_count / mean_depth_adj_dna))
+    mutate(depth_adj_count = .data$count / .data$depth_factor,
+           activity = log(.data$depth_adj_count / .data$mean_depth_adj_dna))
 
   if (any(is.infinite(activities_raw$activity))) {
     print(paste0('Removing ', sum(is.infinite(activities_raw$activity)),
@@ -51,12 +51,12 @@ compute_activities = function(mpra_data,
                  ' (', round(100*sum(is.infinite(activities_raw$activity)) / nrow(activities_raw), digits = 2), '%)'))
 
     activities = activities_raw %>%
-      filter(is.finite(activity))
+      filter(is.finite(.data$activity))
   }
 
   activities %<>%
-    mutate(allele = factor(case_when(tolower(allele) == 'ref' ~ 'ref',
-                                     tolower(allele) != 'ref' ~ 'alt'), levels = c('ref', 'alt')))
+    mutate(allele = factor(case_when(tolower(.data$allele) == 'ref' ~ 'ref',
+                                     tolower(.data$allele) != 'ref' ~ 'alt'), levels = c('ref', 'alt')))
 
 
   return(activities)

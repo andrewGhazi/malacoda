@@ -69,40 +69,41 @@ find_prior_weights = function(given_id,
   n_annotations = dplyr::n_distinct(scaled_annotations$annotation)
 
   given_annotations = scaled_annotations %>%
-    filter(variant_id == given_id)
+    filter(.data$variant_id == given_id)
 
   pos_vec = given_annotations$value
 
   same_annotation_pos = scaled_annotations %>%
-    filter(variant_id != given_id) %>%
-    group_by(variant_id) %>%
-    summarise(same_pos = all(value == pos_vec)) %>%
-    filter(same_pos)
+    filter(.data$variant_id != given_id) %>%
+    group_by(.data$variant_id) %>%
+    summarise(same_pos = all(.data$value == pos_vec)) %>%
+    filter(.data$same_pos)
 
   if(nrow(same_annotation_pos) >= min_num_neighbors){
     print('>= min_num_neighbors at the exact same annotation position. Using these evenly for prior estimation while not using others.')
 
     weight_res = scaled_annotations %>%
-      filter(variant_id != given_id) %>%
-      mutate(same_pos = variant_id %in% same_annotation_pos$variant_id,
-             weight = case_when(same_pos ~ 1,
-                                !same_pos ~ 0)) %>%
-      select(variant_id, weight)
+      filter(.data$variant_id != given_id) %>%
+      mutate(same_pos = .data$variant_id %in% same_annotation_pos$variant_id,
+             weight = case_when(.data$same_pos ~ 1,
+                                !.data$same_pos ~ 0)) %>%
+      select(.data$variant_id, .data$weight)
     return(weight_res)
 
   }
 
   dist_to_others = scaled_annotations %>%
-    filter(variant_id != given_id) %>%
-    group_by(variant_id) %>%
-    mutate(dist = value - pos_vec)
+    filter(.data$variant_id != given_id) %>%
+    group_by(.data$variant_id) %>%
+    mutate(dist = .data$value - pos_vec)
 
   weight_df = dist_to_others %>%
-    select(-value) %>%
-    summarise(mv_dens = mvtnorm::dmvt(dist, sigma = diag(min_dist_kernel, n_annotations), log = FALSE)) %>% # Using a t kernel
-    mutate(frac_weight = mv_dens / sum(mv_dens)) %>%
-    arrange(desc(frac_weight)) %>%
-    mutate(cs = cumsum(frac_weight),
+    select(-.data$value) %>%
+    summarise(mv_dens = mvtnorm::dmvt(.data$dist,
+                                      sigma = diag(min_dist_kernel, n_annotations), log = FALSE)) %>% # Using a t kernel
+    mutate(frac_weight = .data$mv_dens / sum(.data$mv_dens)) %>%
+    arrange(desc(.data$frac_weight)) %>%
+    mutate(cs = cumsum(.data$frac_weight),
            n = 1:n())
 
   if (weight_df$cs[min_num_neighbors] > .99){
@@ -112,17 +113,17 @@ find_prior_weights = function(given_id,
     while (weight_df$cs[min_num_neighbors] > .99) {
       min_dist_kernel = kernel_fold_change * min_dist_kernel
       weight_df = dist_to_others %>%
-        select(-value) %>%
-        summarise(mv_dens = mvtnorm::dmvt(dist, sigma = diag(min_dist_kernel, n_annotations), log = FALSE)) %>% # Using a t kernel
-        mutate(frac_weight = mv_dens / sum(mv_dens)) %>%
-        arrange(desc(frac_weight)) %>%
-        mutate(cs = cumsum(frac_weight),
+        select(-.data$value) %>%
+        summarise(mv_dens = mvtnorm::dmvt(.data$dist, sigma = diag(min_dist_kernel, n_annotations), log = FALSE)) %>% # Using a t kernel
+        mutate(frac_weight = .data$mv_dens / sum(.data$mv_dens)) %>%
+        arrange(desc(.data$frac_weight)) %>%
+        mutate(cs = cumsum(.data$frac_weight),
                n = 1:n())
     }
   }
 
   weight_res = weight_df %>%
-    select(variant_id, weight = mv_dens)
+    select(.data$variant_id, weight = .data$mv_dens)
 
   return(weight_res)
 
