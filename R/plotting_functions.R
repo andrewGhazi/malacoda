@@ -113,3 +113,22 @@ plot_ratio_hexs = function(prior_ratios,
     facet_wrap("sample_id")
 
 }
+
+#' Plot MPRA sample correlations
+#'
+#' @param sample_correlations a data frame of pairwise sample correlations
+#' @return a ggplot showing the pairwise sample correlations
+#' @details This function visualizes the pairwise correlations of count samples
+#'   in MPRA data. This can be a useful QC metric - samples should correlate
+#'   highly with other samples of the same type (DNA or RNA). If ALL samples
+#'   correlate highly with one another, this can indicate DNA contamination in
+#'   the RNA libraries.
+#' @note Get \code{sample_correlations} from get_mpra_correlations
+plot_mpra_correlations = function(sample_correlations){
+  sample_correlations %>%
+    mutate(corr_label = format(correlation, digits = 3)) %>%
+    ggplot(aes(x = sample_1, y = sample_2)) +
+    geom_tile(aes(fill = correlation)) +
+    geom_text(aes(label = corr_label), color = 'white') +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+}
