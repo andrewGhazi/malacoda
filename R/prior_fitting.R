@@ -145,9 +145,9 @@ get_well_represented = function(mpra_data,
     summarise(mean_depth_adj_count = mean(depth_adj_count))
 
 
-  if (plot_rep_cutoff){
+  if (plot_rep_cutoff) {
      rep_cutoff_plot = all_dna %>%
-      ggplot(aes(mean_depth_adj_count)) +
+      ggplot(aes(.data$mean_depth_adj_count)) +
       geom_histogram(bins = 40,
                      color = 'black',
                      fill = 'grey50') +
