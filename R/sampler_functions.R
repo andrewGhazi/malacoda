@@ -112,3 +112,50 @@ run_mpra_sampler = function(variant_id, variant_dat, variant_prior,
 run_crispr_sampler = function() {
 
 }
+
+sample_from_prior = function(prior_df){
+  sim_df = prior_df %>%
+    mutate(allele = case_when(tolower(allele) == 'ref' ~ 'ref',
+                              tolower(allele) != 'ref' ~ 'alt'),
+           draws = map2(alpha_est, beta_est, ~rgamma(5e4, shape = .x, rate = .y))) %>%
+    select(allele, draws) %>%
+    unnest %>%
+    mutate(iter = rep(1:5e4, times = 2)) %>%
+    spread(allele, draws) %>%
+    mutate(sim_ts = alt - ref)
+
+  return(sim_df)
+}
+
+summarise_prior_samples = function(sim_df){
+
+  sim_summary = sim_df %>%
+    summarise(mean_prior_ts = mean(sim_ts),
+              sd_prior_ts = sd(sim_ts),
+              prior_ts_hdi = list(coda::HPDinterval(coda::mcmc(sim_ts), prob = .99)),
+              prior_lower_ts = prior_ts_hdi[[1]][1],
+              prior_upper_ts = prior_ts_hdi[[1]][2],
+              prior_is_func = !between(0, prior_lower_ts, prior_upper_ts))
+
+  return(sim_summary)
+}
+
+summarise_one_prior = function(prior_df){
+  prior_samples = sample_from_prior(prior_df)
+
+  prior_summary = summarise_prior_samples(prior_samples)
+
+  return(prior_summary)
+}
+
+
+summarise_cond_prior = function(cond_prior,
+                                n_cores = 1){
+
+  cond_prior$rna_priors %>%
+    mutate(prior_sim_res = parallel::mclapply(variant_m_prior,
+                                              summarise_one_prior,
+                                              mc.cores = n_cores)) %>%
+    unnest(... = prior_sim_res) %>%
+    arrange(desc(abs(mean_prior_ts)))
+}
