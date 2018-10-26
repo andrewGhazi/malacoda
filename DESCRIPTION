@@ -27,7 +27,8 @@ Imports:
     broom,
     ggbeeswarm,
     rlang,
-    ggplot2
+    ggplot2,
+    tibble
 LinkingTo:
     BH (>= 1.66.0-1),
     Rcpp (>= 0.12.18),
