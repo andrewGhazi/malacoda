@@ -39,6 +39,8 @@ You can install malacoda from github with:
 devtools::install_github("andrewGhazi/malacoda")
 ```
 
+This should install the dependencies (mainly a lot of tidyverse packages), compile the malacoda Stan models, and install the package.
+
 Example
 -------
 
