@@ -30,100 +30,115 @@ get_prior_ratios = function(mpra_data,
   print('Determining well-represented variants, see plot...')
   well_represented = get_well_represented(mpra_data,
                                           sample_depths,
-                                          rep_cutoff = rep_cutoff,
-                                          plot_rep_cutoff = plot_rep_cutoff)
+                                          rep_cutoff = .15,
+                                          plot_rep_cutoff = FALSE)
 
 
   #### First get the ratios for the mean parameters ----
   mean_dna_abundance = mpra_data %>%
-    select(variant_id, allele, barcode, matches('DNA')) %>%
-    gather(sample_id, counts, matches('DNA|RNA')) %>%
+    select(.data$variant_id, .data$allele, .data$barcode, matches('DNA')) %>%
+    gather('sample_id', 'counts', matches('DNA|RNA')) %>%
     left_join(sample_depths,
               by = 'sample_id') %>%
-    mutate(depth_adj_count = counts / depth_factor) %>%
-    group_by(barcode) %>%
-    summarise(mean_depth_adj_count = mean(depth_adj_count))
+    mutate(depth_adj_count = .data$counts / .data$depth_factor) %>%
+    group_by(.data$barcode) %>%
+    summarise(mean_depth_adj_count = mean(.data$depth_adj_count))
 
   rna_cond_mu_prior = cond_prior$rna_priors %>%
-    select(-annotation_weights, -variant_p_prior) %>%
+    select(-.data$annotation_weights, -.data$variant_p_prior) %>%
     unnest %>% # this leaves a bunch of messy column names
-    select(-prior, -matches('acid_type')) %>%
-    select(-prior_type)
+    select(-.data$prior, -matches('acid_type')) %>%
+    select(-.data$prior_type)
 
   count_remnants = mpra_data %>%
-    filter(barcode %in% well_represented$barcode) %>%
+    filter(.data$barcode %in% well_represented$barcode) %>%
     select(-matches('DNA')) %>%
-    gather(sample_id, counts, matches('RNA')) %>%
+    gather('sample_id', 'counts', matches('RNA')) %>%
     left_join(sample_depths, by = 'sample_id') %>%
     left_join(mean_dna_abundance, by = 'barcode') %>%
-    mutate(count_remnant = .1 + counts / depth_factor / mean_depth_adj_count)
+    mutate(count_remnant = .1 + .data$counts / .data$depth_factor / .data$mean_depth_adj_count)
+
+  marg_mu = marg_prior %>%
+    select(-.data$prior, -.data$acid_type) %>%
+    filter(grepl('mu', .data$prior_type))
 
   mu_ratios = count_remnants %>% # the variability of the count after accounting for depth and DNA input
-    left_join(marg_prior %>% select(-prior, -acid_type) %>% filter(grepl('mu', prior_type)), by = c('allele')) %>%
-    rename(marg_alpha = alpha_est,
-           marg_beta = beta_est) %>%
-    select(-prior_type) %>%
-    left_join(rna_cond_mu_prior, by = c('variant_id', 'allele')) %>%
+    left_join(marg_mu,
+              by = c('allele')) %>%
+    rename(marg_alpha = .data$alpha_est,
+           marg_beta = .data$beta_est) %>%
+    select(-.data$prior_type) %>%
+    left_join(rna_cond_mu_prior,
+              by = c('variant_id', 'allele')) %>%
     mutate(cond_dens = parallel::mcmapply(dgamma,
-                                          count_remnant, alpha_est, beta_est,
+                                          .data$count_remnant, .data$alpha_est, .data$beta_est,
                                           MoreArgs = list(log = TRUE),
                                           mc.cores = n_cores,
                                           SIMPLIFY = TRUE),
            marg_dens = parallel::mcmapply(dgamma,
-                                          count_remnant, marg_alpha, marg_beta,
+                                          .data$count_remnant, .data$marg_alpha, .data$marg_beta,
                                           MoreArgs = list(log = TRUE),
                                           mc.cores = n_cores,
                                           SIMPLIFY = TRUE),
-           log_prior_ratio = cond_dens - marg_dens,
+           log_prior_ratio = .data$cond_dens - .data$marg_dens,
            param_type = 'mean') %>%
-    rename(mle_estimate = count_remnant) %>%
-    select(variant_id, allele, barcode, sample_id, param_type, mle_estimate, log_prior_ratio, cond_dens, marg_dens, marg_alpha:beta_est)
+    rename(mle_estimate = .data$count_remnant) %>%
+    select(.data$variant_id, .data$allele, .data$barcode, .data$sample_id,
+           .data$param_type, .data$mle_estimate, .data$log_prior_ratio, .data$cond_dens, .data$marg_dens, .data$marg_alpha:.data$beta_est)
 
   #### Repeat for dispersion parameters ----
 
   size_guesses = mpra_data %>%
-    select(variant_id, allele, barcode, matches('RNA')) %>%
-    filter(barcode %in% well_represented$barcode) %>%
-    gather(sample_id, counts, matches('DNA|RNA')) %>%
-    group_by(allele, barcode) %>%
-    summarise(mean_est = mean(counts),
-              var_est = var(counts),
-              size_guess = mean_est^2 / (var_est - mean_est)) %>% # this works fine for fitting priors but ideally we'd use an actual MLE function
-    filter(size_guess > 0 & is.finite(size_guess)) %>% # negative size guess = var < mean --> underdispersed
-    filter(size_guess < quantile(size_guess, probs = .99)) %>%
+    select(.data$variant_id, .data$allele, .data$barcode, matches('RNA')) %>%
+    filter(.data$barcode %in% well_represented$barcode) %>%
+    gather('sample_id', 'counts', matches('DNA|RNA')) %>%
+    group_by(.data$allele, .data$barcode) %>%
+    summarise(mean_est = mean(.data$counts),
+              var_est = var(.data$counts),
+              size_guess = .data$mean_est^2 / (.data$var_est - .data$mean_est)) %>% # this works fine for fitting priors but ideally we'd use an actual MLE function
+    filter(.data$size_guess > 0 & is.finite(.data$size_guess)) %>% # negative size guess = var < mean --> underdispersed
+    filter(.data$size_guess < quantile(.data$size_guess, probs = .99)) %>%
     ungroup
 
   rna_cond_phi_prior =  cond_prior$rna_priors %>%
-    select(-annotation_weights, -variant_m_prior) %>%
+    select(-.data$annotation_weights, -.data$variant_m_prior) %>%
     unnest %>% # this leaves a bunch of messy column names
-    select(-prior, -matches('acid_type')) %>%
-    select(-prior_type)
+    select(-.data$prior, -matches('acid_type')) %>%
+    select(-.data$prior_type)
 
   variants_barcodes = mpra_data %>%
-    select(variant_id, barcode) %>%
+    select(.data$variant_id, .data$barcode) %>%
     unique
+
+  marg_phi = marg_prior %>%
+    select(-.data$prior, -.data$acid_type) %>%
+    filter(grepl('phi', .data$prior_type))
 
   across_samples_size_ratios = size_guesses %>%
     left_join(variants_barcodes, by = 'barcode') %>%
-    left_join(marg_prior %>% select(-prior, -acid_type) %>% filter(grepl('phi', prior_type)), by = c('allele')) %>%
-    rename(marg_alpha = alpha_est,
-           marg_beta = beta_est) %>%
-    select(-prior_type) %>%
-    left_join(rna_cond_phi_prior, by = c('variant_id', 'allele')) %>%
+    left_join(marg_phi,
+              by = c('allele')) %>%
+    rename(marg_alpha = .data$alpha_est,
+           marg_beta = .data$beta_est) %>%
+    select(-.data$prior_type) %>%
+    left_join(rna_cond_phi_prior,
+              by = c('variant_id', 'allele')) %>%
     mutate(cond_dens = parallel::mcmapply(dgamma,
-                                          size_guess, alpha_est, beta_est,
+                                          .data$size_guess, .data$alpha_est, .data$beta_est,
                                           MoreArgs = list(log = TRUE),
                                           mc.cores = n_cores,
                                           SIMPLIFY = TRUE),
            marg_dens = parallel::mcmapply(dgamma,
-                                          size_guess, marg_alpha, marg_beta,
+                                          .data$size_guess, .data$marg_alpha, .data$marg_beta,
                                           MoreArgs = list(log = TRUE),
                                           mc.cores = n_cores,
                                           SIMPLIFY = TRUE),
-           log_prior_ratio = cond_dens - marg_dens,
+           log_prior_ratio = .data$cond_dens - .data$marg_dens,
            param_type = 'dispersion') %>%
-    rename(mle_estimate = size_guess) %>%
-    select(variant_id, allele, barcode, param_type, mle_estimate, log_prior_ratio, cond_dens, marg_dens, marg_alpha:beta_est)
+    rename(mle_estimate = .data$size_guess) %>%
+    select(.data$variant_id, .data$allele, .data$barcode, .data$param_type, .data$mle_estimate,
+           .data$log_prior_ratio, .data$cond_dens,
+           .data$marg_dens, .data$marg_alpha:.data$beta_est)
 
   size_ratios = data_frame(sample_id = unique(mu_ratios$sample_id),
                            size_guesses = list(across_samples_size_ratios)) %>%
