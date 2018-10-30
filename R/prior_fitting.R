@@ -535,20 +535,20 @@ fit_one_m_prior = function(given_id,
                            mean_dna_abundance){
 
 mpra_data %>%
-    filter(barcode %in% well_represented$barcode) %>%
-    filter(variant_id != given_id) %>%
+    filter(.data$barcode %in% well_represented$barcode) %>%
+    filter(.data$variant_id != given_id) %>%
     select(-matches('DNA')) %>%
     left_join(annotation_weights, by = 'variant_id') %>%
-    gather(sample_id, counts, matches('RNA')) %>%
+    gather('sample_id', 'counts', matches('RNA')) %>%
     left_join(sample_depths, by = 'sample_id') %>%
     left_join(mean_dna_abundance, by = 'barcode') %>%
-    mutate(count_remnant = .1 + counts / depth_factor / mean_depth_adj_count) %>% # the variability of the count after accounting for depth and DNA input
-    group_by(allele) %>%
-    summarise(mu_prior = list(fit_gamma(count_remnant,
-                                        weights = weight))) %>% # WEIGHTS!
-    gather(prior_type, prior, matches('prior')) %>%
-    mutate(alpha_est = map_dbl(prior, ~.x$par[1]),
-           beta_est = map_dbl(prior, ~.x$par[2])) %>%
+    mutate(count_remnant = .1 + .data$counts / .data$depth_factor / .data$mean_depth_adj_count) %>% # the variability of the count after accounting for depth and DNA input
+    group_by(.data$allele) %>%
+    summarise(mu_prior = list(fit_gamma(.data$count_remnant,
+                                        weights = .data$weight))) %>% # WEIGHTS! A CONDITIONALLY WEIGHTED PRIOR!
+    gather('prior_type', 'prior', matches('prior')) %>%
+    mutate(alpha_est = map_dbl(.data$prior, ~.x$par[1]),
+           beta_est = map_dbl(.data$prior, ~.x$par[2])) %>%
     mutate(acid_type = 'RNA')
 }
 
