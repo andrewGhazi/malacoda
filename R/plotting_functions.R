@@ -15,26 +15,29 @@ posterior_beeswarm = function(sampler_result,
 
   violin_dat = sampler_result %>%
     rstan::extract(pars = c('ref_act', 'alt_act')) %>%
-    bind_cols %>% select_all(~gsub('_act', '', .)) %>%
-    gather(allele, post_sample) %>%
-    mutate(allele = factor(allele, levels = c('ref', 'alt')))
+    bind_cols %>%
+    select_all(~gsub('_act', '', .)) %>%
+    gather('allele', 'post_sample') %>%
+    mutate(allele = factor(.data$allele, levels = c('ref', 'alt')))
 
 
   if (color_by_sample){
     print('Coloring dots by sample. Colors should be mixed i.e. identically distributed!')
-    bee_plot = ggplot(aes(allele, activity),
+    bee_plot = ggplot(aes(x = .data$allele,
+                          y = .data$activity),
                       data = activities) +
-      ggbeeswarm::geom_beeswarm(aes(color = sample_id),
+      ggbeeswarm::geom_beeswarm(aes(color = .data$sample_id),
                                 cex = 1.5)
   } else {
-    bee_plot = ggplot(aes(allele, activity),
+    bee_plot = ggplot(aes(x = .data$allele,
+                          y = .data$activity),
                       data = activities) +
       ggbeeswarm::geom_beeswarm(cex = 1.5)
   }
 
   bee_plot +
     geom_violin(data = violin_dat,
-                aes(allele, post_sample),
+                aes(.data$allele, .data$post_sample),
                 fill = rgb(0,0,0,0),
                 width = .75)
 
@@ -59,7 +62,9 @@ plot_prior_ratios = function(prior_ratios,
                              n_bins = 100) {
 
 
-  suitable = prior_ratios %>% filter(log_prior_ratio > x_limits[1] & log_prior_ratio < x_limits[2])
+  suitable = prior_ratios %>%
+    filter(.data$log_prior_ratio > x_limits[1] &
+             .data$log_prior_ratio < x_limits[2])
 
   if (nrow(suitable) < nrow(prior_ratios)){
     warning(paste0('Removing ', format(100*(1- nrow(suitable) / nrow(prior_ratios)), digits = 3), '% of parameter estimates from plot x-range. Set x_limits to larger values to avoid'))
@@ -67,23 +72,23 @@ plot_prior_ratios = function(prior_ratios,
 
 
   fraction_labels = prior_ratios %>%
-    group_by(param_type, sample_id) %>%
-    summarise(fraction_improved = format(sum(log_prior_ratio > 0) / n(), digits = 3),
-              facet_label = paste('Fraction above 0:\n', fraction_improved, sep = ''),
-              y = get_label_y(log_prior_ratio))
+    group_by(.data$param_type, .data$sample_id) %>%
+    summarise(fraction_improved = format(sum(.data$log_prior_ratio > 0) / n(), digits = 3),
+              facet_label = paste('Fraction above 0:\n', .data$fraction_improved, sep = ''),
+              y = get_label_y(.data$log_prior_ratio))
 
   prior_ratios %>%
-    ggplot(aes(log_prior_ratio)) +
+    ggplot(aes(.data$log_prior_ratio)) +
     geom_histogram(bins = n_bins,
-                   aes(y = ..density..)) +
+                   aes(y = .data$..density..)) +
     xlim(c(x_limits[1],x_limits[2])) +
     geom_density() +
     geom_vline(lty = 2, xintercept = 0, color = 'grey35') +
     facet_grid(param_type ~ sample_id, scales = 'free_y') +
     geom_text(data = fraction_labels,
               x = x_limits[1] + .75*diff(x_limits),
-              aes(label = facet_label,
-                  y = y),
+              aes(label = .data$facet_label,
+                  y = .data$y),
               size = 3) +
     labs(title = 'log(Conditional:Marginal) prior density of maximum-likelihood estimates')
 
@@ -104,14 +109,14 @@ plot_ratio_hexs = function(prior_ratios,
                            activities,
                            y_limits = c(-1,1)){
   mean_ts = activities %>%
-    group_by(variant_id, allele) %>%
-    summarise(mean_act = mean(activity)) %>%
-    filter(all(c('ref', 'alt') %in% allele)) %>%
-    summarise(ts = mean_act[allele == 'alt'] - mean_act[allele == 'ref'])
+    group_by(.data$variant_id, .data$allele) %>%
+    summarise(mean_act = mean(.data$activity)) %>%
+    filter(all(c('ref', 'alt') %in% .data$allele)) %>%
+    summarise(ts = .data$mean_act[.data$allele == 'alt'] - .data$mean_act[.data$allele == 'ref'])
 
   prior_ratios %>%
     left_join(mean_ts, by = 'variant_id') %>%
-    ggplot(aes(ts, log_prior_ratio)) +
+    ggplot(aes(.data$ts, .data$log_prior_ratio)) +
     ylim(y_limits) +
     geom_hex() +
     facet_wrap("sample_id")
@@ -130,9 +135,9 @@ plot_ratio_hexs = function(prior_ratios,
 #' @note Get \code{sample_correlations} from get_mpra_correlations
 plot_mpra_correlations = function(sample_correlations){
   sample_correlations %>%
-    mutate(corr_label = format(correlation, digits = 3)) %>%
-    ggplot(aes(x = sample_1, y = sample_2)) +
-    geom_tile(aes(fill = correlation)) +
-    geom_text(aes(label = corr_label), color = 'white') +
+    mutate(corr_label = format(.data$correlation, digits = 3)) %>%
+    ggplot(aes(x = .data$sample_1, y = .data$sample_2)) +
+    geom_tile(aes(fill = .data$correlation)) +
+    geom_text(aes(label = .data$corr_label), color = 'white') +
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
 }
