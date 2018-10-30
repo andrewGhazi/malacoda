@@ -8,11 +8,11 @@ generate_distance_matrix(annotations, log_distance = FALSE,
   scale_annotations = TRUE)
 }
 \arguments{
+\item{annotations}{an n x d data frame of annotations}
+
 \item{log_distance}{a logical indicating to use the log1p of the distances (TRUE) or the raw euclidean distances (FALSE)}
 
 \item{scale_annotations}{logical indicating whether to base::scale to center and scale annotations}
-
-\item{annotation}{an n x d data frame of annotations}
 }
 \description{
 Given an nxd matrix of variant annotations, produce an nxn distance matrix

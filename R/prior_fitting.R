@@ -3,7 +3,7 @@
 #' Given an nxd matrix of variant annotations, produce an nxn distance matrix
 #' describing the inter-variant distances in annotation space
 #'
-#' @param annotation an n x d data frame of annotations
+#' @param annotations an n x d data frame of annotations
 #' @param log_distance a logical indicating to use the log1p of the distances (TRUE) or the raw euclidean distances (FALSE)
 #' @param scale_annotations logical indicating whether to base::scale to center and scale annotations
 #'
