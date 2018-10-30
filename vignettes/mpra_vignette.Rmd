@@ -17,7 +17,9 @@ knitr::opts_chunk$set(
 ```
 
 ```{r}
-library(tidyverse)
+library(dplyr)
+library(purrr)
+library(tidyr)
 ```
 
 
