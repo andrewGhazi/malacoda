@@ -7,11 +7,11 @@
 plot_ratio_hexs(prior_ratios, activities, y_limits = c(-1, 1))
 }
 \arguments{
-\item{prior_ratios}{a dataframe of barcode activities}
+\item{prior_ratios}{a dataframe of barcode prior_ratios}
 
 \item{activities}{a dataframe of barcode activities}
 
-\item{y_limits}{}
+\item{y_limits}{y limits of the plot}
 }
 \description{
 Create ratio by transcription shift hexbins
@@ -19,4 +19,9 @@ Create ratio by transcription shift hexbins
 \details{
 prior_ratios can be produced by get_prior_ratios() and activities
   can be produced by compute_activities
+}
+\note{
+The default y_limits cut off a small fraction of points where one prior
+  or the other does vastly better. It can be set to larger values to avoid
+  this behavior.
 }

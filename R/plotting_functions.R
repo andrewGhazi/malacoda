@@ -90,12 +90,15 @@ plot_prior_ratios = function(prior_ratios,
 
 #' Create ratio by transcription shift hexbins
 #'
-#' @param prior_ratios a dataframe of barcode activities
+#' @param prior_ratios a dataframe of barcode prior_ratios
 #' @param activities a dataframe of barcode activities
-#' @param y_limits
+#' @param y_limits y limits of the plot
 #'
 #' @details prior_ratios can be produced by get_prior_ratios() and activities
 #'   can be produced by compute_activities
+#' @note The default y_limits cut off a small fraction of points where one prior
+#'   or the other does vastly better. It can be set to larger values to avoid
+#'   this behavior.
 plot_ratio_hexs = function(prior_ratios,
                            activities,
                            y_limits = c(-1,1)){
