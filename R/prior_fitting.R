@@ -19,7 +19,7 @@ generate_distance_matrix = function(annotations,
 
   if (log_distance & scale_annotations) {
     annotations %>%
-      dplyr::mutate_at(.vars = vars(-variant_id),
+      dplyr::mutate_at(.vars = vars(-.data$variant_id),
                        .funs = scale) %>%
       as.data.frame() %>%
       tibble::column_to_rownames('variant_id') %>%
@@ -39,7 +39,7 @@ generate_distance_matrix = function(annotations,
       log1p
   } else if (!log_distance & scale_annotations){
     annotations %>%
-      dplyr::mutate_at(.vars = vars(-variant_id),
+      dplyr::mutate_at(.vars = vars(-.data$variant_id),
                        .funs = scale) %>%
       as.data.frame() %>%
       tibble::column_to_rownames('variant_id') %>%
