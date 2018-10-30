@@ -453,8 +453,8 @@ fit_cond_prior = function(mpra_data,
   scaled_annotations = annotations %>%
     mutate_at(.vars = vars(-.data$variant_id),
               .funs = scale) %>%
-    gather(annotation, value, -variant_id) %>%
-    arrange(variant_id, annotation)
+    gather('annotation', 'value', -.data$variant_id) %>%
+    arrange(.data$variant_id, .data$annotation)
 
   n_annotations = dplyr::n_distinct(scaled_annotations$annotation)
 
@@ -468,20 +468,20 @@ fit_cond_prior = function(mpra_data,
   # For each variant, get a vector of weights for all other variants in the assay
   print('Weighting variants in annotation space')
   prior_weights = mpra_data %>%
-    select(variant_id) %>%
+    select(.data$variant_id) %>%
     unique() %>%
-    mutate(annotation_weights = parallel::mclapply(variant_id, find_prior_weights,
-                                         scaled_annotations = scaled_annotations,
-                                         dist_mat = dist_mat,
-                                         min_dist_kernel = min_dist_kernel,
-                                         mc.cores = n_cores))
+    mutate(annotation_weights = parallel::mclapply(.data$variant_id, find_prior_weights,
+                                                   scaled_annotations = scaled_annotations,
+                                                   dist_mat = dist_mat,
+                                                   min_dist_kernel = min_dist_kernel,
+                                                   mc.cores = n_cores))
 
 
   # Perform weighted density estimation for each variant
   print('Fitting annotation-weighted distributions...')
   if (n_cores == 1) {
     rna_m_priors = prior_weights %>%
-      mutate(variant_m_prior = map2(variant_id, annotation_weights,
+      mutate(variant_m_prior = map2(.data$variant_id, .data$annotation_weights,
                                     fit_one_m_prior,
                                     mpra_data = mpra_data,
                                     sample_depths = sample_depths,
@@ -489,7 +489,7 @@ fit_cond_prior = function(mpra_data,
                                     mean_dna_abundance = mean_dna_abundance))
 
     rna_p_priors = prior_weights %>%
-      mutate(variant_p_prior = map2(variant_id, annotation_weights,
+      mutate(variant_p_prior = map2(.data$variant_id, .data$annotation_weights,
                                     fit_one_p_prior,
                                     mpra_data = mpra_data,
                                     sample_depths = sample_depths,
@@ -498,26 +498,28 @@ fit_cond_prior = function(mpra_data,
   } else if (n_cores > 1) {
     rna_m_priors = prior_weights %>%
       mutate(variant_m_prior = parallel::mcmapply(fit_one_m_prior,
-                                        variant_id, annotation_weights,
-                                        MoreArgs = list(mpra_data = mpra_data,
-                                                        sample_depths = sample_depths,
-                                                        well_represented = well_represented,
-                                                        mean_dna_abundance = mean_dna_abundance),
-                                        mc.cores = n_cores,
-                                        SIMPLIFY = FALSE))
+                                                  .data$variant_id, .data$annotation_weights,
+                                                  MoreArgs = list(mpra_data = mpra_data,
+                                                                  sample_depths = sample_depths,
+                                                                  well_represented = well_represented,
+                                                                  mean_dna_abundance = mean_dna_abundance),
+                                                  mc.cores = n_cores,
+                                                  SIMPLIFY = FALSE))
     rna_p_priors = prior_weights %>%
       mutate(variant_p_prior = parallel::mcmapply(fit_one_p_prior,
-                                        variant_id, annotation_weights,
-                                        MoreArgs = list(mpra_data = mpra_data,
-                                                        sample_depths = sample_depths,
-                                                        well_represented = well_represented,
-                                                        mean_dna_abundance = mean_dna_abundance),
-                                        mc.cores = n_cores,
-                                        SIMPLIFY = FALSE))
+                                                  .data$variant_id, .data$annotation_weights,
+                                                  MoreArgs = list(mpra_data = mpra_data,
+                                                                  sample_depths = sample_depths,
+                                                                  well_represented = well_represented,
+                                                                  mean_dna_abundance = mean_dna_abundance),
+                                                  mc.cores = n_cores,
+                                                  SIMPLIFY = FALSE))
   }
 
+  rna_p_no_weights = rna_p_priors %>% select(-.data$annotation_weights)
+
   both_rna = rna_m_priors %>%
-    left_join(rna_p_priors %>% select(-annotation_weights), by = 'variant_id')
+    left_join(rna_p_no_weights, by = 'variant_id')
 
   res_list = list(dna_prior = dna_gamma_prior,
                   rna_priors = both_rna)
