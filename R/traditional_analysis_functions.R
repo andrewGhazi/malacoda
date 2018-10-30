@@ -74,16 +74,16 @@ test_one_variant = function(variant_activities,
 
   if (test_type %in% c('t', 't-test', 't.test')) {
     variant_activities %>%
-      summarise(test_res = list(broom::tidy(t.test(x = activity[tolower(allele) == 'ref'],
-                                                   y = activity[tolower(allele) != 'ref'])))) %>%
+      summarise(test_res = list(broom::tidy(t.test(x = .data$activity[tolower(.data$allele) == 'ref'],
+                                                   y = .data$activity[tolower(.data$allele) != 'ref'])))) %>%
       unnest %>%
-      rename(ts_estimate = estimate,
-             ref_mean_estimate = estimate1,
-             alt_mean_estimate = estimate2)
+      rename(ts_estimate = .data$estimate,
+             ref_mean_estimate = .data$estimate1,
+             alt_mean_estimate = .data$estimate2)
   } else if (test_type %in% c('u', 'U', 'wilcox.test', 'Mann.Whitney', 'Mann-Whitney')) {
     variant_activities %>%
-      summarise(test_res = list(broom::tidy(wilcox.test(x = activity[tolower(allele) == 'ref'],
-                                                        y = activity[tolower(allele) != 'ref'])))) %>%
+      summarise(test_res = list(broom::tidy(wilcox.test(x = .data$activity[tolower(.data$allele) == 'ref'],
+                                                        y = .data$activity[tolower(.data$allele) != 'ref'])))) %>%
       unnest
   } else {
     stop('test_type input given not supported')
@@ -132,33 +132,33 @@ run_activity_tests = function(mpra_activities,
                               plot_p_hist = TRUE){
 
   activity_tests = mpra_activities %>%
-    group_by(variant_id) %>%
-    nest(.key = act_dat) %>%
-    mutate(test_result = map(act_dat, test_one_variant, test_type = test_type),
-           note = map_chr(test_result, ~ifelse(all(is.na(.x)),
-                                               'Activity measurements not present for both alleles, returning NA',
-                                               '')))
+    group_by(.data$variant_id) %>%
+    nest(.key = 'act_dat') %>%
+    mutate(test_result = map(.data$act_dat, test_one_variant, test_type = test_type),
+           note = map_chr(.data$test_result, ~ifelse(all(is.na(.x)),
+                                                     'Activity measurements not present for both alleles, returning NA',
+                                                     '')))
 
   na_variants = activity_tests %>% # lol I have no idea how to do this in a tidy way
-    filter(note != '') %>%
-    select(variant_id, note)
+    filter(.data$note != '') %>%
+    select(.data$variant_id, .data$note)
 
   activity_tests = activity_tests %>%
-    filter(map_lgl(test_result, ~!all(is.na(.x)))) %>%
-    select(-act_dat) %>%
+    filter(map_lgl(.data$test_result, ~!all(is.na(.x)))) %>%
+    select(-.data$act_dat) %>%
     unnest() %>%
     full_join(na_variants,
               by = c('variant_id', 'note')) %>%
-    select(variant_id, ts_estimate:alternative, note)
+    select(.data$variant_id, .data$ts_estimate:.data$alternative, .data$note)
 
   if(compute_FDR){
     activity_tests = activity_tests %>%
-      mutate(q_value = p.adjust(p.value, method = 'fdr'))
+      mutate(q_value = p.adjust(.data$p.value, method = 'fdr'))
   }
 
   if (plot_p_hist) {
     p_hist = activity_tests %>%
-      ggplot(aes(p.value)) +
+      ggplot(aes(.data$p.value)) +
       geom_histogram(boundary = 0,
                      bins = 30,
                      color = 'black',
