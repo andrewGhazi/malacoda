@@ -155,13 +155,13 @@ get_well_represented = function(mpra_data,
                                 verbose = TRUE){
 
   all_dna = mpra_data %>%
-    select(variant_id, allele, barcode, matches('DNA')) %>%
-    gather(sample_id, counts, matches('DNA|RNA')) %>%
+    select(.data$variant_id, .data$allele, .data$barcode, matches('DNA')) %>%
+    gather('sample_id', 'counts', matches('DNA|RNA')) %>%
     left_join(sample_depths,
               by = 'sample_id') %>%
-    mutate(depth_adj_count = counts / depth_factor) %>%
-    group_by(barcode) %>%
-    summarise(mean_depth_adj_count = mean(depth_adj_count))
+    mutate(depth_adj_count = .data$counts / .data$depth_factor) %>%
+    group_by(.data$barcode) %>%
+    summarise(mean_depth_adj_count = mean(.data$depth_adj_count))
 
 
   if (plot_rep_cutoff) {
@@ -187,8 +187,8 @@ get_well_represented = function(mpra_data,
 
   well_represented = all_dna %>%
     filter(mean_depth_adj_count > quantile(all_dna$mean_depth_adj_count,
-                                      probs = rep_cutoff)) %>%
-    select(barcode) %>%
+                                           probs = rep_cutoff)) %>%
+    select(.data$barcode) %>%
     unique
 
   if (verbose) {
