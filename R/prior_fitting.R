@@ -583,11 +583,11 @@ fit_one_p_prior = function(given_id,
 format_conditional_prior = function(given_id, cond_priors){
   dna_prior = cond_priors$dna_prior
   rna_prior = cond_priors$rna_priors %>%
-    filter(variant_id == given_id) %>%
-    select(-annotation_weights) %>%
-    gather(prior_name, prior, matches('prior')) %>%
+    filter(.data$variant_id == given_id) %>%
+    select(-.data$annotation_weights) %>%
+    gather('prior_name', 'prior', matches('prior')) %>%
     unnest() %>%
-    select(-variant_id, -prior_name)
+    select(-.data$variant_id, -.data$prior_name)
 
   return(bind_rows(dna_prior, rna_prior))
 
