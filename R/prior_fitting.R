@@ -254,7 +254,7 @@ fit_marg_prior = function(mpra_data,
     summarise(mu_prior = list(fit_gamma(.data$depth_adj_mu_est)),
               phi_prior = list(fit_gamma(.data$phi_est))) %>%
     ungroup %>%
-    gather(prior_type, prior, matches('prior')) %>%
+    gather('prior_type', 'prior', matches('prior')) %>%
     mutate(alpha_est = map_dbl(.data$prior, ~.x$par[1]),
            beta_est = map_dbl(.data$prior, ~.x$par[2]),
            acid_type = 'DNA') # doesn't line up :(
@@ -394,22 +394,22 @@ fit_cond_prior = function(mpra_data,
 
   print('Determining well-represented variants, see plot...')
   well_represented = get_well_represented(mpra_data,
-                                               sample_depths,
-                                               rep_cutoff = rep_cutoff,
-                                               plot_rep_cutoff = plot_rep_cutoff)
+                                          sample_depths,
+                                          rep_cutoff = rep_cutoff,
+                                          plot_rep_cutoff = plot_rep_cutoff)
 
 
   print('Fitting marginal DNA prior...')
 
   dna_nb_fits = mpra_data %>%
-    filter(barcode %in% well_represented$barcode) %>%
-    select(variant_id, allele, matches('DNA')) %>%
-    gather(sample_id, counts, matches('DNA|RNA')) %>%
-    group_by(variant_id, allele, sample_id) %>%
-    nest(.key = count_dat) %>%
-    filter(map_lgl(count_dat, ~!all(.x$counts == 0))) %>% # some borderline barcodes are 0 in some samples
-    mutate(nb_fit = parallel::mclapply(count_dat, fit_nb, mc.cores = n_cores),
-           converged = map_lgl(nb_fit, ~.x$convergence == 0))
+    filter(.data$barcode %in% well_represented$barcode) %>%
+    select(.data$variant_id, .data$allele, matches('DNA')) %>%
+    gather('sample_id', 'counts', matches('DNA|RNA')) %>%
+    group_by(.data$variant_id, .data$allele, .data$sample_id) %>%
+    nest(.key = 'count_dat') %>%
+    filter(map_lgl(.data$count_dat, ~!all(.x$counts == 0))) %>% # some borderline barcodes are 0 in some samples
+    mutate(nb_fit = parallel::mclapply(.data$count_dat, fit_nb, mc.cores = n_cores),
+           converged = map_lgl(.data$nb_fit, ~.x$convergence == 0))
 
   if (!all(dna_nb_fits$converged)) {
     warning(paste0(sum(!dna_nb_fits$converged),
@@ -420,37 +420,38 @@ fit_cond_prior = function(mpra_data,
   }
 
   dna_nb_fits %<>%
-    filter(converged) %>%
+    filter(.data$converged) %>%
     left_join(sample_depths, by = 'sample_id') %>%
-    mutate(depth_adj_mu_est = map2_dbl(nb_fit, depth_factor, ~.x$par[1] / .y),
-           phi_est = map_dbl(nb_fit, ~.x$par[2]),
-           acid_type = factor(stringr::str_extract(sample_id, 'DNA|RNA'))) %>%
-    filter(phi_est < quantile(phi_est, probs = .995)) # cut out severely underdispersed alleles
+    mutate(depth_adj_mu_est = map2_dbl(.data$nb_fit, .data$depth_factor, ~.x$par[1] / .y),
+           phi_est = map_dbl(.data$nb_fit, ~.x$par[2]),
+           acid_type = factor(stringr::str_extract(.data$sample_id, 'DNA|RNA'))) %>%
+    filter(.data$phi_est < quantile(.data$phi_est,
+                                    probs = .995)) # cut out severely underdispersed alleles
 
   dna_gamma_prior = dna_nb_fits %>%
-    summarise(mu_prior = list(fit_gamma(depth_adj_mu_est)),
-              phi_prior = list(fit_gamma(phi_est))) %>%
+    summarise(mu_prior = list(fit_gamma(.data$depth_adj_mu_est)),
+              phi_prior = list(fit_gamma(.data$phi_est))) %>%
     ungroup %>%
-    gather(prior_type, prior, matches('prior')) %>%
-    mutate(alpha_est = map_dbl(prior, ~.x$par[1]),
-           beta_est = map_dbl(prior, ~.x$par[2]),
+    gather('prior_type', 'prior', matches('prior')) %>%
+    mutate(alpha_est = map_dbl(.data$prior, ~.x$par[1]),
+           beta_est = map_dbl(.data$prior, ~.x$par[2]),
            acid_type = 'DNA') # doesn't line up :(
 
   #### Fit conditional RNA prior ----
 
   mean_dna_abundance = mpra_data %>%
-    select(variant_id, allele, barcode, matches('DNA')) %>%
-    gather(sample_id, counts, matches('DNA|RNA')) %>%
+    select(.data$variant_id, .data$allele, .data$barcode, matches('DNA')) %>%
+    gather('sample_id', 'counts', matches('DNA|RNA')) %>%
     left_join(sample_depths,
               by = 'sample_id') %>%
-    mutate(depth_adj_count = counts / depth_factor) %>%
-    group_by(barcode) %>%
-    summarise(mean_depth_adj_count = mean(depth_adj_count))
+    mutate(depth_adj_count = .data$counts / .data$depth_factor) %>%
+    group_by(.data$barcode) %>%
+    summarise(mean_depth_adj_count = mean(.data$depth_adj_count))
 
   # generate annotation distance matrix
   dist_mat = generate_distance_matrix(annotations = annotations)
   scaled_annotations = annotations %>%
-    mutate_at(.vars = vars(-variant_id),
+    mutate_at(.vars = vars(-.data$variant_id),
               .funs = scale) %>%
     gather(annotation, value, -variant_id) %>%
     arrange(variant_id, annotation)
