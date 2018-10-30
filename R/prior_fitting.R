@@ -3,7 +3,7 @@
 #' Given an nxd matrix of variant annotations, produce an nxn distance matrix
 #' describing the inter-variant distances in annotation space
 #'
-#' @param annotation_dat an n x d data frame of annotations
+#' @param annotation an n x d data frame of annotations
 #' @param log_distance a logical indicating to use the log1p of the distances (TRUE) or the raw euclidean distances (FALSE)
 #' @param scale_annotations logical indicating whether to base::scale to center and scale annotations
 #'
@@ -58,6 +58,25 @@ generate_distance_matrix = function(annotations,
   }
 }
 
+#' Find prior weights
+#'
+#' @description For a given variant and annotation set (scaled) and distance
+#'   matrix, get the weights of all other variants
+#' @param given_id a variant_id to get weights for
+#' @param scaled_annotations a tall annotation data frame where the annotations
+#'   have been set to the same scale
+#' @param dist_mat a distance matrix of euclidean distances between variants in
+#'   scaled annotation space
+#' @param min_dist_kernel an initialization of the distance kernel at some tiny
+#'   value
+#' @param kernel_fold_change the multiplier by which to iteratively increase the
+#'   distance kernel
+#' @param min_num_neighbors the minimum number of neighbors which must make a
+#'   meaningful contribution to the weights before stopping
+#' @details "Meaningful contribution" to the weights means that the sum of the
+#'   weights of the first min_num_neighbors of other variants must account for
+#'   <= 99% of the total weight. This prevents some small number of extremely
+#'   close neighbors from dominating the prior estimation later on.
 #' @export
 find_prior_weights = function(given_id,
                               scaled_annotations,

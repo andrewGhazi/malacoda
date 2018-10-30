@@ -8,6 +8,7 @@
 #' @param mpra_data a data frame of MPRA data
 #' @param marg_prior a marginal prior
 #' @param cond_prior a conditional prior
+#' @param n_cores number of cores to use in parallel
 #' @details the inputs \code{marg_prior} and \code{cond_prior} can be taken
 #'   directly as the outputs of fit_marg_prior and fit_cond_prior.
 #'

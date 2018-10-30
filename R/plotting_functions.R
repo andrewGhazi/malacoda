@@ -43,6 +43,7 @@ posterior_beeswarm = function(sampler_result,
 #' Get ratio label y
 #'
 #' @description helper function for plot_prior_ratios
+#' @param ratio_values a vector of ratio values to get a relative position from
 get_label_y = function(ratio_values){
   .3 * max(density(ratio_values)$y)
 }

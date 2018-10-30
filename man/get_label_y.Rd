@@ -6,6 +6,9 @@
 \usage{
 get_label_y(ratio_values)
 }
+\arguments{
+\item{ratio_values}{a vector of ratio values to get a relative position from}
+}
 \description{
 helper function for plot_prior_ratios
 }

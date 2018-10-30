@@ -12,7 +12,7 @@ generate_distance_matrix(annotations, log_distance = FALSE,
 
 \item{scale_annotations}{logical indicating whether to base::scale to center and scale annotations}
 
-\item{annotation_dat}{an n x d data frame of annotations}
+\item{annotation}{an n x d data frame of annotations}
 }
 \description{
 Given an nxd matrix of variant annotations, produce an nxn distance matrix

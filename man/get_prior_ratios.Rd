@@ -12,6 +12,8 @@ get_prior_ratios(mpra_data, marg_prior, cond_prior, n_cores = 1)
 \item{marg_prior}{a marginal prior}
 
 \item{cond_prior}{a conditional prior}
+
+\item{n_cores}{number of cores to use in parallel}
 }
 \value{
 a data frame of MLE mean and dispersion parameters by variant_id,
