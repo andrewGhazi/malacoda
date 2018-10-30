@@ -560,23 +560,23 @@ fit_one_p_prior = function(given_id,
                            mean_dna_abundance){
 
   mpra_data %>%
-    filter(barcode %in% well_represented$barcode) %>%
-    filter(variant_id != given_id) %>%
+    filter(.data$barcode %in% well_represented$barcode) %>%
+    filter(.data$variant_id != given_id) %>%
     select(-matches('DNA')) %>%
     left_join(annotation_weights, by = 'variant_id') %>%
-    gather(sample_id, counts, matches('RNA')) %>%
-    group_by(allele, barcode) %>%
-    summarise(mean_est = mean(counts),
-              var_est = var(counts),
-              size_guess = mean_est^2 / (var_est - mean_est),
-              weight = weight[1]) %>%
-    filter(size_guess > 0 & is.finite(size_guess)) %>% # negative size guess = var < mean = underdispersed
-    filter(size_guess < quantile(size_guess, probs = .99)) %>%
-    summarise(phi_prior = list(fit_gamma(size_guess,
-                                         weights = weight))) %>% # WEIGHTS!
-    gather(prior_type, prior, matches('prior')) %>%
-    mutate(alpha_est = map_dbl(prior, ~.x$par[1]),
-           beta_est = map_dbl(prior, ~.x$par[2])) %>%
+    gather('sample_id', 'counts', matches('RNA')) %>%
+    group_by(.data$allele, .data$barcode) %>%
+    summarise(mean_est = mean(.data$counts),
+              var_est = var(.data$counts),
+              size_guess = .data$mean_est^2 / (.data$var_est - .data$mean_est),
+              weight = .data$weight[1]) %>%
+    filter(.data$size_guess > 0 & is.finite(.data$size_guess)) %>% # negative size guess = var < mean = underdispersed
+    filter(.data$size_guess < quantile(.data$size_guess, probs = .99)) %>%
+    summarise(phi_prior = list(fit_gamma(.data$size_guess,
+                                         weights = .data$weight))) %>% # WEIGHTS!
+    gather('prior_type', 'prior', matches('prior')) %>%
+    mutate(alpha_est = map_dbl(.data$prior, ~.x$par[1]),
+           beta_est = map_dbl(.data$prior, ~.x$par[2])) %>%
     mutate(acid_type = 'RNA')
 }
 
