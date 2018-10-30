@@ -580,37 +580,6 @@ fit_one_p_prior = function(given_id,
     mutate(acid_type = 'RNA')
 }
 
-
-#' Score an annotation source
-#'
-#' @description This function takes MPRA data and an annotation source (or
-#'   alternatively pre-fit priors) and checks how well the conditional prior
-#'   improves upon the marginal prior by a prior ratio at the maximum likelihood
-#'   estimates. A conditional:marginal ratio > 1 indicates that the conditional
-#'   prior does better. A higher fraction of alleles for which this is true
-#'   indicates an improved conditional prior.
-#' @param mpra_data a data frame of MPRA data
-#' @param annotations a data frame containing annotations of the same alleles in mpra_data
-#' @param nb_params an optional data frame of pre-fit maximum likelihood estimates for allele parameters
-#' @param conditional_prior an optional data frame containing pre-fit conditional priors
-#' @param marginal_prior an optional data frame containing a pre-fit marginal prior
-#' @return A fraction between 0 and 1 indicating the number of parameter
-#'   estimates that have higher density under the conditional prior than under
-#'   the marginal prior.
-#' @note Note that even with near-perfect annotations or conditional priors, the
-#'   fraction of parameter estimate ratios above 1 will not approach 1. It will
-#'   instead approach some difficult-to-determine limit defined by the noise in
-#'   the assay. Thus this functionality should only be used to COMPARE
-#'   annotation sources, rather than make discreate claims / measurements about
-#'   individual annotation sources.
-score_annotation = function(mpra_data,
-                            annotations,
-                            nb_params = NULL,
-                            conditional_prior = NULL,
-                            marginal_prior = NULL){
-
-}
-
 format_conditional_prior = function(given_id, cond_priors){
   dna_prior = cond_priors$dna_prior
   rna_prior = cond_priors$rna_priors %>%
