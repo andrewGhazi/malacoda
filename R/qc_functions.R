@@ -13,5 +13,5 @@ get_sample_correlations = function(mpra_data){
     cor() %>%
     as.data.frame() %>%
     tibble::rownames_to_column(var = 'sample_1') %>%
-    gather("sample_2", correlation, -.data$sample_1)
+    gather("sample_2", 'correlation', -.data$sample_1)
 }

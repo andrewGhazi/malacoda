@@ -102,9 +102,9 @@ test_one_variant = function(variant_activities,
 get_sample_depths = function(mpra_data,
                              depth_multiplier = 1e6){
   mpra_data %>%
-    gather(sample_id, counts, matches('DNA|RNA')) %>%
-    group_by(sample_id) %>%
-    summarise(depth_factor = sum(counts) / depth_multiplier)
+    gather('sample_id', 'counts', matches('DNA|RNA')) %>%
+    group_by(.data$sample_id) %>%
+    summarise(depth_factor = sum(.data$counts) / depth_multiplier)
 }
 
 #' Run MPRA activity tests

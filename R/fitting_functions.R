@@ -190,11 +190,11 @@ fit_mpra_model = function(mpra_data,
   #### Initial cleanup ----
 
   mpra_data %<>%
-    arrange(variant_id)
+    arrange(.data$variant_id)
 
   if (!missing(annotations)) {
     annotations %<>%
-      arrange(variant_id)
+      arrange(.data$variant_id)
   }
 
   if (missing(priors)) {
@@ -245,60 +245,60 @@ fit_mpra_model = function(mpra_data,
 
     # attach the conditional priors in the form expected by run_mpra_sampler
     sampler_input = mpra_data %>%
-      group_by(variant_id) %>%
-      nest(.key = variant_dat) %>%
-      mutate(variant_prior = map(variant_id,
+      group_by(.data$variant_id) %>%
+      nest(.key = 'variant_dat') %>%
+      mutate(variant_prior = map(.data$variant_id,
                                  format_conditional_prior,
                                  cond_priors = priors))
 
     analysis_res =  sampler_input %>%
       mutate(sampler_stats = parallel::mcmapply(run_mpra_sampler,
-                                      variant_id, variant_dat, variant_prior,
-                                      MoreArgs = list(n_chains = n_chains,
-                                                      n_warmup = n_warmup,
-                                                      tot_samp = tot_samp,
-                                                      n_rna = n_rna,
-                                                      n_dna = n_dna,
-                                                      depth_factors = sample_depths,
-                                                      out_dir = out_dir,
-                                                      save_nonfunctional = save_nonfunctional,
-                                                      ts_hdi_prob = ts_hdi_prob,
-                                                      ts_rope = ts_rope,
-                                                      vb_pass = vb_pass,
-                                                      vb_prob = vb_prob),
-                                      mc.cores = n_cores,
-                                      SIMPLIFY = FALSE)) %>%
-      unnest(... = sampler_stats,
+                                                .data$variant_id, .data$variant_dat, .data$variant_prior,
+                                                MoreArgs = list(n_chains = n_chains,
+                                                                n_warmup = n_warmup,
+                                                                tot_samp = tot_samp,
+                                                                n_rna = n_rna,
+                                                                n_dna = n_dna,
+                                                                depth_factors = sample_depths,
+                                                                out_dir = out_dir,
+                                                                save_nonfunctional = save_nonfunctional,
+                                                                ts_hdi_prob = ts_hdi_prob,
+                                                                ts_rope = ts_rope,
+                                                                vb_pass = vb_pass,
+                                                                vb_prob = vb_prob),
+                                                mc.cores = n_cores,
+                                                SIMPLIFY = FALSE)) %>%
+      unnest(... = 'sampler_stats',
              .drop = TRUE,
-             .preserve = c(variant_dat, variant_prior)) %>%
-      arrange(desc(abs(ts_post_mean)))
+             .preserve = c(.data$variant_dat, .data$variant_prior)) %>%
+      arrange(desc(abs(.data$ts_post_mean)))
   } else {
     # This block uses the marg priors
 
     analysis_res = mpra_data %>%
-      group_by(variant_id) %>%
-      nest(.key = variant_dat) %>%
-      mutate(variant_prior = list(priors)) %>% # give the same marg prior to every variant
+      group_by(.data$variant_id) %>%
+      nest(.key = 'variant_dat') %>%
+      mutate(variant_prior = list(.data$priors)) %>% # give the same marg prior to every variant
       mutate(sampler_stats = parallel::mcmapply(run_mpra_sampler,
-                                      variant_id, variant_dat, variant_prior,
-                                      MoreArgs = list(n_chains = n_chains,
-                                                      n_warmup = n_warmup,
-                                                      tot_samp = tot_samp,
-                                                      n_rna = n_rna,
-                                                      n_dna = n_dna,
-                                                      depth_factors = sample_depths,
-                                                      out_dir = out_dir,
-                                                      save_nonfunctional = save_nonfunctional,
-                                                      ts_hdi_prob = ts_hdi_prob,
-                                                      ts_rope = ts_rope,
-                                                      vb_pass = vb_pass,
-                                                      vb_prob = vb_prob),
-                                      mc.cores = n_cores,
-                                      SIMPLIFY = FALSE)) %>%
-      unnest(... = sampler_stats,
+                                                .data$variant_id, .data$variant_dat, .data$variant_prior,
+                                                MoreArgs = list(n_chains = n_chains,
+                                                                n_warmup = n_warmup,
+                                                                tot_samp = tot_samp,
+                                                                n_rna = n_rna,
+                                                                n_dna = n_dna,
+                                                                depth_factors = sample_depths,
+                                                                out_dir = out_dir,
+                                                                save_nonfunctional = save_nonfunctional,
+                                                                ts_hdi_prob = ts_hdi_prob,
+                                                                ts_rope = ts_rope,
+                                                                vb_pass = vb_pass,
+                                                                vb_prob = vb_prob),
+                                                mc.cores = n_cores,
+                                                SIMPLIFY = FALSE)) %>%
+      unnest(... = 'sampler_stats',
              .drop = TRUE,
-             .preserve = c(variant_dat, variant_prior)) %>%
-      arrange(desc(abs(ts_post_mean)))
+             .preserve = c(.data$variant_dat, .data$variant_prior)) %>%
+      arrange(desc(abs(.data$ts_post_mean)))
   }
 
   save(analysis_res,
