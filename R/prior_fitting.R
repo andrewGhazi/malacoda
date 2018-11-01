@@ -148,6 +148,15 @@ find_prior_weights = function(given_id,
 
 }
 
+#' Get well represented barcodes
+#'
+#' @description Identify barcodes well-represented in DNA samples from input MPRA data.
+#' @param mpra_data a data frame of MPRA data
+#' @param sample_depths a data frame of sample depths
+#' @param rep_cutoff a representation cutoff
+#' @param plot_rep_cutoff logical indicating whether to plot the DNA representation distribution with the input rep_cutoff indicated
+#' @note properly formatted sample_depths can be obtained from get_well_represented
+#' @export
 get_well_represented = function(mpra_data,
                                      sample_depths,
                                      rep_cutoff,
