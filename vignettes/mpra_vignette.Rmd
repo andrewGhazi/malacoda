@@ -2,7 +2,9 @@
 title: "MPRA analysis with malacoda"
 author: "Andrew Ghazi"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    toc: true
 vignette: >
   %\VignetteIndexEntry{MPRA Analysis}
   %\VignetteEngine{knitr::rmarkdown}
@@ -12,11 +14,12 @@ vignette: >
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  echo = FALSE
 )
 ```
 
-```{r}
+```{r, message = FALSE}
 library(dplyr)
 library(purrr)
 library(tidyr)
@@ -29,61 +32,134 @@ This vignette presents the MPRA analysis functions present in malacoda. These fe
 * Integrating prior information sources into informative priors
 * MPRA Quality control
 
-# High-Throughput sequencing assay Negative Binomial model
+# High-throughput sequencing assay Negative Binomial model
 
 This package provides a fully Bayesian model for count data coming from high-throughput, NGS-based assays. Massively parallel reporter assays (MPRA) are the motivating use-case, but methods are also provided for other assays with similar experimental structure/outputs.
 
-The data outputs from a MPRA can be laid out simply in a data frame as shown below, with columns showing variant ID's, allele indicators, barcode sequence, and sequencing samples. A row for each barcode gives the number of times the given barcode was counted in each sequencing sample.
+The data outputs from a MPRA can be laid out simply in a data frame as shown below, with columns showing variant ID's, allele indicators, barcode sequence, and sequencing samples. A row for each barcode gives the number of times the given barcode was counted in each sequencing sample. The table below shows some example data from [Ulirsch et al., Cell 2016](https://www.ncbi.nlm.nih.gov/pubmed/27259154) that is included with the package as the data object `umpra_example`:
 
-```{r}
+```{r, echo = FALSE}
 load('../data/umpra_example.RData') 
 
 umpra_example %>% 
-  select_all(~gsub('K562_', '', .)) %>% 
+  select_all(~gsub('K562_|CTRL_', '', .)) %>% 
   group_by(variant_id, allele) %>% 
   do(head(., 3)) %>% 
-  .[1:12,] %>% 
+  .[1:12,1:8] %>% 
   knitr::kable()
 ```
 
+MPRA assays typically have 10 to 100 barcodes per allele for dozens to tens of thousands of variants.
+
 The software included in this software models the counts in each cell of this data frame as coming from a negative binomial distribution. The mean parameter of the negative binomial is first scaled according to sequencing depth. For counts from RNA samples, the mean parameter is also scaled according to the mean of the barcode's DNA input distribution. The remaining variability of the mean parameter for the RNA counts is ascribed to the allele associated with the barcode.
 
-Essentially, each count measurement has it's own negative binomial distribution, but information is shared across measurements of the same barcode in different samples and across different barcodes measured in the same sample.
+```{r, out.width= "700px"}
+knitr::include_graphics('../man/figures/kruschke_latex.png')
+```
 
-The priors for the parameters negative binomial distribution are gamma distributions. These are estimated from the MPRA assay globally, across different variants. This ensures that the priors for one allele are on a reasonable scale in the context of one experiment; the user doesn't need to know on th
+The formulas on the right show the parts of the model relevant to computing the posterior on the **Transcription Shift**, TS. The index *s* refers to samples, and index *bc* refers to barcodes of a given allele.
 
+Essentially, each count measurement has it's own negative binomial distribution, but information is shared across samples and barcodes.
 
-```{r, out.width= "600px"}
-knitr::include_graphics('../man/figures/kruschke2.png')
+# Prior estimation
+
+The package provides methods for estimating two types of priors: marginal and conditional.
+
+## Marginal priors  
+
+The priors for the parameters negative binomial distribution are gamma distributions. These are estimated from the maximum likelihood estimates of means/dispersions observed in the MPRA assay globally, across all variants. This ensures that the priors for one allele are on a reasonable scale in the context of one experiment; the user doesn't need to know on *a priori* how to set these distributions.
+
+In malacoda, this is done with `fit_marg_prior()` like so:
+
+```{r, eval = FALSE, echo = TRUE}
+marg_prior = fit_marg_prior(mpra_data,
+                            rep_cutoff = .15,
+                            plot_rep_cutoff = TRUE,
+                            n_cores = 1)
+```
+
+This prior fitting includes a pre-filtering step that involves identifying which barcodes are sufficiently well-represented in the DNA samples. It also renders a plot of the DNA barcode representation with the input representation cutoff (defaulting to the 15th percentile) indicated by a dotted line. Users can/should tune this cutoff according to their assay with `get_sample_depths()` `get_well_represented()`.
+
+For a typical MPRA assay where a majority of variants assayed have practically 0 effect on transcription shift, the marginal prior ends up being fairly non-informative. For both alleles, most of the prior density ends up around the average output of the assay, but the prior ascribes a small amount of density to extreme values. 
+
+## Conditional priors
+
+The marginal prior is relatively un-informative. `malacoda` provides methods for conditional density estimation on informative genomic annotations as a means to increase statistical efficiency while avoiding false positives.
+
+This example (included with the package as `u_deepsea` shows [DeepSea's](deepsea.princeton.edu) predicted K562 DNase hypersensitivity for the variants in Ulirsch, 2016:
+
+```{r}
+load('../data/u_deepsea.RData')
+
+u_deepsea %>% 
+  head %>% 
+  knitr::kable()
+```
+
+While this example shows only a single annotation, the methods included with this package can utilize an arbitrary number of annotations. A user could also include ENCODE transcription factor binding profiles, additional DeepSea predictions, etc. Whatever set of continuous annotations they think can provide information about their MPRA assay's results.
+
+The function `fit_cond_prior` estimates conditional priors for each variant with these annotations. It does this in the following way:  
+1. Normalize the scale of the annotations.  
+2. Compute a pairwise distance matrix between the assay's variants in euclidean "annotation space".  
+3. Take the minimum non-zero distance as the initial minimal weighting kernel width.  
+4. For each variant,  
+        1. Assign a weight to all other variants in the assay according to a t-distribution kernel characterized by the initial weight.  
+        2. If fewer than 30 variants don't meaningfully contribute to the prior, increase the kernel width by 1.3x and re-set the weights. (The 30 and 1.3x are adjustable tuning parameters but these default settings work well in practice).  
+5. Perform weighted density estimation for each variant to get the priors.  
+
+This function can be called like so:
+
+```{r, eval = FALSE, echo = TRUE}
+cond_prior = fit_cond_prior(mpra_data = umpra_example,
+                            annotations = example_deepsea,
+                            n_cores = 1,
+                            rep_cutoff = .15, 
+                            plot_rep_cutoff = TRUE,
+                            min_neighbors = 30)
+
+```
+
+This process gets better the more variants are included in the analysis. The more variants included, the more finely the annotation space is explored and the more precisely the nearest variants will give clear indication of the prior belief. There are only 100 variants included with the example data for the sake of package size, however published MPRA's have tested tens of thousands of variants ([Tewhey et al., Cell, 2016](https://www.ncbi.nlm.nih.gov/pubmed/27259153))
+
+# Fitting the model
+
+The model can be fit with a call to `fit_mpra_model()`:
+
+```{r, eval = FALSE}
+my_result = fit_mpra_model(mpra_data, 
+                           out_dir = '/path/to/output/directory/',
+                           priors = cond_prior, # or = marg_prior
+                           n_cores = 1)
+```
+
+This will:  
+
+1. Run a variational Stan model that fits the model described above for each variant. 
+2. If the variational result looks promising, it will run the standard Stan MCMC sampler on the model.
+3. Save the stanfit object as `variant_id.RData` in the output directory.
+4. Compute some summary statistics for each variant, including a 99% transcription shift highest density interval and (based on that) a binary call for variant function (the `is_functional` column).
+5. Compile the results into a data frame.
+
+Filtering the result table like so will give the set of hits from the analysis:
+
+```{r, eval = FALSE}
+ my_result %>% 
+  dplyr::filter(is_functional)
 ```
 
 
-Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
+The MCMC parameters are adjustable (see `?fit_mpra_model`). 
 
-- Never uses retina figures
-- Has a smaller default figure size
-- Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style
+A region of practical equivalence (ROPE) parameter `ts_rope` can be set to receive p-value-esque output in order to get some sense of how the result compares to a "null" model. Defining a ROPE requires experiment-specific statistical knowledge, so we won't provide any specific advice or examples on how to set this parameter in order to avoid misleading users. Proper use would need to involve analysis of the assay's noise and reasoned justification of the user's definition of "practically equivalent" to 0. Statisticians seeking to use this feature can find more information on ROPE's in *Doing Bayesian Data Analysis: A Tutorial with R, JAGS, and Stan* by John Kruschke.
 
-## Vignette Info
+# Future directions 
 
-Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette.
+## Additional QC metrics
 
-## Styles
+## Optimization 
 
-The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
+The conditional prior fitting process involves optimizing multiple gamma distributions for potentially thousands of weighted points thousands of times, so it can take a long time on laptops for large MPRA's -- upwards of a minute per variant. However with parallelization and an Amazon EC2 instance with a large number of cores, it's possible to analyze the full Ulirsch, 2016 dataset in around 20 minutes for about $1. 
 
-    output: 
-      rmarkdown::html_vignette:
-        css: mystyles.css
-
-## Figures
-
-The figure sizes have been customised so that you can easily put two images side-by-side. 
-
-```{r, fig.show='hold'}
-plot(1:10)
-plot(10:1)
-```
 
 You can enable figure captions by `fig_caption: yes` in YAML:
 
