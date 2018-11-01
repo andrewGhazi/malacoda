@@ -396,6 +396,14 @@ fit_cond_prior = function(mpra_data,
     stop('There are duplicate annotations for some variants!')
   }
 
+  if (n_distinct(annotations$variant_id) > n_distinct(mpra_data$variant_id)){
+    n_extra = n_distinct(annotations$variant_id) - n_distinct(mpra_data$variant_id)
+    warning(paste0('Annotations provided for variants not included in mpra_data. Removing ', n_extra, ' unneeded annotations.'))
+
+    annotations = dplyr::filter(annotations,
+                                .data$variant_id %in% mpra_data$variant_id)
+  }
+
   #### DNA prior fitting ----
 
   print('Evaluating data depth/DNA representation properties...')
