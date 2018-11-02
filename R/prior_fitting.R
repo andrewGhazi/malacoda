@@ -374,7 +374,7 @@ fit_marg_prior = function(mpra_data,
 #'   cutoff used
 #' @param rep_cutoff fraction indicating the depth-adjusted DNA count quantile
 #'   to use as the cutoff
-#' @param min_neighbors The minimum number of neighbors in annotation spcae that
+#' @param min_neighbors The minimum number of neighbors in annotation space that
 #'   must contribute to prior estimation
 #' @param kernel_fold_increase The amount to iteratively increase kernel width
 #'   by when estimating conditional priors. Smaller values (closer to 1) will
