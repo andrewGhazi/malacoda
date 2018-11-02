@@ -111,8 +111,8 @@ plot_ratio_hexs = function(prior_ratios,
                            y_limits = c(-.5, .5)){
 
   mean_ts = model_result %>%
-    select(variant_id, ts_post_mean) %>%
-    rename(ts = ts_post_mean)
+    select(.data$variant_id, .data$ts_post_mean) %>%
+    rename(ts = .data$ts_post_mean)
 
   prior_ratios %>%
     left_join(mean_ts, by = 'variant_id') %>%
