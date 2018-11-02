@@ -30,7 +30,7 @@ Other features include:
 * variational Bayes support through `rstan::vb` that allows for quick first pass checks  
 * Annotation checking - quantitatively evaluate how much a given genomic annotation source improves empirical prior estimation by prior ratios
 
-![malacoda Kruschke diagram](man/figures/kruschke2.png)
+![malacoda Kruschke diagram](man/figures/kruschke_latex.png)
 
 
 ## Installation
