@@ -22,7 +22,7 @@ cutoff used}
 \item{rep_cutoff}{fraction indicating the depth-adjusted DNA count quantile
 to use as the cutoff}
 
-\item{min_neighbors}{The minimum number of neighbors in annotation spcae that
+\item{min_neighbors}{The minimum number of neighbors in annotation space that
 must contribute to prior estimation}
 
 \item{kernel_fold_increase}{The amount to iteratively increase kernel width
