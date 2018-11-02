@@ -26,9 +26,12 @@ Installation
 
 Currently `malacoda` only works on Mac and Linux. If you're a Windows user looking to use the software, open a Github issue, and we'll bump Windows support up the implementation priority list.
 
-The first step is to install `rstan` and `Rcpp`. The following command will usually suffice to do this, if not you can find more in-depth installation instructions [on the rstan documentation](https://github.com/stan-dev/rstan/wiki/Installing-RStan-on-Mac-or-Linux).
+It's best to have the most up-to-date version of R (3.5.1 as of 11/2/2018).
+
+The first step is to install `rstan` and `Rcpp`. The following command will usually suffice to do this, if not you can find more in-depth installation instructions [on the rstan documentation](https://github.com/stan-dev/rstan/wiki/Installing-RStan-on-Mac-or-Linux). You should have root access.
 
 ``` r
+# Need to have root access
 install.packages(c('Rcpp', 'rstan'), dependencies = TRUE, type = 'source')
 ```
 
