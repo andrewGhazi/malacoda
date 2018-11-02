@@ -23,5 +23,5 @@ This function visualizes the pairwise correlations of count samples
   the RNA libraries.
 }
 \note{
-Get \code{sample_correlations} from get_mpra_correlations
+Get \code{sample_correlations} from get_sample_correlations
 }

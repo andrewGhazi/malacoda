@@ -20,3 +20,6 @@ a posterior beeswarm ggplot object
 \description{
 Create a combined beeswarm & activity posterior plot
 }
+\note{
+sampler_result objects are written by fit_mpra_model to the out_dir argument for each variant_id
+}

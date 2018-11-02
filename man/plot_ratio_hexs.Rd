@@ -4,12 +4,12 @@
 \alias{plot_ratio_hexs}
 \title{Create ratio by transcription shift hexbins}
 \usage{
-plot_ratio_hexs(prior_ratios, activities, y_limits = c(-1, 1))
+plot_ratio_hexs(prior_ratios, model_result, y_limits = c(-0.5, 0.5))
 }
 \arguments{
 \item{prior_ratios}{a dataframe of barcode prior_ratios}
 
-\item{activities}{a dataframe of barcode activities}
+\item{model_result}{a dataframe of model results}
 
 \item{y_limits}{y limits of the plot}
 }
@@ -17,8 +17,8 @@ plot_ratio_hexs(prior_ratios, activities, y_limits = c(-1, 1))
 Create ratio by transcription shift hexbins
 }
 \details{
-prior_ratios can be produced by get_prior_ratios() and activities
-  can be produced by compute_activities
+prior_ratios can be produced by get_prior_ratios() and model_result
+  can be obtained from fit_mpra_model()
 }
 \note{
 The default y_limits cut off a small fraction of points where one prior

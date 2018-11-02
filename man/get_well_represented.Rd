@@ -19,3 +19,6 @@ get_well_represented(mpra_data, sample_depths, rep_cutoff,
 \description{
 Identify barcodes well-represented in DNA samples from input MPRA data.
 }
+\note{
+properly formatted sample_depths can be obtained from get_well_represented
+}
