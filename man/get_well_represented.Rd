@@ -15,6 +15,8 @@ get_well_represented(mpra_data, sample_depths, rep_cutoff,
 \item{rep_cutoff}{a representation cutoff}
 
 \item{plot_rep_cutoff}{logical indicating whether to plot the DNA representation distribution with the input rep_cutoff indicated}
+
+\item{verbose}{logical indicating to print messages about DNA removal statistics}
 }
 \description{
 Identify barcodes well-represented in DNA samples from input MPRA data.

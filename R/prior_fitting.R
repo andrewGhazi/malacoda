@@ -155,12 +155,13 @@ find_prior_weights = function(given_id,
 #' @param sample_depths a data frame of sample depths
 #' @param rep_cutoff a representation cutoff
 #' @param plot_rep_cutoff logical indicating whether to plot the DNA representation distribution with the input rep_cutoff indicated
+#' @param verbose logical indicating to print messages about DNA removal statistics
 #' @note properly formatted sample_depths can be obtained from get_well_represented
 #' @export
 get_well_represented = function(mpra_data,
-                                     sample_depths,
-                                     rep_cutoff,
-                                     plot_rep_cutoff = FALSE,
+                                sample_depths,
+                                rep_cutoff,
+                                plot_rep_cutoff = FALSE,
                                 verbose = TRUE){
 
   all_dna = mpra_data %>%
