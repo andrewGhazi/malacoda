@@ -49,15 +49,13 @@ model {
     output_p[group] ~ gamma(output_p_a[group], output_p_b[group]); // here, groups have separate priors
   }
 
-for (g in 1:n_gRNA) {
+  for (g in 1:n_gRNA) {
       ctrl_counts[g] ~ neg_binomial_2(output_m[1] * ctrl_depths * t0_m[g], output_p[1]);
-    }
+  }
 
-    for (g in 1:n_gRNA) {
+  for (g in 1:n_gRNA) {
       case_counts[g] ~ neg_binomial_2(output_m[2] * case_depths * t0_m[g], output_p[2]);
-    }
-
-
+  }
 }
 generated quantities {
   real ctrl_act;
