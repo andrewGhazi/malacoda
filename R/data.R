@@ -15,3 +15,9 @@
 #'   sequencing counts for the two DNA libraries and 6 control RNA libraries
 #' @source \url{https://www.bloodgenes.org/RBC_MPRA}
 "umpra_example"
+
+#' Example output of fit_mpra_model
+#'
+#' Example needed for the vignette
+#' @format a data frame of mpra modelling results
+"example_result"
