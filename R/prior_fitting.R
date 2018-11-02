@@ -195,7 +195,7 @@ get_well_represented = function(mpra_data,
   }
 
   well_represented = all_dna %>%
-    filter(.data$mean_depth_adj_count > quantile(.data$all_dna$mean_depth_adj_count,
+    filter(.data$mean_depth_adj_count > quantile(all_dna$mean_depth_adj_count,
                                                  probs = rep_cutoff)) %>%
     select(.data$barcode) %>%
     unique
