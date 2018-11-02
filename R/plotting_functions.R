@@ -108,7 +108,7 @@ plot_prior_ratios = function(prior_ratios,
 #'   this behavior.
 plot_ratio_hexs = function(prior_ratios,
                            model_result,
-                           y_limits = c(-1,1)){
+                           y_limits = c(-.5, .5)){
 
   mean_ts = model_result %>%
     select(variant_id, ts_post_mean) %>%
@@ -118,8 +118,16 @@ plot_ratio_hexs = function(prior_ratios,
     left_join(mean_ts, by = 'variant_id') %>%
     ggplot(aes(.data$ts, .data$log_prior_ratio)) +
     ylim(y_limits) +
-    geom_hex() +
-    facet_wrap("sample_id")
+    geom_hex(aes(color = .data$..count..)) +
+    guides(color = FALSE) +
+    scale_color_viridis_c(trans = 'log') +
+    scale_fill_viridis_c(trans = 'log') +
+    facet_wrap("sample_id") +
+    geom_hline(yintercept = 0,
+               lty = 2,
+               color = 'black') +
+    labs(x = 'Transcription Shift',
+         y = 'MLE estimate\nConditional : Marginal prior ratio')
 
 }
 
@@ -132,12 +140,14 @@ plot_ratio_hexs = function(prior_ratios,
 #'   highly with other samples of the same type (DNA or RNA). If ALL samples
 #'   correlate highly with one another, this can indicate DNA contamination in
 #'   the RNA libraries.
-#' @note Get \code{sample_correlations} from get_mpra_correlations
+#' @note Get \code{sample_correlations} from get_sample_correlations
 plot_mpra_correlations = function(sample_correlations){
   sample_correlations %>%
     mutate(corr_label = format(.data$correlation, digits = 3)) %>%
     ggplot(aes(x = .data$sample_1, y = .data$sample_2)) +
     geom_tile(aes(fill = .data$correlation)) +
     geom_text(aes(label = .data$corr_label), color = 'white') +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    labs(x = 'Sample', y = 'Sample',
+         fill = 'Correlation')
 }
