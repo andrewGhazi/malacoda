@@ -7,6 +7,7 @@
 #' @param color_by_sample optional logical indicating whether to color dots by
 #'   sample
 #' @return a posterior beeswarm ggplot object
+#' @note sampler_result objects are written by fit_mpra_model to the out_dir argument for each variant_id
 #' @export
 posterior_beeswarm = function(sampler_result,
                               activities,
@@ -97,22 +98,21 @@ plot_prior_ratios = function(prior_ratios,
 #' Create ratio by transcription shift hexbins
 #'
 #' @param prior_ratios a dataframe of barcode prior_ratios
-#' @param activities a dataframe of barcode activities
+#' @param model_result a dataframe of model results
 #' @param y_limits y limits of the plot
 #'
-#' @details prior_ratios can be produced by get_prior_ratios() and activities
-#'   can be produced by compute_activities
+#' @details prior_ratios can be produced by get_prior_ratios() and model_result
+#'   can be obtained from fit_mpra_model()
 #' @note The default y_limits cut off a small fraction of points where one prior
 #'   or the other does vastly better. It can be set to larger values to avoid
 #'   this behavior.
 plot_ratio_hexs = function(prior_ratios,
-                           activities,
+                           model_result,
                            y_limits = c(-1,1)){
-  mean_ts = activities %>%
-    group_by(.data$variant_id, .data$allele) %>%
-    summarise(mean_act = mean(.data$activity)) %>%
-    filter(all(c('ref', 'alt') %in% .data$allele)) %>%
-    summarise(ts = .data$mean_act[.data$allele == 'alt'] - .data$mean_act[.data$allele == 'ref'])
+
+  mean_ts = model_result %>%
+    select(variant_id, ts_post_mean) %>%
+    rename(ts = ts_post_mean)
 
   prior_ratios %>%
     left_join(mean_ts, by = 'variant_id') %>%
