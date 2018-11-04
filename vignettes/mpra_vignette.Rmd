@@ -1,5 +1,5 @@
 ---
-title: "MPRA analysis with malacoda"
+title: "MPRA Analysis"
 author: "Andrew Ghazi"
 date: "`r Sys.Date()`"
 output: 
