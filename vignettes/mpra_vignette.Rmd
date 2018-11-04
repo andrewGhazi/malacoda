@@ -38,13 +38,13 @@ Currently `malacoda` only runs on Mac and Linux. If you're a Windows user lookin
 
 The first step is to install `rstan` and `Rcpp`. The following command will usually suffice to do this, if not you can find more in-depth installation instructions [on the rstan documentation](https://github.com/stan-dev/rstan/wiki/Installing-RStan-on-Mac-or-Linux).
 
-```{r gh-installation, eval=FALSE, echo = TRUE}
+```{r gh-installation, eval=FALSE, echo = TRUE, purl = FALSE}
 install.packages(c('Rcpp', 'rstan'), dependencies = TRUE, type = 'source')
 ```
 
 Once on CRAN, malacoda will be installable with:
 
-```{r eval = FALSE, echo = TRUE}
+```{r eval = FALSE, echo = TRUE, purl = FALSE}
 install.packages('malacoda')
 ```
 
@@ -52,7 +52,7 @@ This should install the dependencies (mainly a lot of tidyverse packages), compi
 
 You can install the development version of malacoda from github with:
 
-```{r eval = FALSE, echo = TRUE}
+```{r eval = FALSE, echo = TRUE, purl = FALSE}
 # install.packages("devtools")
 devtools::install_github("andrewGhazi/malacoda")
 ```
@@ -97,7 +97,7 @@ The priors for the parameters negative binomial distribution are gamma distribut
 
 In malacoda, this is done with `fit_marg_prior()` like so:
 
-```{r, eval = FALSE, echo = TRUE}
+```{r, eval = FALSE, echo = TRUE, purl = FALSE}
 marg_prior = fit_marg_prior(mpra_data,
                             rep_cutoff = .15,
                             plot_rep_cutoff = TRUE,
@@ -112,7 +112,7 @@ For a typical MPRA assay where a majority of variants assayed have practically 0
 
 The marginal prior is relatively un-informative. `malacoda` provides methods for conditional density estimation on informative genomic annotations as a means to increase statistical efficiency while avoiding false positives.
 
-This example (included with the package as `u_deepsea` shows [DeepSea's](deepsea.princeton.edu) predicted K562 DNase hypersensitivity for the variants in Ulirsch, 2016:
+This example (included with the package as `u_deepsea` shows [DeepSea's](http://deepsea.princeton.edu/job/analysis/create/) predicted K562 DNase hypersensitivity for the variants in Ulirsch, 2016:
 
 ```{r}
 load('../data/u_deepsea.RData')
@@ -136,7 +136,7 @@ The function `fit_cond_prior` estimates conditional priors for each variant with
 
 This function can be called like so:
 
-```{r, eval = FALSE, echo = TRUE}
+```{r, eval = FALSE, echo = TRUE, purl = FALSE}
 cond_prior = fit_cond_prior(mpra_data = umpra_example,
                             annotations = example_deepsea,
                             n_cores = 1,
@@ -154,7 +154,7 @@ There are only 100 variants included with the example data for the sake of keepi
 
 The model can be fit with a call to `fit_mpra_model()`:
 
-```{r, eval = FALSE, echo = TRUE}
+```{r, eval = FALSE, echo = TRUE, purl = FALSE}
 example_result = fit_mpra_model(mpra_data, 
                                 out_dir = '/path/to/output/directory/',
                                 priors = cond_prior, # or = marg_prior
