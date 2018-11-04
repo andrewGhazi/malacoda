@@ -1,7 +1,8 @@
 ## Test environments 
 
-* local Linux Mint install, R 3.5.1 
-* local OS X, R 3.5.1
+* local Linux Mint 19 install, R 3.5.1 
+* local Linux Mint 19 install, R 3.4.4 
+* local macOS HighSierra 10.13.1, R 3.5.1
 
 This package likely will not work as intended on Windows due to heavy use of
 parallel::mclapply. As such we do not intend to support Windows.
