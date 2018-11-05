@@ -1,23 +1,24 @@
-## Test environments 
+## Test environments  
+* local Linux Mint 19, R 3.5.1 
+* local macOS High Sierra 10.13.1, R 3.5.1
 
-* local Linux Mint 19 install, R 3.5.1 
-* local Linux Mint 19 install, R 3.4.4 
-* local macOS HighSierra 10.13.1, R 3.5.1
-
-This package likely will not work as intended on Windows due to heavy use of
-parallel::mclapply. As such we do not intend to support Windows.
+Windows is not a target platform for us, so Windows-related
+errors/warnings/build-failures do not bother us as long as they are not a
+problem for the CRAN maintainers.
 
 ## R CMD check results 
-
 There were no ERRORs or WARNINGs.
 
-* checking for GNU extensions in Makefiles ... NOTE
-  GNU make is a SystemRequirements.
+There was 1 NOTE: 
+* checking for GNU extensions in Makefiles ... NOTE GNU make is a
+SystemRequirements.
 
-GNU make is a required dependency of Stan-based models.
+GNU make was added as a system requirement by rstantools::rstan_package_skeleton(). Removing this requirement would likely interfere with the compilation of the Stan models in this package.
 
 This is the first submission of this package.
 
 ## Downstream dependencies
 
 There are no downstream dependencies for this package.
+
+Thank you! :)
