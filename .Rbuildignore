@@ -1,3 +1,6 @@
+^src/stan_files/crispr_model\.o$
+^src/stan_files/bc_mpra_model\.o$
+^CRAN-RELEASE$
 ^cran-comments\.md$
 ^malacoda\.Rproj$
 ^\.Rproj\.user$
