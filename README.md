@@ -35,14 +35,20 @@ The first step is to install `rstan` and `Rcpp`. The following command will usua
 install.packages(c('Rcpp', 'rstan'), dependencies = TRUE, type = 'source')
 ```
 
-You can install malacoda from github with:
+Once malacoda is accepted up on CRAN it will be installable with:
+
+``` r
+install.packages('malacoda')
+```
+
+You can install the development version of malacoda from github with:
 
 ``` r
 # install.packages("devtools")
 devtools::install_github("andrewGhazi/malacoda")
 ```
 
-This should install the dependencies (mainly a lot of tidyverse packages), compile the malacoda Stan models, and install the package.
+This should install the dependencies (which are mostly tidyverse packages), compile the malacoda Stan models, and install the package.
 
 Example
 -------
@@ -141,14 +147,14 @@ This will fit the model to each input in the assay (using some example variants 
 </tbody>
 </table>
 
-More sophisticated analyses that use annotations to create informative priors for higher sensitivity will be described in an upcoming vignette. The required functionality to do so currently exists with `fit_cond_prior`. Other features like annotation checking and traditional NHST analysis will also be explained in the vignette. In the meantime, most major functions like `fit_cond_prior` have help documentation that should help elucidate how to use them.
+More sophisticated analyses that use annotations to create informative priors for higher sensitivity are described in the MPRA Analysis vignette. Other features like annotation checking and traditional NHST analysis are explained in the vignette. Most major functions like `fit_cond_prior` have extensive help documentation that should help elucidate how to use them.
 
 Example output
 --------------
 
 In addition to the summary statistics table output above, the sampler outputs for each variant are saved in the user-defined output directory. These are stanfit objects, hence they can be visualized using all the tools provided in packages like [bayesplot](http://mc-stan.org/users/interfaces/bayesplot).
 
-`malacoda` also provides several plotting function of its own (with more planned), `posterior_beeswarm()`. This plots the traditional activity measurements as points in a beeswarm plot along with violins for posteriors on means for each allele. Optional colors can help diagnose unwanted sample-specific bias. That is, all the colors should be mixed within each allele, indicating that activity measurements are not influenced by sample.
+`malacoda` also provides several plotting function of its own, including `posterior_beeswarm()`. This plots the traditional activity measurements as points in a beeswarm plot along with violins for posteriors on means for each allele. Optional colors can help diagnose unwanted sample-specific bias. That is, all the colors should be mixed within each allele, indicating that activity measurements are not influenced by sample.
 
 ![An example activity beeswarm with overlaid activity mean posteriors](man/figures/posterior_beeswarm_example.png)
 
