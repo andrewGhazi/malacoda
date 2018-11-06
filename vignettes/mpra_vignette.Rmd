@@ -122,7 +122,7 @@ u_deepsea %>%
   knitr::kable()
 ```
 
-While this example shows only a single annotation, the methods included with this package can utilize an arbitrary number of annotations. A user could also include ENCODE transcription factor binding profiles, additional DeepSea predictions, etc. Whatever set of continuous annotations they think can provide information about their MPRA assay's results.
+While this example shows only a single annotation, the methods included with this package can utilize an arbitrary number of annotations. A user could also include ENCODE transcription factor binding profiles, additional DeepSea predictions, etc. Whatever set of continuous annotations they think can provide information about their MPRA assay's results. 
 
 The function `fit_cond_prior` estimates conditional priors for each variant with these annotations. It does this in the following way:  
 
@@ -147,6 +147,13 @@ cond_prior = fit_cond_prior(mpra_data = umpra_example,
 ```
 
 This process gets better the more variants are included in the analysis. The more variants included, the more finely the annotation space is explored and the more precisely the nearest variants will give clear indication of the prior belief. Tuning `min_neighbors` provides a bias-variance tradeoff; decreasing it will increase the most proximal neighbors, but increase the variance of the prior estimation process. Increasing `min_neighbors` will make the conditional prior estimation more stable, but as `min_neighbors` grows the conditional prior becomes less informative and gradually approaches the marginal.
+
+In practice, this conditional prior can provide substantial improvements. Here's an example showing the normalized counts for one (strongly functional) variant in Ulirsch 2016 with the conditional and marginal priors: 
+
+```{r, out.width='700px'}
+knitr::include_graphics('../man/figures/cond_prior_improvement.png')
+```
+
 
 There are only 100 variants included with the example data for the sake of keeping the size of the package small, however published MPRA's have tested tens of thousands of variants ([Tewhey et al., Cell, 2016](https://www.ncbi.nlm.nih.gov/pubmed/27259153)). 
 
