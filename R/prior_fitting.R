@@ -14,7 +14,7 @@ generate_distance_matrix = function(annotations,
                                     scale_annotations = TRUE){
 
   if(nrow(annotations) > 10000){
-    warning('Computing distance matrix for more than 10000 variants, I hope you have enough memory!')
+    message('Computing distance matrix for more than 10000 variants, I hope you have enough memory!')
   }
 
   if (log_distance & scale_annotations) {
@@ -245,7 +245,7 @@ fit_marg_prior = function(mpra_data,
            converged = map_lgl(.data$nb_fit, ~.x$convergence == 0))
 
   if (!all(dna_nb_fits$converged)) {
-    warning(paste0(sum(!dna_nb_fits$converged),
+    message(paste0(sum(!dna_nb_fits$converged),
                    ' out of ',
                    nrow(dna_nb_fits),
                    ' (', round(sum(!dna_nb_fits$converged) / nrow(dna_nb_fits) * 100, digits = 3), '%)',
@@ -399,7 +399,7 @@ fit_cond_prior = function(mpra_data,
 
   if (n_distinct(annotations$variant_id) > n_distinct(mpra_data$variant_id)){
     n_extra = n_distinct(annotations$variant_id) - n_distinct(mpra_data$variant_id)
-    warning(paste0('Annotations provided for variants not included in mpra_data. Removing ', n_extra, ' unneeded annotations.'))
+    message(paste0('Annotations provided for variants not included in mpra_data. Removing ', n_extra, ' unneeded annotations.'))
 
     annotations = dplyr::filter(annotations,
                                 .data$variant_id %in% mpra_data$variant_id)
@@ -430,7 +430,7 @@ fit_cond_prior = function(mpra_data,
            converged = map_lgl(.data$nb_fit, ~.x$convergence == 0))
 
   if (!all(dna_nb_fits$converged)) {
-    warning(paste0(sum(!dna_nb_fits$converged),
+    message(paste0(sum(!dna_nb_fits$converged),
                    ' out of ',
                    nrow(dna_nb_fits),
                    ' (', round(sum(!dna_nb_fits$converged) / nrow(dna_nb_fits) * 100, digits = 3), '%)',

@@ -68,7 +68,7 @@ plot_prior_ratios = function(prior_ratios,
              .data$log_prior_ratio < x_limits[2])
 
   if (nrow(suitable) < nrow(prior_ratios)){
-    warning(paste0('Removing ', format(100*(1- nrow(suitable) / nrow(prior_ratios)), digits = 3), '% of parameter estimates from plot x-range. Set x_limits to larger values to avoid'))
+    message(paste0('Removing ', format(100*(1- nrow(suitable) / nrow(prior_ratios)), digits = 3), '% of parameter estimates from plot x-range. Set x_limits to larger values to avoid'))
   }
 
 
