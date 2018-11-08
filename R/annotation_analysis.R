@@ -150,6 +150,124 @@ get_prior_ratios = function(mpra_data,
   return(prior_ratios)
 }
 
+#' Get Kullback-Leibler Divergences
+#'
+#' @description Assess the prior improvement using Kullback-Leibler divergence
+#' @param mpra_data a data frame of mpra data
+#' @param cond_prior a conditional prior (see fit_cond_prior())
+#' @param marg_prior a marginal prior (see fit_marg_prior())
+#' @param n_cores number of cores for parallelization
+#' @return a data frame giving the KL between the observed normalized counts and
+#'   the two priors for each allele of each variant_id
+#' @note The KL divergences are approximations because gamma kernel density
+#'   estimation is used to obtain the empirical distribution of the normalized
+#'   counts.
+get_kl_divergences = function(mpra_data,
+                              cond_prior,
+                              marg_prior,
+                              n_cores) {
+
+  sample_depths = get_sample_depths(mpra_data)
+
+  print('Determining well-represented variants, see plot...')
+  well_represented = get_well_represented(mpra_data,
+                                          sample_depths,
+                                          rep_cutoff = .15,
+                                          plot_rep_cutoff = FALSE)
+
+
+  #### First get the ratios for the mean parameters ----
+  mean_dna_abundance = mpra_data %>%
+    select(.data$variant_id, .data$allele, .data$barcode, matches('DNA')) %>%
+    gather('sample_id', 'counts', matches('DNA|RNA')) %>%
+    left_join(sample_depths,
+              by = 'sample_id') %>%
+    mutate(depth_adj_count = .data$counts / .data$depth_factor) %>%
+    group_by(.data$barcode) %>%
+    summarise(mean_depth_adj_count = mean(.data$depth_adj_count))
+
+  count_remnants = mpra_data %>%
+    filter(.data$barcode %in% well_represented$barcode) %>%
+    select(-matches('DNA')) %>%
+    gather('sample_id', 'counts', matches('RNA')) %>%
+    left_join(sample_depths, by = 'sample_id') %>%
+    left_join(mean_dna_abundance, by = 'barcode') %>%
+    mutate(count_remnant = .1 + .data$counts / .data$depth_factor / .data$mean_depth_adj_count)
+
+  message('Computing conditional prior KL divergences...')
+  cond_kl = cond_prior$rna_priors %>%
+    select(.data$variant_id, .data$variant_m_prior) %>% # Only implementing for mu_prior for now # TODO reapply to dispersions
+    unnest %>%
+    right_join(count_remnants,
+               by = c('variant_id', 'allele')) %>%
+    group_by(.data$variant_id,
+             .data$allele) %>%
+    nest(.key = 'remnants') %>%
+    mutate(cond_kl = unlist(mclapply(.data$remnants,
+                                     compute_kl,
+                                     mc.cores = n_cores))) %>%
+    select(-remnants)
+
+  message('Computing marginal prior KL divergences...')
+  marg_kl = marg_prior %>%
+    filter(.data$prior_type == 'mu_prior', .data$acid_type == 'RNA') %>%
+    right_join(count_remnants,
+               by = c('allele')) %>%
+    group_by(.data$variant_id,
+             .data$allele) %>%
+    nest(.key = 'remnants') %>%
+    mutate(marg_kl = unlist(mclapply(.data$remnants,
+                                     compute_kl,
+                                     mc.cores = n_cores))) %>%
+    select(-remnants)
+
+  both_kl = cond_kl %>%
+    full_join(marg_kl, by = c('variant_id', 'allele'),
+              suffix = c('_cond', '_marg'))
+
+}
+
+#' Compute KL divergence estimate
+#'
+#' @description Approximate the KL divergence between a set of normalized counts and a prior. An empirical density
+#' @param remnant_set a data frame of count remnants (i.e. post sample/DNA abundance normalization) with columns specifying the prior
+#' @return the Kullback-Leibler divergence between the empirical estimate and the prior
+compute_kl_est = function(remnant_set){
+  # KL = int(p*log(p/q), x)
+  # p is the empirical distribution of count remnants
+  # q is the prior
+  # Since the count remnants are individual observations, the empirical distribution p is a sum of delta functions.
+  # These integrate to one, so the continuous integral reduces to a finite sum.
+  # I think.
+  # This function will be called with dplyr::do()
+
+  max_support = 2*max(remnant_set$count_remnant)
+
+  count_dens_estimate_fun = kdensity::kdensity(remnant_set$count_remnant,
+                                               kernel = 'gamma',
+                                               support = c(0, max_support),
+                                               normalized = TRUE,
+                                               adjust = 1.5)
+
+  estimate_support = seq(0, max_support, length.out = 1000)[-1] # exclude 0
+  estimate_dens = count_dens_estimate_fun(estimate_support)
+
+  prior_dens = dgamma(estimate_support,
+                      shape = remnant_set$alpha_est[1],
+                      rate = remnant_set$beta_est[1])
+
+  data_frame(kl = sum(estimate_dens * log(estimate_dens / prior_dens)))
+
+  # remnant_set %>%
+  #   mutate(point_contribution = log(1 / dgamma(.data$count_remnant,
+  #                                              shape = .data$alpha_est[1],
+  #                                              rate = .data$beta_est[1]))) %>%
+  #   summarise(kl = sum(.data$point_contribution))
+  #
+  # # "Am I unbelievably sick?" # edit - No
+
+}
+
 #' Score an annotation source
 #'
 #' @description This function takes MPRA data and an annotation source (or

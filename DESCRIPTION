@@ -29,6 +29,8 @@ Imports:
     rlang,
     ggplot2,
     tibble
+Suggests: 
+    kdensity
 LinkingTo:
     BH (>= 1.66.0-1),
     Rcpp (>= 0.12.18),
