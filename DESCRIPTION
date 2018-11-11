@@ -29,8 +29,6 @@ Imports:
     rlang,
     ggplot2,
     tibble
-Suggests: 
-    kdensity
 LinkingTo:
     BH (>= 1.66.0-1),
     Rcpp (>= 0.12.18),
@@ -45,5 +43,6 @@ NeedsCompilation: yes
 SystemRequirements: GNU make
 RoxygenNote: 6.1.0
 Suggests: knitr,
-    rmarkdown
+    rmarkdown,
+    kdensity
 VignetteBuilder: knitr
