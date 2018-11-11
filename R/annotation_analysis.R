@@ -204,7 +204,7 @@ get_kl_divergences = function(mpra_data,
              .data$allele) %>%
     nest(.key = 'remnants') %>%
     mutate(cond_kl = unlist(mclapply(.data$remnants,
-                                     compute_kl,
+                                     compute_kl_est,
                                      mc.cores = n_cores))) %>%
     select(-remnants)
 
@@ -217,7 +217,7 @@ get_kl_divergences = function(mpra_data,
              .data$allele) %>%
     nest(.key = 'remnants') %>%
     mutate(marg_kl = unlist(mclapply(.data$remnants,
-                                     compute_kl,
+                                     compute_kl_est,
                                      mc.cores = n_cores))) %>%
     select(-remnants)
 
@@ -247,7 +247,7 @@ compute_kl_est = function(remnant_set){
                                                kernel = 'gamma',
                                                support = c(0, max_support),
                                                normalized = TRUE,
-                                               adjust = 1.5)
+                                               adjust = 2)
 
   estimate_support = seq(0, max_support, length.out = 1000)[-1] # exclude 0
   estimate_dens = count_dens_estimate_fun(estimate_support)
