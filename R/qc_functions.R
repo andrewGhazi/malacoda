@@ -17,21 +17,73 @@ get_sample_correlations = function(mpra_data){
     gather("sample_2", 'correlation', -.data$sample_1)
 }
 
-#' Match barcodes for a fastq
+#' Cut out sequence lines
 #'
-#' @description Call fastx_barcode_splitter on one trimmed fastq
-match_barcodes = function(barcode_allele_df,
-                          trimmed_fastq,
-                          temp_dir){
+#' @description Given a trimmed and quality filtered fastq, cut out just the
+#'   sequence lines, write them out, then exit.
+cut_out_seqs = function(trimmed_fastq,
+                        temp_dir){
 
-  bc_splitter_cmd = paste0('fastx_barcode_splitter.pl ',
-                           '--bcfile ',
-                           '-- prefix ', temp_dir, 'bc_splits/',
-                           '--bol ',
-                           '--exact ',
-                           trimmed_fastq)
+  fastq_path_split = stringr::str_split(trimmed_fastq,
+                                        pattern = '/',
+                                        simplify = TRUE)
+
+  fastq_name = gsub('\\.fastq','', fastq_path_split[1,ncol(fastq_path_split)])
+
+  output_path = paste0(temp_dir, 'bc_splits/seq_only_', fastq_name, '.txt')
+  seq_only_cmd = paste0('sed -n \'2~4p\' ', trimmed_fastq, ' > ', output_path)
+  system(seq_only_cmd)
 
   return(TRUE)
+}
+
+#' Match barcodes for a single fastq
+#'
+#' @description Count barcode abundance, write out the counts of unmatched
+#'   barcodes, return a data frame of counts of the given barcodes
+count_barcodes_in_fastq = function(trimmed_fastq,
+                                   barcode_allele_df,
+                                   temp_dir){
+
+  fastq_path_split = stringr::str_split(trimmed_fastq,
+                                        pattern = '/',
+                                        simplify = TRUE)
+
+  fastq_name = gsub('\\.fastq','', fastq_path_split[1,ncol(fastq_path_split)])
+
+  output_path = paste0(temp_dir, 'bc_splits/seq_only_', fastq_name, '.txt')
+
+  # If someone has an absurdly large amount of sequencing this might be slow. Might have to add data.table as a dependency and do it with that, it's > 10x faster
+  barcode_observations = readr::read_tsv(output_path,
+                                         col_names = 'barcode') %>%
+    dplyr::count(.data$barcode)
+
+  unmatched = barcode_observations %>%
+    filter(!(.data$barcode %in% barcode_allele_df$barcode))
+
+  # These will be available to the user if they set keep_temp = TRUE in count_barcodes()
+  write_tsv(unmatched,
+            path = paste0(temp_dir, 'bc_splits/', fastq_name, '_unmatched_barcode_counts.tsv'))
+
+  sample_name = gsub('trimmed_filtered_', '', fastq_name)
+
+  barcode_counts = barcode_observations %>%
+    right_join(barcode_allele_df, by = 'barcode') %>%
+    mutate(n = replace(.data$n, is.na(.data$n), 0)) %>%
+    dplyr::select('bc_id', 'barcode', 'n') %>%
+    set_colnames(c('bc_id', 'barcode', sample_name))
+
+  return(barcode_counts)
+
+
+  # This doesn't work for more than 1021 barcodes without OS-level ulimit changes
+  # bc_splitter_cmd = paste0('cat ', trimmed_fastq, ' | ',
+  #                          'fastx_barcode_splitter.pl ',
+  #                          '--bcfile ', temp_dir, 'bc_file.txt ', # this will have been written out just prior to this function being called
+  #                          '--prefix ', temp_dir, 'bc_splits/', fastq_name, '/ ',
+  #                          '--bol ',
+  #                          '--exact ',
+  #                          '--suffix .txt')
 
 }
 
@@ -98,11 +150,12 @@ trim_and_filter = function(fastq,
 #'   losing too many reads you can try lowering it.
 #'
 #'   The output returns a column of counts for each FASTQ in the input
-#'   directory. The usual MPRA practice is to have one FASTQ per transfection as
-#'   well as multiple replicates taken from the plasmid library -- if this is
-#'   not the case in your experiment you'll need to do some form of
-#'   experiment-structure-appropriate aggregation before proceeding to
-#'   downstream analysis.
+#'   directory. The column names are taken from the filenames of the fastqs
+#'   without the filetype extensions. The usual MPRA practice is to have one
+#'   FASTQ per transfection as well as multiple replicates taken from the
+#'   plasmid library -- if this is not the case in your experiment you'll need
+#'   to do some form of experiment-structure-appropriate aggregation before
+#'   proceeding to downstream analysis.
 #'
 #'   Unmatched reads are also written out to files included in the temporary
 #'   intermediates under bc_splits/. These can be helpful if you want to regain
@@ -130,7 +183,7 @@ count_barcodes = function(barcode_allele_df,
                           n_cores = 1){
 
   #### Input checks ----
-  fastx_tookit_installed = length(system('which fastx_trimmer', intern = TRUE)) == 1 # There's probably a better way to check for this...
+  fastx_toolkit_installed = length(system('which fastx_trimmer', intern = TRUE)) == 1 # There's probably a better way to check for this...
 
   if (!fastx_toolkit_installed){
     stop('It seems the FASTX-Toolkit is not installed. See http://hannonlab.cshl.edu/fastx_toolkit/download.html for installation details.')
@@ -141,7 +194,8 @@ count_barcodes = function(barcode_allele_df,
   }
 
   if (!dir.exists(temp_dir)){
-    stop('The temporary directory specified doesn\'t exist!')
+    message('The temporary directory specified doesn\'t exist! Creating with dir.create()')
+    dir.create(temp_dir)
   }
 
   if (fastq_dir == temp_dir){
@@ -158,12 +212,18 @@ count_barcodes = function(barcode_allele_df,
     fastq_dir = paste0(fastq_dir, '/')
   }
 
+  if (any(grepl('[^A-Za-z0-9_]', barcode_allele_df$bc_id))){
+    # This might not actually be
+    stop('Some barcode identifiers may be ill-formatted. Please restrict IDs to only alphanumeric and underscore characters.')
+  }
+
   if (length(list.files(temp_dir)) != 0){
     stop('Please specify an empty directory as the temp_dir')
   }
 
-  fastqs = list.files(fastq_dir,
-                           pattern = '.fastq$')
+  fastqs = list.files(gsub('/$', '', fastq_dir),
+                      pattern = '.fastq$',
+                      full.names = TRUE)
 
   if (length(fastqs) == 0){
     stop('No .fastq files found in fastq_dir! Use gunzip *.fastq.gz if you have gzip-compressed files.')
@@ -177,21 +237,32 @@ count_barcodes = function(barcode_allele_df,
 
   dir.create(paste0(temp_dir, 'trimmed_filtered_fastqs/'))
 
-  mclapply(fastqs,
-           trim_and_filter,
-           mc.cores = n_cores,
-           quality_cutoff = quality_cutoff,
-           bc_start = bc_start,
-           bc_end = bc_end,
-           temp_dir = temp_dir)
+  tf_cmd = mclapply(fastqs,
+                    trim_and_filter,
+                    mc.cores = n_cores,
+                    quality_cutoff = quality_cutoff,
+                    bc_start = bc_start,
+                    bc_end = bc_end,
+                    temp_dir = temp_dir)
 
   dir.create(paste0(temp_dir, 'bc_splits/'))
 
-  mclapply(trimmed_fastqs,
-           match_barcodes,
-           mc.cores = n_cores,)
+  trimmed_fastqs = list.files(paste0(temp_dir, 'trimmed_filtered_fastqs'),
+                              full.names = TRUE)
+
+  cut_cmd = mclapply(trimmed_fastqs,
+                     cut_out_seqs,
+                     mc.cores = n_cores,
+                     temp_dir = temp_dir)
 
   #### On to the counting ----
+
+  mpra_data = mclapply(trimmed_fastqs,
+                       count_barcodes_in_fastq,
+                       mc.cores = n_cores,
+                       barcode_allele_df = barcode_allele_df,
+                       temp_dir = temp_dir) %>%
+    purrr::reduce(.f = dplyr::inner_join, by = c('bc_id', 'barcode'))
 
   #### Cleanup if required ----
 
