@@ -29,6 +29,7 @@ Other features include:
 * custom Stan models for fast posterior evaluation  
 * variational Bayes support through `rstan::vb` that allows for quick first pass checks  
 * Annotation checking - quantitatively evaluate how much a given genomic annotation source improves empirical prior estimation by prior ratios
+* Convenience and QC functions - `count_barcodes()` to automatically go from FASTQs to raw MPRA counts. `get_sample_correlations()` to check the consistency of your data.
 
 ![malacoda Kruschke diagram](man/figures/kruschke_latex.png)
 
@@ -105,7 +106,7 @@ Other visualization functions are available for annotation checking. These help 
     * Time dependent depletion model
 * Categorical conditional priors  
     * Estimate by-group conditional priors for non-continuous annotations (i.e. likely pathogenic vs benign vs VUS)
-* Quality Control functionality
+* additional Quality Control functionality
 
 ## Contact
 

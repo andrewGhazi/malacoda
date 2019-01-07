@@ -1,34 +1,57 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-malacoda <img src="man/figures/logo.png" align="right" title="evil tail"/>
-==========================================================================
 
-The goal of malacoda is to enable Bayesian analysis of high-throughput genomic assays like massively parallel reporter assays (MPRA) and CRISPR screens.
+# malacoda <img src="man/figures/logo.png" align="right" title="evil tail"/>
 
-It uses a negative-binomial-based Bayesian model shown in the Kruschke diagram below. This model offers numerous advantages over traditional null hypothesis significance testing based methods:
+The goal of malacoda is to enable Bayesian analysis of high-throughput
+genomic assays like massively parallel reporter assays (MPRA) and CRISPR
+screens.
 
--   Models raw data - The model is fit directly to the input counts (MPRA barcodes or gRNAs)
-    -   The lack of transformations avoids discarding 0 counts as in traditional methods.
--   Prior information - Empirical priors are fit from the observed assay globally, enabling estimate shrinkage that reduces errors due to multiple testing
-    -   Informative annotations (such as DNase hypersensitivity estimates or gene scores) can be included to further refine the empirical priors by conditional density estimation.
--   The R interface provides clear and interpretable outputs and figures.
+It uses a negative-binomial-based Bayesian model shown in the Kruschke
+diagram below. This model offers numerous advantages over traditional
+null hypothesis significance testing based methods:
+
+  - Models raw data - The model is fit directly to the input counts
+    (MPRA barcodes or gRNAs)
+      - The lack of transformations avoids discarding 0 counts as in
+        traditional methods.
+  - Prior information - Empirical priors are fit from the observed assay
+    globally, enabling estimate shrinkage that reduces errors due to
+    multiple testing
+      - Informative annotations (such as DNase hypersensitivity
+        estimates or gene scores) can be included to further refine the
+        empirical priors by conditional density estimation.  
+  - The R interface provides clear and interpretable outputs and
+    figures.
 
 Other features include:
 
--   custom Stan models for fast posterior evaluation
--   variational Bayes support through `rstan::vb` that allows for quick first pass checks
--   Annotation checking - quantitatively evaluate how much a given genomic annotation source improves empirical prior estimation by prior ratios
+  - custom Stan models for fast posterior evaluation  
+  - variational Bayes support through `rstan::vb` that allows for quick
+    first pass checks  
+  - Annotation checking - quantitatively evaluate how much a given
+    genomic annotation source improves empirical prior estimation by
+    prior ratios
+  - Convenience and QC functions - `count_barcodes()` to automatically
+    go from FASTQs to raw MPRA counts. `get_sample_correlations()` to
+    check the consistency of your data.
 
 ![malacoda Kruschke diagram](man/figures/kruschke_latex.png)
 
-Installation
-------------
+## Installation
 
-Currently `malacoda` only works on Mac and Linux. If you're a Windows user looking to use the software, open a Github issue, and we'll bump Windows support up the implementation priority list.
+Currently `malacoda` only works on Mac and Linux. If you’re a Windows
+user looking to use the software, open a Github issue, and we’ll bump
+Windows support up the implementation priority list.
 
-It's best to have the most up-to-date version of R (3.5.1 as of 11/2/2018).
+It’s best to have the most up-to-date version of R (3.5.1 as of
+11/2/2018).
 
-The first step is to install `rstan` and `Rcpp`. The following command will usually suffice to do this, if not you can find more in-depth installation instructions [on the rstan documentation](https://github.com/stan-dev/rstan/wiki/Installing-RStan-on-Mac-or-Linux). You should have root access.
+The first step is to install `rstan` and `Rcpp`. The following command
+will usually suffice to do this, if not you can find more in-depth
+installation instructions [on the rstan
+documentation](https://github.com/stan-dev/rstan/wiki/Installing-RStan-on-Mac-or-Linux).
+You should have root access.
 
 ``` r
 # Need to have root access
@@ -48,12 +71,13 @@ You can install the development version of malacoda from github with:
 devtools::install_github("andrewGhazi/malacoda")
 ```
 
-This should install the dependencies (which are mostly tidyverse packages), compile the malacoda Stan models, and install the package.
+This should install the dependencies (which are mostly tidyverse
+packages), compile the malacoda Stan models, and install the package.
 
-Example
--------
+## Example
 
-This is a basic example which shows you how to fit the simplest form of the model:
+This is a basic example which shows you how to fit the simplest form of
+the model:
 
 ``` r
 library(malacoda)
@@ -66,112 +90,70 @@ fit_mpra_model(mpra_data = umpra_example,
                save_nonfunctional = TRUE)
 ```
 
-This will fit the model to each input in the assay (using some example variants from [Ulirsch et al., Cell, 2016](https://www.ncbi.nlm.nih.gov/pubmed/27259154)) using a marginal prior, save the outputs for each variant at the specified directory, and return a data frame of summary statistics for each variant, including binary calls of functional/non-functional, posterior means on activity levels & transcription shift.
+This will fit the model to each input in the assay (using some example
+variants from [Ulirsch et al.,
+Cell, 2016](https://www.ncbi.nlm.nih.gov/pubmed/27259154)) using a
+marginal prior, save the outputs for each variant at the specified
+directory, and return a data frame of summary statistics for each
+variant, including binary calls of functional/non-functional, posterior
+means on activity levels & transcription
+shift.
 
-<table style="width:100%;">
-<colgroup>
-<col width="13%" />
-<col width="14%" />
-<col width="15%" />
-<col width="15%" />
-<col width="15%" />
-<col width="11%" />
-<col width="11%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left">variant_id</th>
-<th align="right">ts_post_mean</th>
-<th align="right">ref_post_mean</th>
-<th align="right">alt_post_mean</th>
-<th align="left">is_functional</th>
-<th align="right">hdi_lower</th>
-<th align="right">hdi_upper</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">3_141301451</td>
-<td align="right">1.482</td>
-<td align="right">-0.516</td>
-<td align="right">0.966</td>
-<td align="left">TRUE</td>
-<td align="right">1.180</td>
-<td align="right">1.761</td>
-</tr>
-<tr class="even">
-<td align="left">15_65882173</td>
-<td align="right">-1.133</td>
-<td align="right">-2.489</td>
-<td align="right">-3.623</td>
-<td align="left">FALSE</td>
-<td align="right">-2.434</td>
-<td align="right">0.119</td>
-</tr>
-<tr class="odd">
-<td align="left">X_55054636</td>
-<td align="right">-1.094</td>
-<td align="right">0.212</td>
-<td align="right">-0.882</td>
-<td align="left">TRUE</td>
-<td align="right">-1.387</td>
-<td align="right">-0.799</td>
-</tr>
-<tr class="even">
-<td align="left">1_158620477</td>
-<td align="right">1.059</td>
-<td align="right">-1.323</td>
-<td align="right">-0.264</td>
-<td align="left">TRUE</td>
-<td align="right">0.461</td>
-<td align="right">1.652</td>
-</tr>
-<tr class="odd">
-<td align="left">10_46003631</td>
-<td align="right">-0.886</td>
-<td align="right">-2.299</td>
-<td align="right">-3.185</td>
-<td align="left">FALSE</td>
-<td align="right">-2.137</td>
-<td align="right">0.300</td>
-</tr>
-<tr class="even">
-<td align="left">1_158497964</td>
-<td align="right">-0.798</td>
-<td align="right">-0.178</td>
-<td align="right">-0.976</td>
-<td align="left">TRUE</td>
-<td align="right">-1.371</td>
-<td align="right">-0.222</td>
-</tr>
-</tbody>
-</table>
+| variant\_id  | ts\_post\_mean | ref\_post\_mean | alt\_post\_mean | is\_functional | hdi\_lower | hdi\_upper |
+| :----------- | -------------: | --------------: | --------------: | :------------- | ---------: | ---------: |
+| 3\_141301451 |          1.482 |         \-0.516 |           0.966 | TRUE           |      1.180 |      1.761 |
+| 15\_65882173 |        \-1.133 |         \-2.489 |         \-3.623 | FALSE          |    \-2.434 |      0.119 |
+| X\_55054636  |        \-1.094 |           0.212 |         \-0.882 | TRUE           |    \-1.387 |    \-0.799 |
+| 1\_158620477 |          1.059 |         \-1.323 |         \-0.264 | TRUE           |      0.461 |      1.652 |
+| 10\_46003631 |        \-0.886 |         \-2.299 |         \-3.185 | FALSE          |    \-2.137 |      0.300 |
+| 1\_158497964 |        \-0.798 |         \-0.178 |         \-0.976 | TRUE           |    \-1.371 |    \-0.222 |
 
-More sophisticated analyses that use annotations to create informative priors for higher sensitivity are described in the MPRA Analysis vignette. Other features like annotation checking and traditional NHST analysis are explained in the vignette. Most major functions like `fit_cond_prior` have extensive help documentation that should help elucidate how to use them.
+More sophisticated analyses that use annotations to create informative
+priors for higher sensitivity are described in the MPRA Analysis
+vignette. Other features like annotation checking and traditional NHST
+analysis are explained in the vignette. Most major functions like
+`fit_cond_prior` have extensive help documentation that should help
+elucidate how to use them.
 
-Example output
---------------
+## Example output
 
-In addition to the summary statistics table output above, the sampler outputs for each variant are saved in the user-defined output directory. These are stanfit objects, hence they can be visualized using all the tools provided in packages like [bayesplot](http://mc-stan.org/users/interfaces/bayesplot).
+In addition to the summary statistics table output above, the sampler
+outputs for each variant are saved in the user-defined output directory.
+These are stanfit objects, hence they can be visualized using all the
+tools provided in packages like
+[bayesplot](http://mc-stan.org/users/interfaces/bayesplot).
 
-`malacoda` also provides several plotting function of its own, including `posterior_beeswarm()`. This plots the traditional activity measurements as points in a beeswarm plot along with violins for posteriors on means for each allele. Optional colors can help diagnose unwanted sample-specific bias. That is, all the colors should be mixed within each allele, indicating that activity measurements are not influenced by sample.
+`malacoda` also provides several plotting function of its own, including
+`posterior_beeswarm()`. This plots the traditional activity measurements
+as points in a beeswarm plot along with violins for posteriors on means
+for each allele. Optional colors can help diagnose unwanted
+sample-specific bias. That is, all the colors should be mixed within
+each allele, indicating that activity measurements are not influenced by
+sample.
 
-![An example activity beeswarm with overlaid activity mean posteriors](man/figures/posterior_beeswarm_example.png)
+![An example activity beeswarm with overlaid activity mean
+posteriors](man/figures/posterior_beeswarm_example.png)
 
-Other visualization functions are available for annotation checking. These help visualize the improvement induced by the use of informative conditional priors.
+Other visualization functions are available for annotation checking.
+These help visualize the improvement induced by the use of informative
+conditional priors.
 
-Upcoming Features
------------------
+## Upcoming Features
 
--   Fleshed out CRISPR model support
-    -   Time dependent depletion model
--   Categorical conditional priors
-    -   Estimate by-group conditional priors for non-continuous annotations (i.e. likely pathogenic vs benign vs VUS)
--   Quality Control functionality
+  - Fleshed out CRISPR model support
+      - Time dependent depletion model
+  - Categorical conditional priors
+      - Estimate by-group conditional priors for non-continuous
+        annotations (i.e. likely pathogenic vs benign vs VUS)
+  - additional Quality Control functionality
 
-Contact
--------
+## Contact
 
-The massively parallel functionalization field is still rapidly changing so there's a lot of experimental structures out there that are not accounted for in this package yet. If you're interested in these methods, feel free to contact me with some example data and I'll be happy to take a look to see if I can adapt the existing models!
+The massively parallel functionalization field is still rapidly changing
+so there’s a lot of experimental structures out there that are not
+accounted for in this package yet. If you’re interested in these
+methods, feel free to contact me with some example data and I’ll be
+happy to take a look to see if I can adapt the existing models\!
 
-Please contact me through Github DM or my BCM email address if you use the package or have feature requests / comments.
+Please contact me through Github DM or my BCM email address if you use
+the package or have feature requests / comments.

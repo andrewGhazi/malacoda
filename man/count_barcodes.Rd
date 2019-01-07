@@ -51,17 +51,19 @@ The \code{barcode_allele_df} should have two columns: \code{bc_id}
   losing too many reads you can try lowering it.
 
   The output returns a column of counts for each FASTQ in the input
-  directory. The usual MPRA practice is to have one FASTQ per transfection as
-  well as multiple replicates taken from the plasmid library -- if this is
-  not the case in your experiment you'll need to do some form of
-  experiment-structure-appropriate aggregation before proceeding to
-  downstream analysis.
+  directory. The column names are taken from the filenames of the fastqs
+  without the filetype extensions. The usual MPRA practice is to have one
+  FASTQ per transfection as well as multiple replicates taken from the
+  plasmid library -- if this is not the case in your experiment you'll need
+  to do some form of experiment-structure-appropriate aggregation before
+  proceeding to downstream analysis.
 
-  Unmatched reads are written out to files included in the temporary
+  Unmatched reads are also written out to files included in the temporary
   intermediates under bc_splits/. These can be helpful if you want to regain
-  reads that would otherwise be discarded using the error-correctable
+  reads that would otherwise be discarded by using the error-correctable
   barcodes from the freebarcodes package available through
-  \href{https://github.com/andrewGhazi/mpradesigntools}{mpradesigntools}.
+  \href{https://github.com/andrewGhazi/mpradesigntools}{mpradesigntools}. If
+  you want to use these make sure to set \code{keep_temp = TRUE}.
 }
 \note{
 This function requires an installation of
