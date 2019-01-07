@@ -119,7 +119,7 @@ elucidate how to use them.
 
 In addition to the summary statistics table output above, the sampler
 outputs for each variant are saved in the user-defined output directory.
-These are stanfit objects, hence they can be visualized using all the
+These are stanfit objects, thus they can be visualized using all the
 tools provided in packages like
 [bayesplot](http://mc-stan.org/users/interfaces/bayesplot).
 
