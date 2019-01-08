@@ -6,6 +6,15 @@
 \usage{
 count_barcodes_in_fastq(trimmed_fastq, barcode_allele_df, temp_dir)
 }
+\arguments{
+\item{trimmed_fastq}{path to a trimmed fastq}
+
+\item{barcode_allele_df}{a data frame giving a mapping between barcodes and
+alleles}
+
+\item{temp_dir}{a character string giving the path to a directory to use for
+temporary intermediate files}
+}
 \description{
 Count barcode abundance, write out the counts of unmatched
   barcodes, return a data frame of counts of the given barcodes

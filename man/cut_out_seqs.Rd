@@ -6,6 +6,12 @@
 \usage{
 cut_out_seqs(trimmed_fastq, temp_dir)
 }
+\arguments{
+\item{trimmed_fastq}{path to a trimmed fastq}
+
+\item{temp_dir}{a character string giving the path to a directory to use for
+temporary intermediate files}
+}
 \description{
 Given a trimmed and quality filtered fastq, cut out just the
   sequence lines, write them out, then exit.
