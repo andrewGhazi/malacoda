@@ -203,10 +203,10 @@ get_kl_divergences = function(mpra_data,
     group_by(.data$variant_id,
              .data$allele) %>%
     nest(.key = 'remnants') %>%
-    mutate(cond_kl = unlist(mclapply(.data$remnants,
+    mutate(cond_kl = unlist(parallel::mclapply(.data$remnants,
                                      compute_kl_est,
                                      mc.cores = n_cores))) %>%
-    select(-remnants)
+    select(-.data$remnants)
 
   message('Computing marginal prior KL divergences...')
   marg_kl = marg_prior %>%
@@ -216,10 +216,10 @@ get_kl_divergences = function(mpra_data,
     group_by(.data$variant_id,
              .data$allele) %>%
     nest(.key = 'remnants') %>%
-    mutate(marg_kl = unlist(mclapply(.data$remnants,
+    mutate(marg_kl = unlist(parallel::mclapply(.data$remnants,
                                      compute_kl_est,
                                      mc.cores = n_cores))) %>%
-    select(-remnants)
+    select(-.data$remnants)
 
   both_kl = cond_kl %>%
     full_join(marg_kl, by = c('variant_id', 'allele'),

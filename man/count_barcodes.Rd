@@ -59,7 +59,7 @@ The \code{barcode_allele_df} should have two columns: \code{bc_id}
   proceeding to downstream analysis.
 
   Unmatched reads are also written out to files included in the temporary
-  intermediates under bc_splits/. These can be helpful if you want to regain
+  intermediates under seq_only/. These can be helpful if you want to regain
   reads that would otherwise be discarded by using the error-correctable
   barcodes from the freebarcodes package available through
   \href{https://github.com/andrewGhazi/mpradesigntools}{mpradesigntools}. If

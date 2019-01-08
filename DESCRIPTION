@@ -28,7 +28,8 @@ Imports:
     ggbeeswarm,
     rlang,
     ggplot2,
-    tibble
+    tibble,
+    readr
 LinkingTo:
     BH (>= 1.66.0-1),
     Rcpp (>= 0.12.18),
@@ -44,5 +45,6 @@ SystemRequirements: GNU make
 RoxygenNote: 6.1.0
 Suggests: knitr,
     rmarkdown,
-    kdensity
+    kdensity,
+    data.table
 VignetteBuilder: knitr
