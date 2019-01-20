@@ -295,7 +295,7 @@ fit_mpra_model = function(mpra_data,
                                                                 vb_prob = vb_prob),
                                                 mc.cores = n_cores,
                                                 SIMPLIFY = FALSE)) %>%
-      unnest(... = 'sampler_stats',
+      unnest(.data$sampler_stats,
              .drop = TRUE,
              .preserve = c(.data$variant_dat, .data$variant_prior)) %>%
       arrange(desc(abs(.data$ts_post_mean)))
