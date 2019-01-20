@@ -87,7 +87,8 @@ fit_mpra_model(mpra_data = umpra_example,
                priors = marg_prior,
                n_cores = getOption('mc.cores', 2L),
                vb_pass = TRUE,
-               save_nonfunctional = TRUE)
+               save_nonfunctional = TRUE, 
+               tot_samp = 5000)
 ```
 
 This will fit the model to each input in the assay (using some example
