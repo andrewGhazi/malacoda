@@ -278,7 +278,7 @@ fit_mpra_model = function(mpra_data,
     analysis_res = mpra_data %>%
       group_by(.data$variant_id) %>%
       nest(.key = 'variant_dat') %>%
-      mutate(variant_prior = list(.data$priors)) %>% # give the same marg prior to every variant
+      mutate(variant_prior = list(priors)) %>% # give the same marg prior to every variant
       mutate(sampler_stats = parallel::mcmapply(run_mpra_sampler,
                                                 .data$variant_id, .data$variant_dat, .data$variant_prior,
                                                 MoreArgs = list(n_chains = n_chains,
