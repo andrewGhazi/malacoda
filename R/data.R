@@ -8,7 +8,7 @@
 
 #' Example MPRA counts from Ulirsch et al., 2016
 #'
-#' MPRA counts for 100 randomly chosen variants from Ulirsch et al., Cell, 2016.
+#' MPRA counts for 25 randomly chosen variants from Ulirsch et al., Cell, 2016.
 #' Original URL seems to be down as of 10/2/2018.
 #'
 #' @format a data frame giving variant_id, allele identifier, barcode, and

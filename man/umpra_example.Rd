@@ -13,7 +13,7 @@
 umpra_example
 }
 \description{
-MPRA counts for 100 randomly chosen variants from Ulirsch et al., Cell, 2016.
+MPRA counts for 25 randomly chosen variants from Ulirsch et al., Cell, 2016.
 Original URL seems to be down as of 10/2/2018.
 }
 \keyword{datasets}
