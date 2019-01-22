@@ -58,6 +58,7 @@ get_label_y = function(ratio_values){
 #' @param prior_ratios a data frame of prior ratios from \code{get_prior_ratios}
 #' @param x_limits a length two vector for the x-limits of the histograms
 #' @param n_bins number of bins in the histogram
+#' @export
 plot_prior_ratios = function(prior_ratios,
                              x_limits = c(-1,1),
                              n_bins = 100) {
@@ -106,6 +107,7 @@ plot_prior_ratios = function(prior_ratios,
 #' @note The default y_limits cut off a small fraction of points where one prior
 #'   or the other does vastly better. It can be set to larger values to avoid
 #'   this behavior.
+#' @export
 plot_ratio_hexs = function(prior_ratios,
                            model_result,
                            y_limits = c(-.5, .5)){
@@ -141,6 +143,7 @@ plot_ratio_hexs = function(prior_ratios,
 #'   correlate highly with one another, this can indicate DNA contamination in
 #'   the RNA libraries.
 #' @note Get \code{sample_correlations} from get_sample_correlations
+#' @export
 plot_mpra_correlations = function(sample_correlations){
   sample_correlations %>%
     mutate(corr_label = format(.data$correlation, digits = 3)) %>%
