@@ -7,7 +7,8 @@
 fit_mpra_model(mpra_data, annotations = NULL, out_dir,
   save_nonfunctional = FALSE, priors = NULL, n_cores = 1,
   n_chains = 4, tot_samp = 10000, n_warmup = 500, vb_pass = TRUE,
-  vb_prob = 0.8, ts_hdi_prob = 0.95, ts_rope = NULL)
+  vb_prob = 0.8, ts_hdi_prob = 0.95, ts_rope = NULL,
+  rep_cutoff = 0.15)
 }
 \arguments{
 \item{mpra_data}{a data frame of MPRA data with 1 column called variant_id,
@@ -47,6 +48,8 @@ interval on transcription shift to call MPRA-functional variants.}
 
 \item{ts_rope}{optional length 2 numeric vector describing the boundaries of
 the transcription shift region of practical equivalence}
+
+\item{rep_cutoff}{a representation cutoff quantile (0 to 1)}
 }
 \value{
 a data frame with a row for each variant_id that specificies the
@@ -102,6 +105,9 @@ This function fits a negative-binomial based Bayesian model to
   0. If used, the user must be cognizant of defining the region in accordance
   with observed noise and effect size levels. Note that the output ROPE
   fractions ARE NOT p-values.
+
+  Barcodes below the \code{rep_cutoff} quantile of representation in the DNA
+  pools are discarded.
 }
 \note{
 Sampler results for individaul variants will be saved to the specified

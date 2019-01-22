@@ -85,6 +85,7 @@ fit_gamma = function(input_vec,
 #'   interval on transcription shift to call MPRA-functional variants.
 #' @param ts_rope optional length 2 numeric vector describing the boundaries of
 #'   the transcription shift region of practical equivalence
+#' @param rep_cutoff a representation cutoff quantile (0 to 1)
 #'
 #' @details \code{mpra_data} must contain the following groups of columns:
 #'   \itemize{ \item{variant_id} \item{allele - either 'ref' or 'alt'}
@@ -130,6 +131,9 @@ fit_gamma = function(input_vec,
 #'   with observed noise and effect size levels. Note that the output ROPE
 #'   fractions ARE NOT p-values.
 #'
+#'   Barcodes below the \code{rep_cutoff} quantile of representation in the DNA
+#'   pools are discarded.
+#'
 #' @return a data frame with a row for each variant_id that specificies the
 #'   posterior mean TS, upper and lower HDI bounds, a binary call of functional
 #'   or non-functional, and other appropriate outputs
@@ -148,7 +152,8 @@ fit_mpra_model = function(mpra_data,
                           vb_pass = TRUE,
                           vb_prob = .8,
                           ts_hdi_prob = .95,
-                          ts_rope = NULL) {
+                          ts_rope = NULL,
+                          rep_cutoff = .15) {
 
   start_time = Sys.time()
 
