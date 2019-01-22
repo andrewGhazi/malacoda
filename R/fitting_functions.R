@@ -239,12 +239,18 @@ fit_mpra_model = function(mpra_data,
   n_dna = mpra_data %>% select(matches('DNA')) %>% ncol
   sample_depths = get_sample_depths(mpra_data)
 
+  well_represented = get_well_represented(mpra_data,
+                                          sample_depths,
+                                          rep_cutoff = rep_cutoff,
+                                          plot_rep_cutoff = FALSE, # this will have been plottd in the prior fitting already if necessary
+                                          verbose = FALSE)
 
 
   if (annotations_given) {
 
     # attach the conditional priors in the form expected by run_mpra_sampler
     sampler_input = mpra_data %>%
+      filter(.data$barcode %in% well_represented$barcode) %>%
       group_by(.data$variant_id) %>%
       nest(.key = 'variant_dat') %>%
       mutate(variant_prior = map(.data$variant_id,
@@ -276,6 +282,7 @@ fit_mpra_model = function(mpra_data,
     # This block uses the marg priors
 
     analysis_res = mpra_data %>%
+      filter(.data$barcode %in% well_represented$barcode) %>%
       group_by(.data$variant_id) %>%
       nest(.key = 'variant_dat') %>%
       mutate(variant_prior = list(priors)) %>% # give the same marg prior to every variant
