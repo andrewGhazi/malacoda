@@ -175,7 +175,6 @@ fit_mpra_model = function(mpra_data,
     stop('specified out_dir does not exist')
   }
 
-
   if (!missing(annotations)) {
     if (!all(mpra_data$variant_id %in% annotations$variant_id)) {
       stop('Some mpra_data$variant_id\'s missing from annotations')
@@ -191,6 +190,12 @@ fit_mpra_model = function(mpra_data,
   if (!dir_ends_in_slash){
     out_dir = paste0(out_dir, '/')
   }
+
+  correct_columns = all(grepl('variant_id|allele|barcode|[DR]NA', names(mpra_data)))
+  if (!correct_columns){
+    stop('mpra_data columns must be: variant_id, allele, barcode, and DNA/RNA columns.')
+  }
+
 
   #### Initial cleanup ----
 
