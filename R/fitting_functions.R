@@ -193,9 +193,17 @@ fit_mpra_model = function(mpra_data,
 
   correct_columns = all(grepl('variant_id|allele|barcode|[DR]NA', names(mpra_data)))
   if (!correct_columns){
-    stop('mpra_data columns must be: variant_id, allele, barcode, and DNA/RNA columns.')
+    stop('mpra_data columns must be: variant_id, allele, barcode, and DNA/RNA columns.\ndplyr::rename(), dplyr::select(), malacoda::count_barcodes(), and the tidyr package might be helpful for preparing your input.')
   }
 
+  variant_allele_counts = mpra_data %>%
+    select(.data$variant_id, .data$allele) %>%
+    unique %>%
+    dplyr::count(.data$variant_id)
+
+  if (!all(variant_allele_counts$n == 2)){
+    stop('Non-biallelic variants detected. The variant_id column should be the same for both alleles of a given variant.')
+  }
 
   #### Initial cleanup ----
 
