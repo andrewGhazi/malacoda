@@ -5,7 +5,7 @@
 \title{Count barcodes}
 \usage{
 count_barcodes(barcode_allele_df, fastq_dir, temp_dir, keep_temp = FALSE,
-  bc_start, bc_end, quality_cutoff = 30, n_cores = 1)
+  bc_start, bc_end, quality_cutoff = 30, n_cores = 1, verbose = TRUE)
 }
 \arguments{
 \item{barcode_allele_df}{a data frame giving a mapping between barcodes and

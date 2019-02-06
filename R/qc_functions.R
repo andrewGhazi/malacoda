@@ -193,7 +193,8 @@ count_barcodes = function(barcode_allele_df,
                           bc_start,
                           bc_end,
                           quality_cutoff = 30,
-                          n_cores = 1){
+                          n_cores = 1,
+                          verbose = TRUE){
 
   #### Input checks ----
   fastx_toolkit_installed = length(system('which fastx_trimmer', intern = TRUE)) == 1 # There's probably a better way to check for this...
@@ -238,11 +239,11 @@ count_barcodes = function(barcode_allele_df,
                       pattern = '.fastq$',
                       full.names = TRUE)
 
-  if (length(fastqs) == 0){
+  if (length(fastqs) == 0) {
     stop('No .fastq files found in fastq_dir! Use gunzip *.fastq.gz if you have gzip-compressed files.')
   }
 
-  if (quality_cutoff != 30){
+  if (quality_cutoff != 30 & verbose) {
     message(paste0('Using non-default quality cutoff: Q >= ', quality_cutoff))
   }
 
@@ -250,7 +251,7 @@ count_barcodes = function(barcode_allele_df,
 
   dir.create(paste0(temp_dir, 'trimmed_filtered_fastqs/'))
 
-  message('Trimming & quality filtering fastqs...')
+  if (verbose) {message('Trimming & quality filtering fastqs...')}
 
   tf_cmd = parallel::mclapply(fastqs,
                     trim_and_filter,
@@ -265,7 +266,7 @@ count_barcodes = function(barcode_allele_df,
   trimmed_fastqs = list.files(paste0(temp_dir, 'trimmed_filtered_fastqs'),
                               full.names = TRUE)
 
-  message('Extracting sequence lines...')
+  if (verbose) {message('Extracting sequence lines...')}
 
   cut_cmd = parallel::mclapply(trimmed_fastqs,
                      cut_out_seqs,
@@ -274,7 +275,7 @@ count_barcodes = function(barcode_allele_df,
 
   #### On to the counting ----
 
-  message('Counting barcodes...')
+  if (verbose) {message('Counting barcodes...')}
 
   mpra_data = parallel::mclapply(trimmed_fastqs,
                        count_barcodes_in_fastq,
@@ -282,6 +283,8 @@ count_barcodes = function(barcode_allele_df,
                        barcode_allele_df = barcode_allele_df,
                        temp_dir = temp_dir) %>%
     purrr::reduce(.f = dplyr::inner_join, by = c('bc_id', 'barcode'))
+
+  if (verbose) {message('Counting done. If no/few barcodes are found, check if the barcodes in your reads are the reverse complement of how you ordered them. If so, you may need to use DNAString(), reverseComplement(), and toString() from the Biostrings package on your input')}
 
   #### Cleanup if required ----
 
