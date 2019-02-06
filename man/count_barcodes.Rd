@@ -40,7 +40,7 @@ Given a mapping between barcodes and alleles and a directory of
 }
 \details{
 The \code{barcode_allele_df} should have two columns: \code{bc_id}
-  giving a unique identifier to each barcode and \code{bc} which gives the
+  giving a unique identifier to each barcode and \code{barcode} which gives the
   barcode. The bc_id should ideally be descriptive and denote which allele of
   which SNP it is associated with. tidyr::unite can be convenient for
   preparing this input.
