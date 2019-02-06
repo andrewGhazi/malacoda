@@ -67,8 +67,7 @@ compute_activities = function(mpra_data,
 test_one_variant = function(variant_activities,
                             test_type = 't') {
 
-  if (n_distinct(variant_activities$allele) != 2) {
-
+  if (n_distinct(variant_activities$allele) != 2 | any(table(variant_activities$allele) < 2)) {
     return(NA)
   }
 
@@ -78,8 +77,8 @@ test_one_variant = function(variant_activities,
                                                    y = .data$activity[tolower(.data$allele) != 'ref'])))) %>%
       unnest %>%
       dplyr::rename(ts_estimate = .data$estimate,
-             ref_mean_estimate = .data$estimate1,
-             alt_mean_estimate = .data$estimate2)
+                    ref_mean_estimate = .data$estimate1,
+                    alt_mean_estimate = .data$estimate2)
   } else if (test_type %in% c('u', 'U', 'wilcox.test', 'Mann.Whitney', 'Mann-Whitney')) {
     variant_activities %>%
       summarise(test_res = list(broom::tidy(wilcox.test(x = .data$activity[tolower(.data$allele) == 'ref'],
@@ -137,7 +136,7 @@ run_activity_tests = function(mpra_activities,
     nest(.key = 'act_dat') %>%
     mutate(test_result = map(.data$act_dat, test_one_variant, test_type = test_type),
            note = map_chr(.data$test_result, ~ifelse(all(is.na(.x)),
-                                                     'Activity measurements not present for both alleles, returning NA',
+                                                     'Not enough activity measurements present for both alleles, returning NA',
                                                      '')))
 
   na_variants = activity_tests %>% # lol I have no idea how to do this in a tidy way
