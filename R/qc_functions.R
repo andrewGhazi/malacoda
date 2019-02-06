@@ -250,6 +250,8 @@ count_barcodes = function(barcode_allele_df,
 
   dir.create(paste0(temp_dir, 'trimmed_filtered_fastqs/'))
 
+  message('Trimming & quality filtering fastqs...')
+
   tf_cmd = parallel::mclapply(fastqs,
                     trim_and_filter,
                     mc.cores = n_cores,
@@ -263,12 +265,16 @@ count_barcodes = function(barcode_allele_df,
   trimmed_fastqs = list.files(paste0(temp_dir, 'trimmed_filtered_fastqs'),
                               full.names = TRUE)
 
+  message('Extracting sequence lines...')
+
   cut_cmd = parallel::mclapply(trimmed_fastqs,
                      cut_out_seqs,
                      mc.cores = n_cores,
                      temp_dir = temp_dir)
 
   #### On to the counting ----
+
+  message('Counting barcodes...')
 
   mpra_data = parallel::mclapply(trimmed_fastqs,
                        count_barcodes_in_fastq,
