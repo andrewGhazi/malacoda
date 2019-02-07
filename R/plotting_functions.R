@@ -154,3 +154,36 @@ plot_mpra_correlations = function(sample_correlations){
     labs(x = 'Sample', y = 'Sample',
          fill = 'Correlation')
 }
+
+#' Plot DNA representation
+#'
+#' @description Plot DNA representation histogram
+#'
+#' @param dna_df a dataframe of depth-normalized DNA abundances
+#' @param rep_cutoff a representation cutoff
+#'
+#' @return a DNA representation ggplot
+#' @note see the first command in the source code of get_well_represented() for
+#'   how to generate dna_df
+#'
+#' @export
+plot_dna_representation = function(dna_df, rep_cutoff){
+
+  dna_df %>%
+    ggplot(aes(.data$mean_depth_adj_count)) +
+    geom_histogram(bins = 40,
+                   color = 'black',
+                   fill = 'grey50') +
+    geom_vline(xintercept = quantile(dna_df$mean_depth_adj_count,
+                                     probs = rep_cutoff),
+               lty = 2) +
+    scale_x_log10() +
+    labs(x = 'Mean Depth Adjusted DNA barcode count',
+         title = 'DNA barcode abundance and cutoff',
+         subtitle = paste0('Using depth-adjusted DNA barcode count cutoff of ',
+                           round(quantile(dna_df$mean_depth_adj_count,
+                                          probs = rep_cutoff),
+                                 digits = 3))) +
+    geom_rug(alpha = .01)
+
+}

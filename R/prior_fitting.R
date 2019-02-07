@@ -173,24 +173,17 @@ get_well_represented = function(mpra_data,
     group_by(.data$barcode) %>%
     summarise(mean_depth_adj_count = mean(.data$depth_adj_count))
 
+  zero_num = all_dna %>%
+    filter(.data$mean_depth_adj_count == 0) %>%
+    nrow
+
+  zero_pct = round(zero_num / nrow(all_dna) * 100, digits = 3)
+
+  message(paste0(zero_pct, '% of all barcodes have exactly 0 representation in all samples.'))
 
   if (plot_rep_cutoff) {
      rep_cutoff_plot = all_dna %>%
-      ggplot(aes(.data$mean_depth_adj_count)) +
-      geom_histogram(bins = 40,
-                     color = 'black',
-                     fill = 'grey50') +
-      geom_vline(xintercept = quantile(all_dna$mean_depth_adj_count,
-                                       probs = rep_cutoff),
-                 lty = 2) +
-      scale_x_log10() +
-      labs(x = 'Mean Depth Adjusted DNA barcode count',
-           title = 'DNA barcode abundance and cutoff',
-           subtitle = paste0('Using depth-adjusted DNA barcode count cutoff of ',
-                             round(quantile(all_dna$mean_depth_adj_count,
-                                            probs = rep_cutoff),
-                                   digits = 3))) +
-       geom_rug(alpha = .01)
+       plot_dna_representation(rep_cutoff = rep_cutoff)
 
      print(rep_cutoff_plot)
   }
