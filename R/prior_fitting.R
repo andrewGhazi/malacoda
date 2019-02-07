@@ -195,7 +195,7 @@ get_well_represented = function(mpra_data,
     unique
 
   if (verbose) {
-    print(paste0(nrow(well_represented) , ' out of ', n_distinct(mpra_data$barcode),
+    message(paste0(nrow(well_represented) , ' out of ', n_distinct(mpra_data$barcode),
                  ' (', round(100* nrow(well_represented) / n_distinct(mpra_data$barcode), digits = 2),'%)',
                  ' barcodes in input are well represented in the DNA pools.'))
   }
