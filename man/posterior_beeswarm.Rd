@@ -9,7 +9,7 @@ posterior_beeswarm(sampler_result, activities, color_by_sample = FALSE)
 \arguments{
 \item{sampler_result}{a stanfit object}
 
-\item{activities}{a dataframe of activities}
+\item{activities}{a dataframe of activities (only for the same variant as sampler_result)}
 
 \item{color_by_sample}{optional logical indicating whether to color dots by
 sample}

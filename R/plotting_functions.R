@@ -3,7 +3,7 @@
 #' @description Create a combined beeswarm & activity posterior plot
 #'
 #' @param sampler_result a stanfit object
-#' @param activities a dataframe of activities
+#' @param activities a dataframe of activities (only for the same variant as sampler_result)
 #' @param color_by_sample optional logical indicating whether to color dots by
 #'   sample
 #' @return a posterior beeswarm ggplot object
