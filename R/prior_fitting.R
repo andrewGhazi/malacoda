@@ -99,7 +99,7 @@ find_prior_weights = function(given_id,
     filter(.data$same_pos)
 
   if(nrow(same_annotation_pos) >= min_num_neighbors){
-    print('>= min_num_neighbors at the exact same annotation position. Using these evenly for prior estimation while not using others.')
+    message('>= min_num_neighbors at the exact same annotation position. Using these evenly for prior estimation while not using others.')
 
     weight_res = scaled_annotations %>%
       filter(.data$variant_id != given_id) %>%
@@ -218,14 +218,18 @@ fit_marg_prior = function(mpra_data,
 
   sample_depths = get_sample_depths(mpra_data)
 
-  print('Determining well-represented variants, see plot...')
+  if (plot_rep_cutoff) {
+    message('Determining well-represented variants, see plot...')
+  } else {
+    message('Determining well-represented variants...')
+  }
   well_represented = get_well_represented(mpra_data,
                                           sample_depths,
                                           rep_cutoff = rep_cutoff,
                                           plot_rep_cutoff = plot_rep_cutoff)
 
 
-  print('Fitting marginal DNA prior...')
+  message('Fitting marginal DNA prior...')
 
   dna_nb_fits = mpra_data %>%
     filter(.data$barcode %in% well_represented$barcode) %>%
@@ -272,7 +276,7 @@ fit_marg_prior = function(mpra_data,
     group_by(.data$barcode) %>%
     summarise(mean_depth_adj_count = mean(.data$depth_adj_count))
 
-  print('Fitting marginal RNA mean priors...')
+  message('Fitting marginal RNA mean priors...')
   rna_m_prior = mpra_data %>%
     select(.data$variant_id, .data$allele, .data$barcode, matches('RNA')) %>%
     filter(.data$barcode %in% well_represented$barcode) %>%
@@ -289,7 +293,7 @@ fit_marg_prior = function(mpra_data,
 
   # the +.1 is to give some non-infinite log-density to 0's. See plot below. It seems to work well.
 
-  print('Fitting marginal RNA dispersion priors...')
+  message('Fitting marginal RNA dispersion priors...')
   rna_p_prior = mpra_data %>%
     select(.data$variant_id, .data$allele, .data$barcode, matches('RNA')) %>%
     filter(.data$barcode %in% well_represented$barcode) %>%
@@ -400,17 +404,17 @@ fit_cond_prior = function(mpra_data,
 
   #### DNA prior fitting ----
 
-  print('Evaluating data depth/DNA representation properties...')
+  message('Evaluating data depth/DNA representation properties...')
   sample_depths = get_sample_depths(mpra_data)
 
-  print('Determining well-represented variants, see plot...')
+  message('Determining well-represented variants, see plot...')
   well_represented = get_well_represented(mpra_data,
                                           sample_depths,
                                           rep_cutoff = rep_cutoff,
                                           plot_rep_cutoff = plot_rep_cutoff)
 
 
-  print('Fitting marginal DNA prior...')
+  message('Fitting marginal DNA prior...')
 
   dna_nb_fits = mpra_data %>%
     filter(.data$barcode %in% well_represented$barcode) %>%
@@ -477,7 +481,7 @@ fit_cond_prior = function(mpra_data,
     {. ^ (1 / n_annotations)} # adjustment for the number of annotations provided
 
   # For each variant, get a vector of weights for all other variants in the assay
-  print('Weighting variants in annotation space')
+  message('Weighting variants in annotation space')
   prior_weights = mpra_data %>%
     select(.data$variant_id) %>%
     unique() %>%
@@ -489,7 +493,7 @@ fit_cond_prior = function(mpra_data,
 
 
   # Perform weighted density estimation for each variant
-  print('Fitting annotation-weighted distributions...')
+  message('Fitting annotation-weighted distributions...')
   if (n_cores == 1) {
     rna_m_priors = prior_weights %>%
       mutate(variant_m_prior = map2(.data$variant_id, .data$annotation_weights,
