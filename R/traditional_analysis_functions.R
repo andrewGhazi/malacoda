@@ -76,7 +76,8 @@ test_one_variant = function(variant_activities,
       summarise(test_res = list(broom::tidy(t.test(x = .data$activity[tolower(.data$allele) == 'ref'],
                                                    y = .data$activity[tolower(.data$allele) != 'ref'])))) %>%
       unnest %>%
-      dplyr::rename(ts_estimate = -.data$estimate,
+      mutate(estimate = -.data$estimate) %>%
+      dplyr::rename(ts_estimate = .data$estimate,
                     ref_mean_estimate = .data$estimate1,
                     alt_mean_estimate = .data$estimate2)
   } else if (test_type %in% c('u', 'U', 'wilcox.test', 'Mann.Whitney', 'Mann-Whitney')) {
