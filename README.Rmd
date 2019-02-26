@@ -31,7 +31,12 @@ Other features include:
 * Annotation checking - quantitatively evaluate how much a given genomic annotation source improves empirical prior estimation by prior ratios
 * Convenience and QC functions - `count_barcodes()` to automatically go from FASTQs to raw MPRA counts. `get_sample_correlations()` to check the consistency of your data.
 
-![malacoda Kruschke diagram](man/figures/kruschke_latex.png)
+```{r echo = FALSE, out.width='100%'}
+knitr::include_graphics('man/figures/kruschke_latex.png')
+# Not sure why this is still a little blurry...
+```
+
+
 
 
 ## Installation
@@ -40,7 +45,7 @@ Currently `malacoda` only works on Mac and Linux. If you're a Windows user looki
 
 It's best to have the most up-to-date version of R (3.5.1 as of 11/2/2018).
 
-The first step is to install `rstan` and `Rcpp`. The following command will usually suffice to do this, if not you can find more in-depth installation instructions [on the rstan documentation](https://github.com/stan-dev/rstan/wiki/Installing-RStan-on-Mac-or-Linux). You should have root access. 
+The first step is to install `rstan` and `Rcpp`. The following command will usually suffice to do this, if not you can find more in-depth installation instructions [on the rstan documentation](https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started). You should have root access. 
 
 ```{r gh-installation, eval=FALSE, purl=FALSE}
 # Need to have root access

@@ -36,7 +36,7 @@ Other features include:
     go from FASTQs to raw MPRA counts. `get_sample_correlations()` to
     check the consistency of your data.
 
-![malacoda Kruschke diagram](man/figures/kruschke_latex.png)
+<img src="man/figures/kruschke_latex.png" width="100%" />
 
 ## Installation
 
@@ -50,7 +50,7 @@ It’s best to have the most up-to-date version of R (3.5.1 as of
 The first step is to install `rstan` and `Rcpp`. The following command
 will usually suffice to do this, if not you can find more in-depth
 installation instructions [on the rstan
-documentation](https://github.com/stan-dev/rstan/wiki/Installing-RStan-on-Mac-or-Linux).
+documentation](https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started).
 You should have root access.
 
 ``` r
@@ -87,8 +87,7 @@ fit_mpra_model(mpra_data = umpra_example,
                priors = marg_prior,
                n_cores = getOption('mc.cores', 2L),
                vb_pass = TRUE,
-               save_nonfunctional = TRUE, 
-               tot_samp = 5000)
+               save_nonfunctional = TRUE)
 ```
 
 This will fit the model to each input in the assay (using some example
@@ -146,8 +145,7 @@ conditional priors.
   - Categorical conditional priors
       - Estimate by-group conditional priors for non-continuous
         annotations (i.e. likely pathogenic vs benign vs VUS)
-  - additional Quality Control functionality 
-  - Progress indicators
+  - additional Quality Control functionality
 
 ## Contact
 
