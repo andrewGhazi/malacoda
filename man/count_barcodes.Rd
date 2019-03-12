@@ -29,6 +29,8 @@ barcode ends}
 \item{quality_cutoff}{an integer indicating the quality cutoff to be used}
 
 \item{n_cores}{an integer giving the number of cores to use in parallel}
+
+\item{verbose}{logical indicating whether or not to print progress messages}
 }
 \value{
 a data frame of counts by file in the input directory

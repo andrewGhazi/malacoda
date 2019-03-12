@@ -151,6 +151,7 @@ trim_and_filter = function(fastq,
 #'   barcode ends
 #' @param quality_cutoff an integer indicating the quality cutoff to be used
 #' @param n_cores an integer giving the number of cores to use in parallel
+#' @param verbose logical indicating whether or not to print progress messages
 #' @details The \code{barcode_allele_df} should have two columns: \code{bc_id}
 #'   giving a unique identifier to each barcode and \code{barcode} which gives the
 #'   barcode. The bc_id should ideally be descriptive and denote which allele of
