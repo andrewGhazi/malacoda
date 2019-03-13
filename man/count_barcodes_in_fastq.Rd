@@ -4,7 +4,8 @@
 \alias{count_barcodes_in_fastq}
 \title{Match barcodes for a single fastq}
 \usage{
-count_barcodes_in_fastq(trimmed_fastq, barcode_allele_df, temp_dir)
+count_barcodes_in_fastq(trimmed_fastq, barcode_allele_df, temp_dir,
+  verbose = TRUE)
 }
 \arguments{
 \item{trimmed_fastq}{path to a trimmed fastq}
@@ -14,6 +15,8 @@ alleles}
 
 \item{temp_dir}{a character string giving the path to a directory to use for
 temporary intermediate files}
+
+\item{verbose}{logical indicating whether or not to print progress messages}
 }
 \description{
 Count barcode abundance, write out the counts of unmatched

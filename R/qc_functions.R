@@ -47,13 +47,16 @@ cut_out_seqs = function(trimmed_fastq,
 #' @inheritParams count_barcodes
 count_barcodes_in_fastq = function(trimmed_fastq,
                                    barcode_allele_df,
-                                   temp_dir){
+                                   temp_dir,
+                                   verbose = TRUE){
 
   fastq_path_split = stringr::str_split(trimmed_fastq,
                                         pattern = '/',
                                         simplify = TRUE)
 
   fastq_name = gsub('\\.fastq','', fastq_path_split[1,ncol(fastq_path_split)])
+
+  if (verbose) {message(paste0('Beginning counting for ', fastq_name))}
 
   output_path = paste0(temp_dir, 'seq_only/seq_only_', fastq_name, '.txt')
 
@@ -212,6 +215,8 @@ count_barcodes = function(barcode_allele_df,
                           n_cores = 1,
                           verbose = TRUE){
 
+  if (verbose) {message('Beginning input checks...')}
+
   #### Input checks ----
   fastx_toolkit_installed = length(system('which fastx_trimmer', intern = TRUE)) == 1 # There's probably a better way to check for this...
 
@@ -248,7 +253,7 @@ count_barcodes = function(barcode_allele_df,
   }
 
   if (length(list.files(temp_dir)) != 0){
-    stop('Please specify an empty directory as the temp_dir')
+    stop('Please specify an empty directory as the temp_dir, or a non-existent directory to be created with dir.create()')
   }
 
   fastqs = list.files(gsub('/$', '', fastq_dir),
