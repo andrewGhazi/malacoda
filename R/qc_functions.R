@@ -57,19 +57,34 @@ count_barcodes_in_fastq = function(trimmed_fastq,
 
   output_path = paste0(temp_dir, 'seq_only/seq_only_', fastq_name, '.txt')
 
-  # If someone has an absurdly large amount of sequencing this might be slow. Might have to add data.table as a dependency and do it with that, it's > 10x faster
 
-  if (requireNamespace('data.table', quietly = TRUE)){
-    barcode = NULL # to avoid "no visible binding..." note in the check
-    .N = NULL
-    barcode_observations = tibble::as_tibble(data.table::fread(output_path,
-                                                               col.names = 'barcode')[,.(n = .N), by = 'barcode'][order(barcode)])
-  } else {
-    barcode_observations = readr::read_tsv(output_path,
-                                           col_names = 'barcode') %>%
-      dplyr::count(.data$barcode)
 
-  }
+  barcode_observations = readr::read_tsv(output_path,
+                                         col_names = 'barcode') %>%
+    dplyr::count(.data$barcode)
+
+  # I can't figure out how to make the grouped counting step work with data.table only in Suggests (not Imports)
+  # If there's ever feedback on speed I'll try again or add data.table to Imports
+  # I'd rather not as there's already a ton of dependencies
+
+  # if (requireNamespace('data.table', quietly = TRUE)){
+  #   # If someone has an absurdly large amount of sequencing this might be slow. Might have to add data.table as a dependency and do it with that, it's > 10x faster
+  #   barcode = NULL # to avoid "no visible binding..." note in the check
+  #   .N = NULL
+  #
+  #   file_contents = data.table::fread(output_path,
+  #                                     col.names = 'barcode'); message('finished reading')
+  #
+  #   counted_barcodes = file_contents[,list(n = .N), by = 'barcode']; message('finished counting') # it sticks here
+  #   ordered_barcodes = counted_barcodes[order(barcode)]; message('finished ordering')
+  #
+  #   barcode_observations = tibble::as_tibble(ordered_barcodes); message('tibble conversion')
+  # } else {
+  #   barcode_observations = readr::read_tsv(output_path,
+  #                                          col_names = 'barcode') %>%
+  #     dplyr::count(.data$barcode)
+  #
+  # }
 
   unmatched = barcode_observations %>%
     filter(!(.data$barcode %in% barcode_allele_df$barcode))

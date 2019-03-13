@@ -45,6 +45,5 @@ SystemRequirements: GNU make
 RoxygenNote: 6.1.1
 Suggests: knitr,
     rmarkdown,
-    kdensity,
-    data.table
+    kdensity
 VignetteBuilder: knitr
