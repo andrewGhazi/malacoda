@@ -146,6 +146,7 @@ conditional priors.
       - Estimate by-group conditional priors for non-continuous
         annotations (i.e. likely pathogenic vs benign vs VUS)
   - additional Quality Control functionality
+  - monoallelic variant analysis
 
 ## Contact
 
