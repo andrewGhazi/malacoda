@@ -210,23 +210,29 @@ get_well_represented = function(mpra_data,
 #' @param n_cores number of cores to parallelize across
 #' @param plot_rep_cutoff logical indicating whether to plot the representation cutoff used
 #' @param rep_cutoff fraction indicating the depth-adjusted DNA count quantile to use as the cutoff
+#' @param sample_depths optional inputs to allow passing in sample_depths and well_represented objects
+#' @param well_represented optional inputs to allow passing in sample_depths and well_represented objects
 #' @export
 fit_marg_prior = function(mpra_data,
                           n_cores = 1,
                           plot_rep_cutoff = TRUE,
-                          rep_cutoff = .15){
+                          rep_cutoff = .15,
+                          sample_depths,
+                          well_represented){
 
-  sample_depths = get_sample_depths(mpra_data)
+  if (missing(sample_depths) | missing(well_represented)){
+    sample_depths = get_sample_depths(mpra_data)
 
-  if (plot_rep_cutoff) {
-    message('Determining well-represented variants, see plot...')
-  } else {
-    message('Determining well-represented variants...')
+    if (plot_rep_cutoff) {
+      message('Determining well-represented variants, see plot...')
+    } else {
+      message('Determining well-represented variants...')
+    }
+    well_represented = get_well_represented(mpra_data,
+                                            sample_depths,
+                                            rep_cutoff = rep_cutoff,
+                                            plot_rep_cutoff = plot_rep_cutoff)
   }
-  well_represented = get_well_represented(mpra_data,
-                                          sample_depths,
-                                          rep_cutoff = rep_cutoff,
-                                          plot_rep_cutoff = plot_rep_cutoff)
 
 
   message('Fitting marginal DNA prior...')
@@ -334,6 +340,90 @@ fit_marg_prior = function(mpra_data,
 
   # ^ per-sample priors might be worthwhile
 
+}
+
+#' Fit priors by group
+#'
+#' @description If you have several distinct categories of variants, one may
+#'   want to fit priors for them separately. Categories could be genomic region:
+#'   5'UTR vs intronic vs 3'UTR vs upstream vs downstream. Perhaps you want to
+#'   quantify the difference by some prediction outputs: up vs down vs
+#'   no-effect.
+#'
+#'   This yields a pseudo-hierarchical model without the computational problems
+#'   associated with fitting a joint model on thousands of variants at once.
+#' @inheritParams fit_marg_prior
+#' @param group_df a data frame giving group identity by variant_id in mpra_data
+#'
+#' @details group_df should have two columns: variant_id and group_id. This
+#'   function checks that there are >100 variants per group and that there
+#'   aren't more than 20 groups. These are somewhat arbitrary magic numbers, but
+#'   having loads of tiny groups is a recipe for over-fitting.
+#'
+#' @return a grouped prior list
+fit_grouped_prior = function(mpra_data,
+                             group_df,
+                             n_cores,
+                             plot_rep_cutoff = TRUE,
+                             rep_cutoff = .15) {
+
+
+
+  #### Input checks ----
+
+  # Enough per group?
+  group_sizes = group_df %>%
+    dplyr::count(.data$group_id,
+                 name = 'n')
+
+  enough_per_group = all(group_sizes$n > 100)
+  # 100 is just a magic number. Should I make that a user input? Or make it just
+  # completely override-able?
+
+  if (!enough_per_group) {
+    stop('Not enough variants in all the groups!')
+  }
+
+  # Not too many groups?
+  num_groups = group_df$group_id %>%
+    dplyr::n_distinct()
+
+  too_many_groups = num_groups > 20
+
+  if (too_many_groups) {
+    stop('Too many groups!')
+  }
+
+  #### Preparation ----
+
+  # we want to avoid computing sample depths and well represented barcodes
+  # separately for each group, so we do it here globally first. Then pass these
+  # results to fit_marg_prior.
+
+  sample_depths = get_sample_depths(mpra_data)
+
+  if (plot_rep_cutoff) {
+    message('Determining well-represented variants, see plot...')
+  } else {
+    message('Determining well-represented variants...')
+  }
+  well_represented = get_well_represented(mpra_data,
+                                          sample_depths,
+                                          rep_cutoff = rep_cutoff,
+                                          plot_rep_cutoff = plot_rep_cutoff)
+
+  #### Fit grouped prior ----
+  grouped_prior = mpra_data %>%
+    left_join(group_df, by = 'variant_id') %>%
+    dplyr::group_by(.data$group_id) %>%
+    tidyr::nest(.key = 'group_data') %>%
+    dplyr::mutate(group_prior = purrr::map(group_data, fit_marg_prior,
+                                           sample_depths = sample_depths,
+                                           well_represented = well_represented,
+                                           n_cores = n_cores, plot_rep_cutoff = FALSE, rep_cutoff = .15)) %>%
+    dplyr::select(-'group_data')
+
+  return(grouped_prior)
 }
 
 #' Fit a informative conditional prior

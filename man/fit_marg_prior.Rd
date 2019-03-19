@@ -5,7 +5,7 @@
 \title{Fit a marginal prior}
 \usage{
 fit_marg_prior(mpra_data, n_cores = 1, plot_rep_cutoff = TRUE,
-  rep_cutoff = 0.15)
+  rep_cutoff = 0.15, sample_depths, well_represented)
 }
 \arguments{
 \item{mpra_data}{a data frame of mpra data}
@@ -15,6 +15,10 @@ fit_marg_prior(mpra_data, n_cores = 1, plot_rep_cutoff = TRUE,
 \item{plot_rep_cutoff}{logical indicating whether to plot the representation cutoff used}
 
 \item{rep_cutoff}{fraction indicating the depth-adjusted DNA count quantile to use as the cutoff}
+
+\item{sample_depths}{optional inputs to allow passing in sample_depths and well_represented objects}
+
+\item{well_represented}{optional inputs to allow passing in sample_depths and well_represented objects}
 }
 \description{
 Fit a marginal prior

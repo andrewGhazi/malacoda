@@ -63,10 +63,11 @@ fit_gamma = function(input_vec,
 #' @param mpra_data a data frame of MPRA data with 1 column called variant_id,
 #'   an allele column, a barcode column, and additional columns per sequencing
 #'   sample. Each row is for a single barcode.
-#' @param annotations a optional data frame of annotations with identical
+#' @param annotations an optional data frame of annotations with identical
 #'   variant_ids and an arbitrary number of functional annotations. If omitted,
 #'   the prior for a given variant is influenced by all other variants in the
 #'   assay equally.
+#' @param group_df an optional data frame giving group identity by variant_id in mpra_data
 #' @param priors optional objects provided by either fit_marg_prior() or
 #'   fit_cond_prior.
 #' @param out_dir path to output directory
@@ -142,6 +143,7 @@ fit_gamma = function(input_vec,
 #' @export
 fit_mpra_model = function(mpra_data,
                           annotations = NULL,
+                          group_df = NULL,
                           out_dir,
                           save_nonfunctional = FALSE,
                           priors = NULL,
@@ -218,15 +220,23 @@ fit_mpra_model = function(mpra_data,
   if (missing(priors)) {
     annotations_given = !is.null(annotations)
     #### Fit priors ----
-    print('No annotations provided, fitting marginal priors...')
+    message('No annotations provided, fitting marginal priors...')
     if (!annotations_given) {
       print('Fitting MARGINAL priors...')
       priors = fit_marg_prior(mpra_data,
                               n_cores = n_cores,
                               rep_cutoff = .15,
                               plot_rep_cutoff = TRUE)
+    } else if (!is.null(group_df)) {
+      message('Fitting group-wise priors...')
+      priors = fit_grouped_prior(mpra_data,
+                                 group_df = group_df,
+                                 n_cores = n_cores,
+                                 plot_rep_cutoff = TRUE,
+                                 rep_cutoff = .15)
+
     } else {
-      print('Fitting annotation-based conditional priors...')
+      message('Fitting annotation-based conditional priors...')
       priors = fit_cond_prior(mpra_data,
                               annotations,
                               n_cores = n_cores,
@@ -241,10 +251,13 @@ fit_mpra_model = function(mpra_data,
     }
   } else {
     if (all(class(priors) == 'list')){
-      print('Input prior class is list, interpreting as conditional priors.')
+      message('Input prior class is list, interpreting as conditional priors.')
       annotations_given = TRUE
+    } else if ('group_prior' %in% names(priors)) {
+      message('Interpreting input prior as a grouped prior.')
+      annotations_given = FALSE
     } else {
-      print('Input prior class is not list, interpreting as marginal priors.')
+      message('Input prior class is not list, interpreting as marginal priors.')
       annotations_given = FALSE
     }
   }
@@ -296,6 +309,36 @@ fit_mpra_model = function(mpra_data,
              .drop = TRUE,
              .preserve = c(.data$variant_dat, .data$variant_prior)) %>%
       arrange(desc(abs(.data$ts_post_mean)))
+  } else if ('group_prior' %in% names(priors)) {
+    # This block uses a grouped prior.
+    analysis_res = mpra_data %>%
+      filter(.data$barcode %in% well_represented$barcode) %>%
+      group_by(.data$variant_id) %>%
+      nest(.key = 'variant_dat') %>%
+      left_join(group_df, by = 'variant_id') %>%
+      left_join(priors, by = 'group_id') %>% # give the grouped_prior by variant_id
+      dplyr::rename('variant_prior' = 'group_prior') %>%
+      mutate(sampler_stats = parallel::mcmapply(run_mpra_sampler,
+                                                .data$variant_id, .data$variant_dat, .data$variant_prior,
+                                                MoreArgs = list(n_chains = n_chains,
+                                                                n_warmup = n_warmup,
+                                                                tot_samp = tot_samp,
+                                                                n_rna = n_rna,
+                                                                n_dna = n_dna,
+                                                                depth_factors = sample_depths,
+                                                                out_dir = out_dir,
+                                                                save_nonfunctional = save_nonfunctional,
+                                                                ts_hdi_prob = ts_hdi_prob,
+                                                                ts_rope = ts_rope,
+                                                                vb_pass = vb_pass,
+                                                                vb_prob = vb_prob),
+                                                mc.cores = n_cores,
+                                                SIMPLIFY = FALSE)) %>%
+      unnest(.data$sampler_stats,
+             .drop = TRUE,
+             .preserve = c(.data$variant_dat, .data$variant_prior)) %>%
+      arrange(desc(abs(.data$ts_post_mean)))
+
   } else {
     # This block uses the marg priors
 

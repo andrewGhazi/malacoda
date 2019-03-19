@@ -4,7 +4,7 @@
 \alias{fit_mpra_model}
 \title{Fit a Bayesian MPRA model}
 \usage{
-fit_mpra_model(mpra_data, annotations = NULL, out_dir,
+fit_mpra_model(mpra_data, annotations = NULL, group_df = NULL, out_dir,
   save_nonfunctional = FALSE, priors = NULL, n_cores = 1,
   n_chains = 4, tot_samp = 10000, n_warmup = 500, vb_pass = TRUE,
   vb_prob = 0.8, ts_hdi_prob = 0.95, ts_rope = NULL,
@@ -15,10 +15,12 @@ fit_mpra_model(mpra_data, annotations = NULL, out_dir,
 an allele column, a barcode column, and additional columns per sequencing
 sample. Each row is for a single barcode.}
 
-\item{annotations}{a optional data frame of annotations with identical
+\item{annotations}{an optional data frame of annotations with identical
 variant_ids and an arbitrary number of functional annotations. If omitted,
 the prior for a given variant is influenced by all other variants in the
 assay equally.}
+
+\item{group_df}{an optional data frame giving group identity by variant_id in mpra_data}
 
 \item{out_dir}{path to output directory}
 
