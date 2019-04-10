@@ -170,11 +170,13 @@ trim_and_filter = function(fastq,
 #' @param quality_cutoff an integer indicating the quality cutoff to be used
 #' @param n_cores an integer giving the number of cores to use in parallel
 #' @param verbose logical indicating whether or not to print progress messages
+#' @param decode_barcode_set an optional character string to the freebarcodes
+#'   barcode set to be used to decode error-correctable barcodes
 #' @details The \code{barcode_allele_df} should have two columns: \code{bc_id}
-#'   giving a unique identifier to each barcode and \code{barcode} which gives the
-#'   barcode. The bc_id should ideally be descriptive and denote which allele of
-#'   which SNP it is associated with. tidyr::unite can be convenient for
-#'   preparing this input.
+#'   giving a unique identifier to each barcode and \code{barcode} which gives
+#'   the barcode. The bc_id should ideally be descriptive and denote which
+#'   allele of which SNP it is associated with. tidyr::unite can be convenient
+#'   for preparing this input.
 #'
 #'   The quality cutoff applies to ALL bases in the barcode. That is, if every
 #'   base in the barcode is not at or above the given cutoff, the read is
@@ -204,6 +206,16 @@ trim_and_filter = function(fastq,
 #'
 #'   The temporary intermediates are comparable in size to the input FASTQ
 #'   files, so make sure you have enough disk space available.
+#'
+#'   This function can also make use of the
+#'   \href{https://github.com/finkelsteinlab/freebarcodes}{freebarcodes} package
+#'   through the use of the decode_barcode_set argument. This allows the user to
+#'   recover some barcode reads that are otherwise lost to sequencing error. See
+#'   the link above for installation/algorithmic details. Note that this
+#'   requires the MPRA to have been designed with one of these barcode sets in
+#'   the first place, which is easily possible through the
+#'   \href{https://github.com/andrewGhazi/mpradesigntools}{mpradesigntools}
+#'   package.
 #' @export
 count_barcodes = function(barcode_allele_df,
                           fastq_dir,
@@ -213,7 +225,8 @@ count_barcodes = function(barcode_allele_df,
                           bc_end,
                           quality_cutoff = 30,
                           n_cores = 1,
-                          verbose = TRUE){
+                          verbose = TRUE,
+                          decode_barcode_set = NULL){
 
   if (verbose) {message('Beginning input checks...')}
 
@@ -268,6 +281,10 @@ count_barcodes = function(barcode_allele_df,
     message(paste0('Using non-default quality cutoff: Q >= ', quality_cutoff))
   }
 
+  if (!is.null(decode_barcode_set)){
+    stop('The barcode decoding feature is not yet fully implemented.')
+  }
+
   #### Trim and quality filter with the FASTX-Toolkit ----
 
   dir.create(paste0(temp_dir, 'trimmed_filtered_fastqs/'))
@@ -287,12 +304,35 @@ count_barcodes = function(barcode_allele_df,
   trimmed_fastqs = list.files(paste0(temp_dir, 'trimmed_filtered_fastqs'),
                               full.names = TRUE)
 
+  #### Cut out sequence lines ----
+
   if (verbose) {message('Extracting sequence lines...')}
 
   cut_cmd = parallel::mclapply(trimmed_fastqs,
                      cut_out_seqs,
                      mc.cores = n_cores,
                      temp_dir = temp_dir)
+
+  #### If using decode-able barcodes, decode them, cut out their sequences, and tack them on to the appropriate seq_only file
+
+  if (!is.null(decode_barcode_set)){
+
+    if (verbose) {message('Decoding error-correctable barcodes...')}
+
+    decode_errors(trimmed_fastqs,
+                  bc_set = decode_barcode_set,
+                  temp_dir = temp_dir,
+                  other_fb_args = '')
+
+    if (verbose) {message('Appending error-corrected barcode observations to direct observations...')}
+
+    fb_out_path = paste0(temp_dir, 'freebarcodes_output/')
+
+    fb_outputs = list.files(fb_out_path,
+                            full.names = TRUE)
+
+    map(fb_outputs, cut_and_tack_fb)
+  }
 
   #### On to the counting ----
 
@@ -316,4 +356,72 @@ count_barcodes = function(barcode_allele_df,
   #### Return ----
 
   return(mpra_data)
+}
+
+#' Decode fastq
+#'
+#' @description If one of the barcodes sets from
+#'   \href{https://github.com/finkelsteinlab/freebarcodes}{freebarcodes} is
+#'   used, this function can be used to decode the erroneous barcode reads.
+#'
+#' @param trimmed_fastqs a character string vector giving the paths to all the trimmed fastq
+#'   files to be decoded
+#' @param bc_set a character string giving the path of the freebarcodes barcode
+#'   set file to use for decoding
+#' @param temp_dir a character string giving the path to a directory to use for
+#'   temporary intermediate files
+#' @param other_fb_args a character string giving other arguments to pass to
+#'   freebarcodes (besides barcode set and output directory)
+#' @note See the
+#'   \href{https://github.com/finkelsteinlab/freebarcodes}{freebarcodes github
+#'   page} for more details on additional arguments, the decoding process, the
+#'   freebarcodes package, and their original publication (Hawkins et al, Proc
+#'   Natl Acad Sci, 2018).
+decode_errors = function(trimmed_fastqs,
+                         bc_set,
+                         temp_dir,
+                         other_fb_args = ''){
+
+  #### Checks ----
+  fb_path = system('which freebarcodes', intern = TRUE)
+
+  if (length(fb_path) == 0) {
+    stop('Cannot find freebarcodes installation. system command "which freebarcodes" should return the path to the freebarcodes binary.')
+  }
+
+  #### Make freebarcodes command ----
+  fb_out_path = paste0(temp_dir, 'freebarcodes_output/')
+  dir.create(fb_out_path)
+
+  fastqs_comma_sep = paste0(trimmed_fastqs, collapse = ',')
+
+  fb_cmd = paste0(fb_path, ' decode ', bc_set, ' ',
+                  fastqs_comma_sep, ' ',
+                  '--output-dir=', fb_out_path, ' ',
+                  other_fb_args)
+
+  system(fb_cmd)
+}
+
+cut_and_tack_fb = function(fb_output_file,
+                           temp_dir){
+
+  # read in the fb_output,
+  fb_path_split = stringr::str_split(fb_output_file,
+                                     pattern = '/',
+                                     simplify = TRUE)
+
+  fastq_name = gsub('_decoded\\.txt','', fb_path_split[1,ncol(fb_path_split)])
+
+  output_path = paste0(temp_dir, 'seq_only/seq_only_', fastq_name, '.txt')
+
+  # process it as necessary
+
+  fb_seqs = read_tsv(fb_output_file)
+
+  # tack it onto the appropriate seq_only file.
+
+  readr::write_tsv(x = fb_seqs,
+                   path = output_path,
+                   append = TRUE)
 }

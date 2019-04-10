@@ -5,7 +5,8 @@
 \title{Count barcodes}
 \usage{
 count_barcodes(barcode_allele_df, fastq_dir, temp_dir, keep_temp = FALSE,
-  bc_start, bc_end, quality_cutoff = 30, n_cores = 1, verbose = TRUE)
+  bc_start, bc_end, quality_cutoff = 30, n_cores = 1, verbose = TRUE,
+  decode_barcode_set = NULL)
 }
 \arguments{
 \item{barcode_allele_df}{a data frame giving a mapping between barcodes and
@@ -31,6 +32,9 @@ barcode ends}
 \item{n_cores}{an integer giving the number of cores to use in parallel}
 
 \item{verbose}{logical indicating whether or not to print progress messages}
+
+\item{decode_barcode_set}{an optional character string to the freebarcodes
+barcode set to be used to decode error-correctable barcodes}
 }
 \value{
 a data frame of counts by file in the input directory
@@ -42,10 +46,10 @@ Given a mapping between barcodes and alleles and a directory of
 }
 \details{
 The \code{barcode_allele_df} should have two columns: \code{bc_id}
-  giving a unique identifier to each barcode and \code{barcode} which gives the
-  barcode. The bc_id should ideally be descriptive and denote which allele of
-  which SNP it is associated with. tidyr::unite can be convenient for
-  preparing this input.
+  giving a unique identifier to each barcode and \code{barcode} which gives
+  the barcode. The bc_id should ideally be descriptive and denote which
+  allele of which SNP it is associated with. tidyr::unite can be convenient
+  for preparing this input.
 
   The quality cutoff applies to ALL bases in the barcode. That is, if every
   base in the barcode is not at or above the given cutoff, the read is
@@ -75,4 +79,14 @@ This function requires an installation of
 
   The temporary intermediates are comparable in size to the input FASTQ
   files, so make sure you have enough disk space available.
+
+  This function can also make use of the
+  \href{https://github.com/finkelsteinlab/freebarcodes}{freebarcodes} package
+  through the use of the decode_barcode_set argument. This allows the user to
+  recover some barcode reads that are otherwise lost to sequencing error. See
+  the link above for installation/algorithmic details. Note that this
+  requires the MPRA to have been designed with one of these barcode sets in
+  the first place, which is easily possible through the
+  \href{https://github.com/andrewGhazi/mpradesigntools}{mpradesigntools}
+  package.
 }
