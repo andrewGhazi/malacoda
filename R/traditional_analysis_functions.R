@@ -20,7 +20,7 @@ compute_activities = function(mpra_data,
 
   sample_depths = get_sample_depths(mpra_data)
 
-  print('Determining well-represented variants, see plot...')
+  message('Determining well-represented variants, see plot...')
   well_represented = get_well_represented(mpra_data,
                                           sample_depths,
                                           rep_cutoff = rep_cutoff,
@@ -45,7 +45,7 @@ compute_activities = function(mpra_data,
            activity = log(.data$depth_adj_count / .data$mean_depth_adj_dna))
 
   if (any(is.infinite(activities_raw$activity))) {
-    print(paste0('Removing ', sum(is.infinite(activities_raw$activity)),
+    message(paste0('Removing ', sum(is.infinite(activities_raw$activity)),
                  ' infinite activity measurements (i.e. 0 RNA counts) out of ',
                  nrow(activities_raw),
                  ' (', round(100*sum(is.infinite(activities_raw$activity)) / nrow(activities_raw), digits = 2), '%)'))
