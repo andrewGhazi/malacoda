@@ -283,14 +283,14 @@ fit_mpra_model = function(mpra_data,
     sampler_input = mpra_data %>%
       filter(.data$barcode %in% well_represented$barcode) %>%
       group_by(.data$variant_id) %>%
-      nest(.key = 'variant_dat') %>%
+      nest(.key = 'variant_data') %>%
       mutate(variant_prior = map(.data$variant_id,
                                  format_conditional_prior,
                                  cond_priors = priors))
 
     analysis_res =  sampler_input %>%
       mutate(sampler_stats = parallel::mcmapply(run_mpra_sampler,
-                                                .data$variant_id, .data$variant_dat, .data$variant_prior,
+                                                .data$variant_id, .data$variant_data, .data$variant_prior,
                                                 MoreArgs = list(n_chains = n_chains,
                                                                 n_warmup = n_warmup,
                                                                 tot_samp = tot_samp,
@@ -307,19 +307,19 @@ fit_mpra_model = function(mpra_data,
                                                 SIMPLIFY = FALSE)) %>%
       unnest(.data$sampler_stats,
              .drop = TRUE,
-             .preserve = c(.data$variant_dat, .data$variant_prior)) %>%
+             .preserve = c(.data$variant_data, .data$variant_prior)) %>%
       arrange(desc(abs(.data$ts_post_mean)))
   } else if ('group_prior' %in% names(priors)) {
     # This block uses a grouped prior.
     analysis_res = mpra_data %>%
       filter(.data$barcode %in% well_represented$barcode) %>%
       group_by(.data$variant_id) %>%
-      nest(.key = 'variant_dat') %>%
+      nest(.key = 'variant_data') %>%
       left_join(group_df, by = 'variant_id') %>%
       left_join(priors, by = 'group_id') %>% # give the grouped_prior by variant_id
       dplyr::rename('variant_prior' = 'group_prior') %>%
       mutate(sampler_stats = parallel::mcmapply(run_mpra_sampler,
-                                                .data$variant_id, .data$variant_dat, .data$variant_prior,
+                                                .data$variant_id, .data$variant_data, .data$variant_prior,
                                                 MoreArgs = list(n_chains = n_chains,
                                                                 n_warmup = n_warmup,
                                                                 tot_samp = tot_samp,
@@ -336,7 +336,7 @@ fit_mpra_model = function(mpra_data,
                                                 SIMPLIFY = FALSE)) %>%
       unnest(.data$sampler_stats,
              .drop = TRUE,
-             .preserve = c(.data$variant_dat, .data$variant_prior)) %>%
+             .preserve = c(.data$variant_data, .data$variant_prior)) %>%
       arrange(desc(abs(.data$ts_post_mean)))
 
   } else {
@@ -345,10 +345,10 @@ fit_mpra_model = function(mpra_data,
     analysis_res = mpra_data %>%
       filter(.data$barcode %in% well_represented$barcode) %>%
       group_by(.data$variant_id) %>%
-      nest(.key = 'variant_dat') %>%
+      nest(.key = 'variant_data') %>%
       mutate(variant_prior = list(priors)) %>% # give the same marg prior to every variant
       mutate(sampler_stats = parallel::mcmapply(run_mpra_sampler,
-                                                .data$variant_id, .data$variant_dat, .data$variant_prior,
+                                                .data$variant_id, .data$variant_data, .data$variant_prior,
                                                 MoreArgs = list(n_chains = n_chains,
                                                                 n_warmup = n_warmup,
                                                                 tot_samp = tot_samp,
@@ -365,7 +365,7 @@ fit_mpra_model = function(mpra_data,
                                                 SIMPLIFY = FALSE)) %>%
       unnest(.data$sampler_stats,
              .drop = TRUE,
-             .preserve = c(.data$variant_dat, .data$variant_prior)) %>%
+             .preserve = c(.data$variant_data, .data$variant_prior)) %>%
       arrange(desc(abs(.data$ts_post_mean)))
   }
 
