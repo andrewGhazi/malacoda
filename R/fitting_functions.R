@@ -198,6 +198,7 @@ fit_mpra_model = function(mpra_data,
     stop('mpra_data columns must be: variant_id, allele, barcode, and DNA/RNA columns.\ndplyr::rename(), dplyr::select(), malacoda::count_barcodes(), and the tidyr package might be helpful for preparing your input.')
   }
 
+  # Check that there are 2 alleles for each variant
   variant_allele_counts = mpra_data %>%
     select(.data$variant_id, .data$allele) %>%
     unique %>%
@@ -219,7 +220,7 @@ fit_mpra_model = function(mpra_data,
 
   if (missing(priors)) {
     annotations_given = !is.null(annotations)
-    #### Fit priors ----
+    # Fit priors
     message('No annotations provided, fitting marginal priors...')
     if (!annotations_given) {
       print('Fitting MARGINAL priors...')
@@ -273,7 +274,7 @@ fit_mpra_model = function(mpra_data,
   well_represented = get_well_represented(mpra_data,
                                           sample_depths,
                                           rep_cutoff = rep_cutoff,
-                                          plot_rep_cutoff = FALSE, # this will have been plottd in the prior fitting already if necessary
+                                          plot_rep_cutoff = FALSE, # this will have been plotted in the prior fitting already if necessary
                                           verbose = FALSE)
 
 
@@ -374,8 +375,10 @@ fit_mpra_model = function(mpra_data,
 
   end_time = Sys.time()
   time_diff = end_time - start_time
-  print(paste0('MPRA data for ', n_distinct(mpra_data$variant_id), ' variants analyzed in ',
-               round(digits = 3, end_time - start_time), ' ', attr(time_diff, 'units')))
+
+  message(paste0('MPRA data for ', n_distinct(mpra_data$variant_id), ' variants analyzed in ',
+                 round(digits = 3, end_time - start_time), ' ', attr(time_diff, 'units')))
+
   return(analysis_res)
 }
 
