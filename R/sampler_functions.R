@@ -12,19 +12,22 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
                             vb_prob = .8,
                             ts_rope = NULL) {
 
-
+  # This fits the malacoda biallelic MPRA model (i.e. the main one) for ONE variant.
 
   priors = variant_prior
   n_per_chain = ceiling((tot_samp + n_chains * n_warmup) / n_chains)
 
+  ref_data = variant_data %>% filter(tolower(.data$allele) == 'ref')
+  alt_data = variant_data %>% filter(tolower(.data$allele) != 'ref')
+
   data_list = list(n_rna_samples = n_rna,
                    n_dna_samples = n_dna,
-                   n_ref = variant_data %>% filter(tolower(.data$allele) == 'ref') %>% nrow,
-                   n_alt = variant_data %>% filter(tolower(.data$allele) != 'ref') %>% nrow,
-                   ref_dna_counts = variant_data %>% filter(tolower(.data$allele) == 'ref') %>% select(matches('DNA')) %>% as.matrix,
-                   alt_dna_counts = variant_data %>% filter(tolower(.data$allele) != 'ref') %>% select(matches('DNA')) %>% as.matrix,
-                   ref_rna_counts = variant_data %>% filter(tolower(.data$allele) == 'ref') %>% select(matches('RNA')) %>% as.matrix,
-                   alt_rna_counts = variant_data %>% filter(tolower(.data$allele) != 'ref') %>% select(matches('RNA')) %>% as.matrix,
+                   n_ref = ref_data %>% nrow,
+                   n_alt = alt_data %>% nrow,
+                   ref_dna_counts = ref_data %>% select(matches('DNA')) %>% as.matrix,
+                   alt_dna_counts = alt_data %>% select(matches('DNA')) %>% as.matrix,
+                   ref_rna_counts = ref_data %>% select(matches('RNA')) %>% as.matrix,
+                   alt_rna_counts = alt_data %>% select(matches('RNA')) %>% as.matrix,
                    rna_depths = depth_factors %>% filter(grepl('RNA', .data$sample_id)) %>% pull(.data$depth_factor),
                    dna_depths = depth_factors %>% filter(grepl('DNA', .data$sample_id)) %>% pull(.data$depth_factor),
                    dna_m_a = priors %>% filter(.data$acid_type == 'DNA', grepl('mu', .data$prior_type)) %>% pull(.data$alpha_est),
@@ -36,7 +39,12 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
                    rna_p_a = priors %>% arrange(desc(.data$allele)) %>% filter(.data$acid_type == 'RNA', !grepl('mu', .data$prior_type)) %>% pull(.data$alpha_est),
                    rna_p_b = priors %>% arrange(desc(.data$allele)) %>% filter(.data$acid_type == 'RNA', !grepl('mu', .data$prior_type)) %>% pull(.data$beta_est))
 
-  if(vb_pass){
+  if (vb_pass) {
+    # If vb_pass is TRUE, run a variational first pass for the sake of a quick
+    # check. In practice the distributions seem pretty well fit by the VB
+    # approximations. I have Rmd on this, I should put it together for a
+    # supplement to the manuscript.
+
     vb_res = rstan::vb(stanmodels$bc_mpra_model,
                        data = data_list)
 
@@ -47,6 +55,8 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
       coda::HPDinterval(prob = vb_prob)
 
     if(!between(0, vb_hdi[1], vb_hdi[2])){
+      # Check if the VB result indicates the variant is "worthy" of MCMC
+
       sampler_res = rstan::sampling(stanmodels$bc_mpra_model,
                                     data = data_list,
                                     chains = n_chains,
@@ -69,6 +79,7 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
     note = 'mcmc used for posterior evaluation'
   }
 
+  #### Compute some output quantities ----
   ts_vec = rstan::extract(sampler_res,
                           pars = 'transcription_shift')$transcription_shift
   ref_act = rstan::extract(sampler_res,
@@ -81,6 +92,7 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
 
   is_functional = !between(0, ts_hdi_obj[1], ts_hdi_obj[2])
 
+  #### Save the output ----
   dir_ends_in_slash = grepl('/$', out_dir)
   if (!dir_ends_in_slash){
     out_dir = paste0(out_dir, '/')
@@ -91,6 +103,7 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
          file = paste0(out_dir, variant_id, '.RData'))
   }
 
+  #### Compile summary data frame ----
   res_df = data_frame(ts_post_mean = mean(ts_vec),
                       ref_act_post_mean = mean(ref_act),
                       alt_act_post_mean = mean(alt_act),
