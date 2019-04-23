@@ -403,25 +403,25 @@ decode_errors = function(trimmed_fastqs,
   system(fb_cmd)
 }
 
-cut_and_tack_fb = function(fb_output_file,
-                           temp_dir){
+cut_and_count_fb = function(fb_output_file,
+                            temp_dir) {
 
   # read in the fb_output,
   fb_path_split = stringr::str_split(fb_output_file,
                                      pattern = '/',
                                      simplify = TRUE)
 
-  fastq_name = gsub('_decoded\\.txt','', fb_path_split[1,ncol(fb_path_split)])
+  fastq_name = gsub('_decoded\\.txt|rev_comp_trimmed_filtered_','', fb_path_split[1,ncol(fb_path_split)])
 
-  output_path = paste0(temp_dir, 'seq_only/seq_only_', fastq_name, '.txt')
+  # output_path = paste0(temp_dir, 'seq_only/seq_only_', fastq_name, '.txt')
 
   # process it as necessary
 
-  fb_seqs = read_tsv(fb_output_file)
+  fb_seqs = readr::read_tsv(fb_output_file,
+                            col_names= c('read_id', 'barcode', 'sequence'))
 
-  # tack it onto the appropriate seq_only file.
+  barcode_counts = fb_seqs %>% dplyr::count(.data$barcode,
+                                            name = )
 
-  readr::write_tsv(x = fb_seqs,
-                   path = output_path,
-                   append = TRUE)
+  return(barcode_counts)
 }
