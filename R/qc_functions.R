@@ -421,7 +421,7 @@ cut_and_count_fb = function(fb_output_file,
                             col_names= c('read_id', 'barcode', 'sequence'))
 
   barcode_counts = fb_seqs %>% dplyr::count(.data$barcode,
-                                            name = )
+                                            name = fastq_name)
 
   return(barcode_counts)
 }
