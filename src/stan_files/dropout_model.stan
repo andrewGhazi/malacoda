@@ -56,3 +56,8 @@ model {
     }
   }
 }
+generated quantities {
+  real log_fold_change;
+
+  log_fold_change = log(out_mean);
+}

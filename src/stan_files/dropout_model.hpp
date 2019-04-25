@@ -36,7 +36,7 @@ static int current_statement_begin__;
 stan::io::program_reader prog_reader__() {
     stan::io::program_reader reader;
     reader.add_event(0, 0, "start", "model_dropout_model");
-    reader.add_event(60, 58, "end", "model_dropout_model");
+    reader.add_event(65, 63, "end", "model_dropout_model");
     return reader;
 }
 
@@ -488,6 +488,7 @@ public:
         names__.push_back("in_size");
         names__.push_back("out_mean");
         names__.push_back("out_size");
+        names__.push_back("log_fold_change");
     }
 
 
@@ -496,6 +497,8 @@ public:
         std::vector<size_t> dims__;
         dims__.resize(0);
         dims__.push_back(n_grna);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
         dimss__.push_back(dims__);
         dims__.resize(0);
         dimss__.push_back(dims__);
@@ -554,12 +557,23 @@ public:
             }
             if (!include_gqs__) return;
             // declare and define generated quantities
+            current_statement_begin__ = 60;
+            local_scalar_t__ log_fold_change;
+            (void) log_fold_change;  // dummy to suppress unused var warning
+
+            stan::math::initialize(log_fold_change, DUMMY_VAR__);
+            stan::math::fill(log_fold_change,DUMMY_VAR__);
 
 
+            current_statement_begin__ = 62;
+            stan::math::assign(log_fold_change, stan::math::log(out_mean));
 
             // validate generated quantities
+            current_statement_begin__ = 60;
 
             // write generated quantities
+        vars__.push_back(log_fold_change);
+
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e, current_statement_begin__, prog_reader__());
             // Next line prevents compiler griping about no return
@@ -616,6 +630,9 @@ public:
 
 
         if (!include_gqs__) return;
+        param_name_stream__.str(std::string());
+        param_name_stream__ << "log_fold_change";
+        param_names__.push_back(param_name_stream__.str());
     }
 
 
@@ -645,6 +662,9 @@ public:
 
 
         if (!include_gqs__) return;
+        param_name_stream__.str(std::string());
+        param_name_stream__ << "log_fold_change";
+        param_names__.push_back(param_name_stream__.str());
     }
 
 }; // model
