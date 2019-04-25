@@ -555,6 +555,7 @@ fit_cond_prior = function(mpra_data,
 
   # generate annotation distance matrix
   dist_mat = generate_distance_matrix(annotations = annotations)
+
   scaled_annotations = annotations %>%
     mutate_at(.vars = vars(-.data$variant_id),
               .funs = scale) %>%
@@ -572,9 +573,18 @@ fit_cond_prior = function(mpra_data,
 
   # For each variant, get a vector of weights for all other variants in the assay
   message('Weighting variants in annotation space')
-  prior_weights = mpra_data %>%
-    select(.data$variant_id) %>%
-    unique() %>%
+
+  annotation_vectors = annotations %>%
+    gather('anno_id', 'anno_value', -.data$variant_id) %>%
+    arrange(.data$anno_id) %>%
+    group_by(.data$variant_id) %>%
+    summarise(anno_labels = list(c(.data$anno_id)),
+              anno_vec = list(c(.data$anno_value)))
+
+  unique_annotations = annotation_vectors %>% # You only need to fit the priors once for each unique vector of annotations
+    filter(!duplicated(.data$anno_vec))
+
+  prior_weights = unique_annotations %>%
     mutate(annotation_weights = parallel::mclapply(.data$variant_id, find_prior_weights,
                                                    scaled_annotations = scaled_annotations,
                                                    dist_mat = dist_mat,
@@ -621,10 +631,21 @@ fit_cond_prior = function(mpra_data,
                                                   SIMPLIFY = FALSE))
   }
 
-  rna_p_no_weights = rna_p_priors %>% select(-.data$annotation_weights)
+  #TODO tack the appropriate priors onto annotation_vectors according to the value of anno_vec
+  # Normal join operations don't work on list columns, so you'll need to match them up manually
 
-  both_rna = rna_m_priors %>%
-    left_join(rna_p_no_weights, by = 'variant_id')
+  annotation_vectors$weight_row = map_int(annotation_vectors$anno_vec, # kill me
+                                          ~which(sapply(prior_weights$anno_vec, function(x){all(.x == x)}))) # later
+
+  annotation_vectors$annotation_weights = prior_weights$annotation_weights[annotation_vectors$weight_row]
+  annotation_vectors$variant_m_prior = rna_m_priors$variant_m_prior[annotation_vectors$weight_row]
+  annotation_vectors$variant_p_prior = rna_p_priors$variant_p_prior[annotation_vectors$weight_row]
+
+  both_rna = annotation_vectors %>%
+    dplyr::select(.data$variant_id,
+                  .data$annotation_weights,
+                  .data$variant_m_prior,
+                  .data$variant_p_prior)
 
   res_list = list(dna_prior = dna_gamma_prior,
                   rna_priors = both_rna)
