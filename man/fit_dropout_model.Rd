@@ -5,7 +5,8 @@
 \title{Fit a Bayesian model of dropout CRISPR screen data}
 \usage{
 fit_dropout_model(dropout_data, out_dir, n_cores = 1, tot_samp = 10000,
-  n_warmup = 500, rep_cutoff = 0.1, plot_rep_cutoff = TRUE)
+  n_warmup = 500, n_chains = 4, rep_cutoff = 0.1,
+  plot_rep_cutoff = TRUE)
 }
 \arguments{
 \item{dropout_data}{a data frame of dropout data. See details for column
@@ -19,6 +20,8 @@ requirements.}
 chains}
 
 \item{n_warmup}{total number of warmup draws to take from each MCMC chain}
+
+\item{n_chains}{number of MCMC chains to run in each sampler}
 
 \item{rep_cutoff}{a representation cutoff quantile (0 to 1)}
 }
