@@ -226,3 +226,71 @@ summarise_cond_prior = function(cond_prior,
     select(-.data$prior_sim_res) %>%
     arrange(desc(abs(.data$mean_prior_ts)))
 }
+
+run_dropout_sampler = function(gene_id, gene_data, gene_prior,
+                               n_chains = 4,
+                               tot_samp,
+                               n_warmup,
+                               depth_factors,
+                               out_dir) {
+
+  # prepare input ----
+
+  input_counts = gene_data %>%
+    dplyr::select(sort(matches('input')))
+  output_counts = gene_data %>%
+    dplyr::select(sort(matches('output')))
+  # ^ We sort the columns so they'll line up with the depth factors below (which
+  # are also sorted)
+
+  input_depths = depth_factors %>%
+    filter(grepl('input', .data$sample_id)) %>%
+    arrange(.data$sample_id)
+  output_depths = depth_factors %>%
+    filter(grepl('output', .data$sample_id)) %>%
+    arrange(.data$sample_id)
+
+  prior_mat = gamma_priors %>%
+    dplyr::select(-matches('prior')) %>%
+    tibble::column_to_rownames('param_type') %>%
+    as.matrix
+
+  data_list = list(n_grna = nrow(gene_data),
+                   n_in = ncol(input_counts),
+                   n_out = ncol(output_counts),
+                   in_counts = as.matrix(input_counts),
+                   out_counts = as.matrix(output_counts),
+                   in_depths = as.array(input_depths$depth_factor),
+                   out_depths = as.array(output_depths$depth_factor),
+                   in_mean_a = prior_mat['input', 'mean_alpha'],
+                   in_mean_b = prior_mat['input', 'mean_beta'],
+                   in_size_a = prior_mat['input', 'size_alpha'],
+                   in_size_b = prior_mat['input', 'size_beta'],
+                   out_mean_a = prior_mat['output', 'mean_alpha'],
+                   out_mean_b = prior_mat['output', 'mean_beta'],
+                   out_size_a = prior_mat['output', 'size_alpha'],
+                   out_size_b = prior_mat['output', 'size_beta'])
+
+  n_per_chain = ceiling((tot_samp + n_chains * n_warmup) / n_chains)
+  # call sampler ----
+
+  sampler_res = sampling(object = stanmodels$dropout_model,
+                         iter = n_per_chain,
+                         data = data_list,
+                         chains = n_chains,
+                         warmup = n_warmup,
+                         cores = 1)
+  save(sampler_res,
+       file = paste0(out_dir, gene_id, '.RData'))
+
+  # compute summary statistics ----
+
+  summary_df = rstan::summary(sampler_res)$summary %>%
+    as.data.frame %>%
+    rownames_to_column(var = 'parameter') %>%
+    as_tibble
+
+  # return summary ----
+
+  return(summary_df)
+}

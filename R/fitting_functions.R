@@ -213,7 +213,7 @@ fit_mpra_model = function(mpra_data,
   }
 
   if (tot_samp < 5e4){
-    warning('Using less than 50,000 MCMC samples is not recommended for publication quality analyses.')
+    warning('Using less than 50,000 MCMC samples is not recommended for publication quality analyses. Inspect convergence metrics in any case.')
   }
 
   #### Initial cleanup ----
@@ -417,6 +417,7 @@ fit_dropout_model = function(dropout_data,
                              n_cores = 1,
                              tot_samp = 1e4,
                              n_warmup = 500,
+                             n_chains = 4,
                              rep_cutoff = .1,
                              plot_rep_cutoff = TRUE) {
 
@@ -437,7 +438,18 @@ fit_dropout_model = function(dropout_data,
     stop('No output count columns found!')
   }
 
+  if (tot_samp < 5e4){
+    warning('Using less than 50,000 MCMC samples is not recommended for publication quality analyses. Inspect convergence metrics in any case.')
+  }
+
+  dir_ends_in_slash = grepl('/$', out_dir)
+  if (!dir_ends_in_slash){
+    out_dir = paste0(out_dir, '/')
+  }
+
   #### Clean up input ----
+  message('Determining input gRNA representation parameters...')
+
   sample_depths = dropout_data %>%
     gather('sample_id', 'gRNA_count', matches('input|output')) %>%
     group_by(.data$sample_id) %>%
@@ -484,6 +496,7 @@ fit_dropout_model = function(dropout_data,
   #### Estimate prior ----
   # This should go into its own function eventually... TODO
 
+  message('Estimating marginal prior...')
   multiple_gRNA =  dropout_data %>%
     filter(.data$gRNA %in% well_rep$gRNA) %>%
     dplyr::count(.data$gene_id) %>%
@@ -514,7 +527,44 @@ fit_dropout_model = function(dropout_data,
 
   #### Evaluate models ----
 
+  message('Running model samplers...')
+
+  start_time = Sys.time()
+
+  fit_summary = dropout_data %>%
+    group_by(.data$gene_id) %>%
+    tidyr::nest(.key = 'gene_data') %>%
+    mutate(fit_statistics = parallel::mcmapply(run_dropout_sampler,
+                                               .data$gene_id, .data$gene_data,
+                                               mc.cores = n_cores,
+                                               MoreArgs = list(gene_prior = gamma_priors,
+                                                               tot_samp = tot_samp,
+                                                               n_warmup = n_warmup,
+                                                               n_chains = n_chains,
+                                                               depth_factors = sample_depths,
+                                                               out_dir = out_dir),
+                                               SIMPLIFY = FALSE))
+
   #### Compile results and return summary data frame ----
+
+
+  fit_summary %<>% mutate(lfc_post_mean = map_dbl(.data$fit_statistics,
+                                                  ~.x$mean[.x$parameter == 'log_fold_change']),
+                          `lfc_2.5%` = map_dbl(.data$fit_statistics,
+                                               ~.x$`2.5%`[.x$parameter == 'log_fold_change']),
+                          `lfc_97.5%` = map_dbl(.data$fit_statistics,
+                                                ~.x$`97.5%`[.x$parameter == 'log_fold_change'])) %>%
+    arrange(-abs(lfc_post_mean))
+
+
+  end_time = Sys.time()
+  time_diff = end_time - start_time
+
+  message(paste0('Data for ', n_distinct(dropout_data$gene_id), ' genes analyzed in ',
+                 round(digits = 3, end_time - start_time), ' ', attr(time_diff, 'units')))
+
+  return(fit_summary)
+
 }
 
 fit_dropout_gamma = function(values){
