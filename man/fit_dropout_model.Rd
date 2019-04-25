@@ -5,7 +5,7 @@
 \title{Fit a Bayesian model of dropout CRISPR screen data}
 \usage{
 fit_dropout_model(dropout_data, out_dir, n_cores = 1, tot_samp = 10000,
-  n_warmup = 500, rep_cutoff = 0.15, plot_rep_cutoff = TRUE)
+  n_warmup = 500, rep_cutoff = 0.1, plot_rep_cutoff = TRUE)
 }
 \arguments{
 \item{dropout_data}{a data frame of dropout data. See details for column

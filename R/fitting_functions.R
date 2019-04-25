@@ -209,11 +209,11 @@ fit_mpra_model = function(mpra_data,
   }
 
   if (vb_pass) {
-    message('Using variantional approximation first pass. Set vb_pass = FALSE for publication quality analyses.')
+    warning('Using variantional approximation first pass. Set vb_pass = FALSE for publication quality analyses.')
   }
 
   if (tot_samp < 5e4){
-    message('Using less than 50,000 MCMC samples is not recommended for publication quality analyses.')
+    warning('Using less than 50,000 MCMC samples is not recommended for publication quality analyses.')
   }
 
   #### Initial cleanup ----
@@ -455,7 +455,8 @@ fit_dropout_model = function(dropout_data,
     group_by(.data$sgRNA) %>%
     summarise(mean_depth_adj_count = mean(.data$depth_adj_count))
 
-  cutoff_point = quantile(mean_input$mean_depth_adj_count, probs = rep_cutoff)
+  cutoff_point = quantile(mean_input$mean_depth_adj_count,
+                          probs = rep_cutoff)
 
   well_rep = mean_input %>%
     filter(.data$mean_depth_adj_count > cutoff_point)
@@ -471,7 +472,7 @@ fit_dropout_model = function(dropout_data,
       geom_density(aes(color = .data$sample_id)) +
       geom_vline(xintercept = cutoff_point,
                  lty = 2,
-                 color = 'grey70') +
+                 color = 'grey20') +
       labs(x = 'Depth adjusted counts in input library',
            color = 'Sample ID',
            title = 'sgRNA representation in input libraries',
@@ -483,7 +484,9 @@ fit_dropout_model = function(dropout_data,
   #### Estimate prior ----
   # This should go into its own function eventually... TODO
 
+  #### Evaluate models ----
 
+  #### Compile results and return summary data frame ----
 }
 
 fit_dropout_gamma = function(values){
