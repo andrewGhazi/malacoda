@@ -381,3 +381,36 @@ fit_mpra_model = function(mpra_data,
 
   return(analysis_res)
 }
+
+
+#' Fit a Bayesian model of dropout CRISPR screen data
+#'
+#' @description This function fits a Bayesian model of survival/dropout CRISPR
+#'   screen data. It uses a negative binomial to model the input and output
+#'   counts of sgRNAs, adjusting the results appropriately to account for
+#'   sequencing depth.
+#' @param dropout_data a data frame of dropout data. See details for column
+#'   requirements.
+#' @param n_cores number of cores to utilize
+#' @inheritParams fit_mpra_model
+#' @details \code{dropout_data} requires the following columns:
+#'   \itemize{\item{gene_id - gives a unique identifier for each gene}
+#'   \item{sgRNA - an identifier for individual sgRNAs (usually the sgRNA
+#'   sequence itself)} \item{input count columns - columns of sequencing counts
+#'   of the input sgRNA library. Multiple columns for sequencing replicates are
+#'   allowed (which require unique identifiers). Column names must contain the
+#'   string "input".} \item{output count columns - columns of sequencing counts
+#'   of sgRNAs in the output libraries.}}
+#' @note Currently this function only supports marginal priors. If you want to
+#'   use grouped/conditional priors, contact the malacoda developers.
+fit_dropout_model = function(dropout_data,
+                             out_dir,
+                             n_cores = 1,
+                             tot_samp = 1e4,
+                             n_warmup = 500,
+                             rep_cutoff = .15) {
+
+  #### input checks ----
+
+
+}
