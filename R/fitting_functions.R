@@ -381,7 +381,3 @@ fit_mpra_model = function(mpra_data,
 
   return(analysis_res)
 }
-
-fit_crispr_model = function(crispr_data) {
-
-}
