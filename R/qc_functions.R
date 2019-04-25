@@ -331,7 +331,13 @@ count_barcodes = function(barcode_allele_df,
     fb_outputs = list.files(fb_out_path,
                             full.names = TRUE)
 
-    map(fb_outputs, cut_and_tack_fb)
+    fb_counts = parallel::mclapply(fb_outputs,
+                                   cut_and_count_fb,
+                                   mc.cores = n_cores) %>%
+      purrr::reduce(dplyr::full_join, by = 'barcode') %>%
+      dplyr::mutate_if(is.numeric, replace_na_0)
+
+    return(fb_counts)
   }
 
   #### On to the counting ----
@@ -356,6 +362,12 @@ count_barcodes = function(barcode_allele_df,
   #### Return ----
 
   return(mpra_data)
+}
+
+# Used to replace NA's in a full-join result (when combining columns of counts
+# across samples) with 0
+replace_na_0 = function(count_vec){
+  replace(count_vec, 0)
 }
 
 #' Decode fastq
