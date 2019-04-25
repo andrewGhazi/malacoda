@@ -5,7 +5,7 @@
 \title{Fit a Bayesian model of dropout CRISPR screen data}
 \usage{
 fit_dropout_model(dropout_data, out_dir, n_cores = 1, tot_samp = 10000,
-  n_warmup = 500, rep_cutoff = 0.15)
+  n_warmup = 500, rep_cutoff = 0.15, plot_rep_cutoff = TRUE)
 }
 \arguments{
 \item{dropout_data}{a data frame of dropout data. See details for column
@@ -30,13 +30,14 @@ This function fits a Bayesian model of survival/dropout CRISPR
 }
 \details{
 \code{dropout_data} requires the following columns:
-  \itemize{\item{gene_id - gives a unique identifier for each gene}
-  \item{sgRNA - an identifier for individual sgRNAs (usually the sgRNA
+  \itemize{\item{gene_id - character column giving a unique identifier for each gene}
+  \item{sgRNA - character column giving identifiers for individual sgRNAs (usually the sgRNA
   sequence itself)} \item{input count columns - columns of sequencing counts
   of the input sgRNA library. Multiple columns for sequencing replicates are
   allowed (which require unique identifiers). Column names must contain the
   string "input".} \item{output count columns - columns of sequencing counts
-  of sgRNAs in the output libraries.}}
+  of sgRNAs in the output libraries. Multiple columns allowed (which in turn
+  require unique names). Column name must contain the string "output".}}
 }
 \note{
 Currently this function only supports marginal priors. If you want to

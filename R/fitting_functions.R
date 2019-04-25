@@ -394,13 +394,14 @@ fit_mpra_model = function(mpra_data,
 #' @param n_cores number of cores to utilize
 #' @inheritParams fit_mpra_model
 #' @details \code{dropout_data} requires the following columns:
-#'   \itemize{\item{gene_id - gives a unique identifier for each gene}
-#'   \item{sgRNA - an identifier for individual sgRNAs (usually the sgRNA
+#'   \itemize{\item{gene_id - character column giving a unique identifier for each gene}
+#'   \item{sgRNA - character column giving identifiers for individual sgRNAs (usually the sgRNA
 #'   sequence itself)} \item{input count columns - columns of sequencing counts
 #'   of the input sgRNA library. Multiple columns for sequencing replicates are
 #'   allowed (which require unique identifiers). Column names must contain the
 #'   string "input".} \item{output count columns - columns of sequencing counts
-#'   of sgRNAs in the output libraries.}}
+#'   of sgRNAs in the output libraries. Multiple columns allowed (which in turn
+#'   require unique names). Column name must contain the string "output".}}
 #' @note Currently this function only supports marginal priors. If you want to
 #'   use grouped/conditional priors, contact the malacoda developers.
 fit_dropout_model = function(dropout_data,
@@ -408,9 +409,85 @@ fit_dropout_model = function(dropout_data,
                              n_cores = 1,
                              tot_samp = 1e4,
                              n_warmup = 500,
-                             rep_cutoff = .15) {
+                             rep_cutoff = .1,
+                             plot_rep_cutoff = TRUE) {
 
   #### input checks ----
 
+  input_names = names(dropout_data)
 
+  if (!('gene_id' %in% input_names)){
+    stop('No gene_id column found!')
+  }
+  if (!('sgRNA' %in% input_names)) {
+    stop('No sgRNA column found!')
+  }
+  if(!any(grepl('input', input_names))) {
+    stop('No input count columns found!')
+  }
+  if(!any(grepl('output', input_names))){
+    stop('No output count columns found!')
+  }
+
+  #### Clean up input ----
+  sample_depths = dropout_data %>%
+    gather('sample_id', 'sgRNA_count', matches('input|output')) %>%
+    group_by(.data$sample_id) %>%
+    summarise(depth_factor = sum(.data$sgRNA_count) / 1e6)
+
+  # find well represented sgRNAs in depth-adjusted input sequencing samples
+  depth_adj_input =  dropout_data %>%
+    dplyr::select(.data$sgRNA, matches('input')) %>%
+    gather('sample_id', 'sgRNA_count', -.data$sgRNA) %>%
+    left_join(sample_depths, by = 'sample_id') %>%
+    mutate(depth_adj_count = .data$sgRNA_count / .data$depth_factor) %>%
+    dplyr::select(-.data$sgRNA_count, -.data$depth_factor)
+
+  mean_input = depth_adj_input %>%
+    group_by(.data$sgRNA) %>%
+    summarise(mean_depth_adj_count = mean(.data$depth_adj_count))
+
+  cutoff_point = quantile(mean_input$mean_depth_adj_count, probs = rep_cutoff)
+
+  well_rep = mean_input %>%
+    filter(.data$mean_depth_adj_count > cutoff_point)
+
+  if (plot_rep_cutoff) {
+
+    message('Plotting representation cutoff. Stop and adjust rep_cutoff if necessary.')
+    depth_adj_input %>%
+      ggplot(mapping = aes(x = .data$depth_adj_count)) +
+      geom_histogram(aes(y = ..density..),
+
+                     boundary = 0) +
+      geom_density(aes(color = .data$sample_id)) +
+      geom_vline(xintercept = cutoff_point,
+                 lty = 2,
+                 color = 'grey70') +
+      labs(x = 'Depth adjusted counts in input library',
+           color = 'Sample ID',
+           title = 'sgRNA representation in input libraries',
+           subtitle = paste0('Data from sgRNAs with average representation below ', round(cutoff_point, digits = 3),
+                             ' are discarded')) +
+      theme_light()
+  }
+
+  #### Estimate prior ----
+  # This should go into its own function eventually... TODO
+
+
+}
+
+fit_dropout_gamma = function(values){
+  # This should be deprecated in favor of fit_gamma eventually... TODO
+
+  fn_to_min = function(par_vec) {
+    -sum(dgamma(values,
+                shape = par_vec[1],
+                rate = par_vec[2],
+                log = TRUE))
+  }
+
+  optim_res = optim(par = c(1,1),
+                    fn = fn_to_min)
 }
