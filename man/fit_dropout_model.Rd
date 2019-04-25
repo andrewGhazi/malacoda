@@ -25,18 +25,18 @@ chains}
 \description{
 This function fits a Bayesian model of survival/dropout CRISPR
   screen data. It uses a negative binomial to model the input and output
-  counts of sgRNAs, adjusting the results appropriately to account for
+  counts of gRNAs, adjusting the results appropriately to account for
   sequencing depth.
 }
 \details{
 \code{dropout_data} requires the following columns:
   \itemize{\item{gene_id - character column giving a unique identifier for each gene}
-  \item{sgRNA - character column giving identifiers for individual sgRNAs (usually the sgRNA
+  \item{gRNA - character column giving identifiers for individual gRNAs (usually the gRNA
   sequence itself)} \item{input count columns - columns of sequencing counts
-  of the input sgRNA library. Multiple columns for sequencing replicates are
+  of the input gRNA library. Multiple columns for sequencing replicates are
   allowed (which require unique identifiers). Column names must contain the
   string "input".} \item{output count columns - columns of sequencing counts
-  of sgRNAs in the output libraries. Multiple columns allowed (which in turn
+  of gRNAs in the output libraries. Multiple columns allowed (which in turn
   require unique names). Column name must contain the string "output".}}
 }
 \note{

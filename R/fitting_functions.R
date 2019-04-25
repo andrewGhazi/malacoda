@@ -395,7 +395,7 @@ fit_mpra_model = function(mpra_data,
 #'
 #' @description This function fits a Bayesian model of survival/dropout CRISPR
 #'   screen data. It uses a negative binomial to model the input and output
-#'   counts of sgRNAs, adjusting the results appropriately to account for
+#'   counts of gRNAs, adjusting the results appropriately to account for
 #'   sequencing depth.
 #' @param dropout_data a data frame of dropout data. See details for column
 #'   requirements.
@@ -403,12 +403,12 @@ fit_mpra_model = function(mpra_data,
 #' @inheritParams fit_mpra_model
 #' @details \code{dropout_data} requires the following columns:
 #'   \itemize{\item{gene_id - character column giving a unique identifier for each gene}
-#'   \item{sgRNA - character column giving identifiers for individual sgRNAs (usually the sgRNA
+#'   \item{gRNA - character column giving identifiers for individual gRNAs (usually the gRNA
 #'   sequence itself)} \item{input count columns - columns of sequencing counts
-#'   of the input sgRNA library. Multiple columns for sequencing replicates are
+#'   of the input gRNA library. Multiple columns for sequencing replicates are
 #'   allowed (which require unique identifiers). Column names must contain the
 #'   string "input".} \item{output count columns - columns of sequencing counts
-#'   of sgRNAs in the output libraries. Multiple columns allowed (which in turn
+#'   of gRNAs in the output libraries. Multiple columns allowed (which in turn
 #'   require unique names). Column name must contain the string "output".}}
 #' @note Currently this function only supports marginal priors. If you want to
 #'   use grouped/conditional priors, contact the malacoda developers.
@@ -427,8 +427,8 @@ fit_dropout_model = function(dropout_data,
   if (!('gene_id' %in% input_names)){
     stop('No gene_id column found!')
   }
-  if (!('sgRNA' %in% input_names)) {
-    stop('No sgRNA column found!')
+  if (!('gRNA' %in% input_names)) {
+    stop('No gRNA column found!')
   }
   if(!any(grepl('input', input_names))) {
     stop('No input count columns found!')
@@ -439,20 +439,20 @@ fit_dropout_model = function(dropout_data,
 
   #### Clean up input ----
   sample_depths = dropout_data %>%
-    gather('sample_id', 'sgRNA_count', matches('input|output')) %>%
+    gather('sample_id', 'gRNA_count', matches('input|output')) %>%
     group_by(.data$sample_id) %>%
-    summarise(depth_factor = sum(.data$sgRNA_count) / 1e6)
+    summarise(depth_factor = sum(.data$gRNA_count) / 1e6)
 
-  # find well represented sgRNAs in depth-adjusted input sequencing samples
+  # find well represented gRNAs in depth-adjusted input sequencing samples
   depth_adj_input =  dropout_data %>%
-    dplyr::select(.data$sgRNA, matches('input')) %>%
-    gather('sample_id', 'sgRNA_count', -.data$sgRNA) %>%
+    dplyr::select(.data$gRNA, matches('input')) %>%
+    gather('sample_id', 'gRNA_count', -.data$gRNA) %>%
     left_join(sample_depths, by = 'sample_id') %>%
-    mutate(depth_adj_count = .data$sgRNA_count / .data$depth_factor) %>%
-    dplyr::select(-.data$sgRNA_count, -.data$depth_factor)
+    mutate(depth_adj_count = .data$gRNA_count / .data$depth_factor) %>%
+    dplyr::select(-.data$gRNA_count, -.data$depth_factor)
 
   mean_input = depth_adj_input %>%
-    group_by(.data$sgRNA) %>%
+    group_by(.data$gRNA) %>%
     summarise(mean_depth_adj_count = mean(.data$depth_adj_count))
 
   cutoff_point = quantile(mean_input$mean_depth_adj_count,
@@ -475,14 +475,42 @@ fit_dropout_model = function(dropout_data,
                  color = 'grey20') +
       labs(x = 'Depth adjusted counts in input library',
            color = 'Sample ID',
-           title = 'sgRNA representation in input libraries',
-           subtitle = paste0('Data from sgRNAs with average representation below ', round(cutoff_point, digits = 3),
+           title = 'gRNA representation in input libraries',
+           subtitle = paste0('Data from gRNAs with average representation below ', round(cutoff_point, digits = 3),
                              ' are discarded')) +
       theme_light()
   }
 
   #### Estimate prior ----
   # This should go into its own function eventually... TODO
+
+  multiple_gRNA =  dropout_data %>%
+    filter(.data$gRNA %in% well_rep$gRNA) %>%
+    dplyr::count(.data$gene_id) %>%
+    filter(.data$n > 2)
+
+  gamma_mle = dropout_data %>%
+    filter(.data$gRNA %in% well_rep$gRNA,
+           gene_id %in% multiple_gRNA$gene_id) %>%
+    gather(sample_id, gRNA_count, matches('input|output')) %>%
+    left_join(sample_depths, by = 'sample_id') %>%
+    group_by(gene_id, sample_id) %>%
+    summarise(mean_mle = mean(.data$gRNA_count / .data$depth_factor), # I think these are biased estimators... TODO
+              size_mle = mean(.data$gRNA_count) ^ 2 /
+                (var(.data$gRNA_count) - mean(.data$gRNA_count))) %>%
+    ungroup %>%
+    filter(.data$size_mle > 0, is.finite(.data$size_mle))
+
+  # Fit gamma priors off those
+  gamma_priors = gamma_mle %>%
+    mutate(param_type = stringr::str_extract(.data$sample_id, pattern = 'input|output')) %>%
+    group_by(.data$param_type) %>%
+    summarise(mean_prior = list(fit_dropout_gamma(.data$mean_mle)),
+              size_prior = list(fit_dropout_gamma(.data$size_mle))) %>%
+    mutate(mean_alpha = map_dbl(.data$mean_prior, ~.x$par[1]),
+           mean_beta = map_dbl(.data$mean_prior, ~.x$par[2]),
+           size_alpha = map_dbl(.data$size_prior, ~.x$par[1]),
+           size_beta = map_dbl(.data$size_prior, ~.x$par[2]))
 
   #### Evaluate models ----
 
