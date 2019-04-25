@@ -208,6 +208,14 @@ fit_mpra_model = function(mpra_data,
     stop('Non-biallelic variants detected. The variant_id column should be the same for both alleles of a given variant.')
   }
 
+  if (vb_pass) {
+    message('Using variantional approximation first pass. Set vb_pass = FALSE for publication quality analyses.')
+  }
+
+  if (tot_samp < 5e4){
+    message('Using less than 50,000 MCMC samples is not recommended for publication quality analyses.')
+  }
+
   #### Initial cleanup ----
 
   mpra_data %<>%
