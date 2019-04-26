@@ -123,7 +123,7 @@ find_prior_weights = function(given_id,
     mutate(frac_weight = .data$mv_dens / sum(.data$mv_dens)) %>%
     arrange(desc(.data$frac_weight)) %>%
     mutate(cs = cumsum(.data$frac_weight),
-           n = 1:n())
+           n = 1:dplyr::n())
 
   if (weight_df$cs[min_num_neighbors] > .99){
     # If the first 30 (min_num_neighbors) weights account for more than 99% of
@@ -137,7 +137,7 @@ find_prior_weights = function(given_id,
         mutate(frac_weight = .data$mv_dens / sum(.data$mv_dens)) %>%
         arrange(desc(.data$frac_weight)) %>%
         mutate(cs = cumsum(.data$frac_weight),
-               n = 1:n())
+               n = 1:dplyr::n())
     }
   }
 
