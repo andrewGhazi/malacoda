@@ -472,7 +472,7 @@ fit_cond_prior = function(mpra_data,
                           n_cores = 1,
                           plot_rep_cutoff = TRUE,
                           rep_cutoff = .15,
-                          min_neighbors = 30,
+                          min_neighbors = 50,
                           kernel_fold_increase = 1.3){
 
   # Input checks ----
