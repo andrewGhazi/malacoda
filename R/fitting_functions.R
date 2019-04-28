@@ -231,7 +231,7 @@ fit_mpra_model = function(mpra_data,
     # Fit priors
     message('No annotations provided, fitting marginal priors...')
     if (!annotations_given) {
-      print('Fitting MARGINAL priors...')
+      message('Fitting MARGINAL priors...')
       priors = fit_marg_prior(mpra_data,
                               n_cores = n_cores,
                               rep_cutoff = .15,
@@ -254,7 +254,7 @@ fit_mpra_model = function(mpra_data,
                               min_neighbors = 30,
                               kernel_fold_increase = 1.3)
 
-      print('Conditional prior fitting done, ')
+      message('Conditional prior fitting done...')
       save(priors,
            file = paste0(out_dir, 'conditional_prior.RData'))
     }
@@ -273,7 +273,7 @@ fit_mpra_model = function(mpra_data,
 
 
   #### Run samplers ----
-  print('Running model samplers...')
+  message('Running model samplers...')
 
   n_rna = mpra_data %>% select(matches('RNA')) %>% ncol
   n_dna = mpra_data %>% select(matches('DNA')) %>% ncol
