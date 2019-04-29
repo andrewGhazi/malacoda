@@ -274,12 +274,12 @@ run_dropout_sampler = function(gene_id, gene_data, gene_prior,
   n_per_chain = ceiling((tot_samp + n_chains * n_warmup) / n_chains)
   # call sampler ----
 
-  sampler_res = sampling(object = stanmodels$dropout_model,
-                         iter = n_per_chain,
-                         data = data_list,
-                         chains = n_chains,
-                         warmup = n_warmup,
-                         cores = 1)
+  sampler_res = rstan::sampling(object = stanmodels$dropout_model,
+                                iter = n_per_chain,
+                                data = data_list,
+                                chains = n_chains,
+                                warmup = n_warmup,
+                                cores = 1)
   save(sampler_res,
        file = paste0(out_dir, gene_id, '.RData'))
 
