@@ -556,7 +556,7 @@ fit_dropout_model = function(dropout_data,
                                                ~.x$`2.5%`[.x$parameter == 'log_fold_change']),
                           `lfc_97.5%` = map_dbl(.data$fit_statistics,
                                                 ~.x$`97.5%`[.x$parameter == 'log_fold_change'])) %>%
-    arrange(-abs(lfc_post_mean))
+    arrange(-abs(.data$lfc_post_mean))
 
 
   end_time = Sys.time()
