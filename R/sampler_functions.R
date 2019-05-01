@@ -244,11 +244,11 @@ run_dropout_sampler = function(gene_id, gene_data, gene_prior,
   # are also sorted)
 
   input_depths = depth_factors %>%
-    filter(grepl('input', .data$sample_id)) %>%
-    arrange(.data$sample_id)
+    dplyr::filter(grepl('input', .data$sample_id)) %>%
+    dplyr::arrange(.data$sample_id)
   output_depths = depth_factors %>%
-    filter(grepl('output', .data$sample_id)) %>%
-    arrange(.data$sample_id)
+    dplyr::filter(grepl('output', .data$sample_id)) %>%
+    dplyr::arrange(.data$sample_id)
 
   prior_mat = gamma_priors %>%
     dplyr::select(-matches('prior')) %>%
