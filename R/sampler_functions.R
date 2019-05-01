@@ -246,7 +246,7 @@ run_dropout_sampler = function(gene_id, gene_data, gene_prior,
     dplyr::filter(grepl('output', .data$sample_id)) %>%
     dplyr::arrange(.data$sample_id)
 
-  prior_mat = gamma_priors %>%
+  prior_mat = gene_prior %>%
     dplyr::select(-matches('prior')) %>%
     tibble::column_to_rownames('param_type') %>%
     as.matrix
