@@ -5,7 +5,7 @@
 \title{Fit a informative conditional prior}
 \usage{
 fit_cond_prior(mpra_data, annotations, n_cores = 1,
-  plot_rep_cutoff = TRUE, rep_cutoff = 0.15, min_neighbors = 30,
+  plot_rep_cutoff = TRUE, rep_cutoff = 0.15, min_neighbors = 50,
   kernel_fold_increase = 1.3)
 }
 \arguments{
