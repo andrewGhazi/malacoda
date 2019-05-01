@@ -122,10 +122,6 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
 
 }
 
-run_crispr_sampler = function() {
-
-}
-
 #' Sample from prior
 #'
 #' @description Randomly draw activities levels and transcription shifts from
