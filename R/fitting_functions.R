@@ -532,18 +532,19 @@ fit_dropout_model = function(dropout_data,
   start_time = Sys.time()
 
   fit_summary = dropout_data %>%
+    filter(.data$gRNA %in% well_rep$gRNA) %>%
     group_by(.data$gene_id) %>%
     tidyr::nest(.key = 'gene_data') %>%
-    mutate(fit_statistics = parallel::mcmapply(run_dropout_sampler,
-                                               .data$gene_id, .data$gene_data,
-                                               mc.cores = n_cores,
-                                               MoreArgs = list(gene_prior = gamma_priors,
-                                                               tot_samp = tot_samp,
-                                                               n_warmup = n_warmup,
-                                                               n_chains = n_chains,
-                                                               depth_factors = sample_depths,
-                                                               out_dir = out_dir),
-                                               SIMPLIFY = FALSE))
+    dplyr::mutate(fit_statistics = parallel::mcmapply(run_dropout_sampler,
+                                                      .data$gene_id, .data$gene_data,
+                                                      mc.cores = n_cores,
+                                                      MoreArgs = list(gene_prior = gamma_priors,
+                                                                      tot_samp = tot_samp,
+                                                                      n_warmup = n_warmup,
+                                                                      n_chains = n_chains,
+                                                                      depth_factors = sample_depths,
+                                                                      out_dir = out_dir),
+                                                      SIMPLIFY = FALSE))
 
   #### Compile results and return summary data frame ----
 
