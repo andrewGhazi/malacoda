@@ -412,6 +412,7 @@ fit_mpra_model = function(mpra_data,
 #'   require unique names). Column name must contain the string "output".}}
 #' @note Currently this function only supports marginal priors. If you want to
 #'   use grouped/conditional priors, contact the malacoda developers.
+#' @export
 fit_dropout_model = function(dropout_data,
                              out_dir,
                              n_cores = 1,
