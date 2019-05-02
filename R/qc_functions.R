@@ -281,9 +281,9 @@ count_barcodes = function(barcode_allele_df,
     message(paste0('Using non-default quality cutoff: Q >= ', quality_cutoff))
   }
 
-  if (!is.null(decode_barcode_set)){
-    stop('The barcode decoding feature is not yet fully implemented.')
-  }
+  # if (!is.null(decode_barcode_set)){
+  #   stop('The barcode decoding feature is not yet fully implemented.')
+  # }
 
   #### Trim and quality filter with the FASTX-Toolkit ----
 
