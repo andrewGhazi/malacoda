@@ -401,6 +401,7 @@ fit_mpra_model = function(mpra_data,
 #'   requirements.
 #' @param n_cores number of cores to utilize
 #' @inheritParams fit_mpra_model
+#' @param plot_rep_cutoff logical indicating whether to plot the representation cutoff histogram
 #' @details \code{dropout_data} requires the following columns:
 #'   \itemize{\item{gene_id - character column giving a unique identifier for each gene}
 #'   \item{gRNA - character column giving identifiers for individual gRNAs (usually the gRNA
@@ -479,7 +480,7 @@ fit_dropout_model = function(dropout_data,
     message('Plotting representation cutoff. Stop and adjust rep_cutoff if necessary.')
     depth_adj_input %>%
       ggplot(mapping = aes(x = .data$depth_adj_count)) +
-      geom_histogram(aes(y = ..density..),
+      geom_histogram(aes(y = .data$..density..),
 
                      boundary = 0) +
       geom_density(aes(color = .data$sample_id)) +
@@ -505,10 +506,10 @@ fit_dropout_model = function(dropout_data,
 
   gamma_mle = dropout_data %>%
     filter(.data$gRNA %in% well_rep$gRNA,
-           gene_id %in% multiple_gRNA$gene_id) %>%
-    gather(sample_id, gRNA_count, matches('input|output')) %>%
+           .data$gene_id %in% multiple_gRNA$gene_id) %>%
+    gather('sample_id', 'gRNA_count', matches('input|output')) %>%
     left_join(sample_depths, by = 'sample_id') %>%
-    group_by(gene_id, sample_id) %>%
+    group_by(.data$gene_id, .data$sample_id) %>%
     summarise(mean_mle = mean(.data$gRNA_count / .data$depth_factor), # I think these are biased estimators... TODO
               size_mle = mean(.data$gRNA_count) ^ 2 /
                 (var(.data$gRNA_count) - mean(.data$gRNA_count))) %>%
@@ -579,6 +580,6 @@ fit_dropout_gamma = function(values){
                 log = TRUE))
   }
 
-  optim_res = optim(par = c(1,1),
-                    fn = fn_to_min)
+  optim_res = stats::optim(par = c(1,1),
+                           fn = fn_to_min)
 }

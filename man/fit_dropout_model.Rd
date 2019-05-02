@@ -24,6 +24,8 @@ chains}
 \item{n_chains}{number of MCMC chains to run in each sampler}
 
 \item{rep_cutoff}{a representation cutoff quantile (0 to 1)}
+
+\item{plot_rep_cutoff}{logical indicating whether to plot the representation cutoff histogram}
 }
 \description{
 This function fits a Bayesian model of survival/dropout CRISPR
