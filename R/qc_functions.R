@@ -307,15 +307,6 @@ count_barcodes = function(barcode_allele_df,
   trimmed_fastqs = list.files(paste0(temp_dir, 'trimmed_filtered_fastqs'),
                               full.names = TRUE)
 
-  #### Cut out sequence lines ----
-
-  if (verbose) {message('Extracting sequence lines...')}
-
-  cut_cmd = parallel::mclapply(trimmed_fastqs,
-                     cut_out_seqs,
-                     mc.cores = n_cores,
-                     temp_dir = temp_dir)
-
   #### If using decode-able barcodes, decode them, cut out their sequences, and tack them on to the appropriate seq_only file
 
   if (!is.null(decode_barcode_set)){
@@ -342,6 +333,15 @@ count_barcodes = function(barcode_allele_df,
 
     return(fb_counts)
   }
+
+  #### Cut out sequence lines ----
+
+  if (verbose) {message('Extracting sequence lines...')}
+
+  cut_cmd = parallel::mclapply(trimmed_fastqs,
+                               cut_out_seqs,
+                               mc.cores = n_cores,
+                               temp_dir = temp_dir)
 
   #### On to the counting ----
 
