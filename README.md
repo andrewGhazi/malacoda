@@ -74,9 +74,10 @@ shift.
 
 More sophisticated analyses that use annotations to create informative
 priors for higher sensitivity are described in the MPRA Analysis
-vignette. Other features like annotation checking and traditional NHST
-analysis are explained in the vignette. Most major functions like
-`fit_cond_prior` have extensive help documentation that should help
+vignette accessible with `vignette('mpra_vignette', package =
+'malacoda')`. Other features like annotation checking and traditional
+NHST analysis are also explained in the vignette. Most major functions
+like `fit_cond_prior` have extensive help documentation that should help
 elucidate how to use them.
 
 ## Installation
