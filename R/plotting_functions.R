@@ -3,14 +3,14 @@
 #' @description Create a combined beeswarm & activity posterior plot
 #'
 #' @param sampler_result a stanfit object
-#' @param activities a dataframe of activities (only for the same variant as sampler_result)
+#' @param variant_activities a dataframe of activities (only for the same variant as sampler_result)
 #' @param color_by_sample optional logical indicating whether to color dots by
 #'   sample
 #' @return a posterior beeswarm ggplot object
 #' @note sampler_result objects are written by fit_mpra_model to the out_dir argument for each variant_id
 #' @export
 posterior_beeswarm = function(sampler_result,
-                              activities,
+                              variant_activities,
                               color_by_sample = FALSE) {
 
 
@@ -26,13 +26,13 @@ posterior_beeswarm = function(sampler_result,
     print('Coloring dots by sample. Colors should be mixed i.e. identically distributed!')
     bee_plot = ggplot(aes(x = .data$allele,
                           y = .data$activity),
-                      data = activities) +
+                      data = variant_activities) +
       ggbeeswarm::geom_beeswarm(aes(color = .data$sample_id),
                                 cex = 1.5)
   } else {
     bee_plot = ggplot(aes(x = .data$allele,
                           y = .data$activity),
-                      data = activities) +
+                      data = variant_activities) +
       ggbeeswarm::geom_beeswarm(cex = 1.5)
   }
 

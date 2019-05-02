@@ -4,12 +4,13 @@
 \alias{posterior_beeswarm}
 \title{Create a posterior beeswarm plot}
 \usage{
-posterior_beeswarm(sampler_result, activities, color_by_sample = FALSE)
+posterior_beeswarm(sampler_result, variant_activities,
+  color_by_sample = FALSE)
 }
 \arguments{
 \item{sampler_result}{a stanfit object}
 
-\item{activities}{a dataframe of activities (only for the same variant as sampler_result)}
+\item{variant_activities}{a dataframe of activities (only for the same variant as sampler_result)}
 
 \item{color_by_sample}{optional logical indicating whether to color dots by
 sample}
