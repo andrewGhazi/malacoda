@@ -28,19 +28,28 @@ posterior_beeswarm = function(sampler_result,
                           y = .data$activity),
                       data = variant_activities) +
       ggbeeswarm::geom_beeswarm(aes(color = .data$sample_id),
-                                cex = 1.5)
+                                cex = 1.5) +
+      labs(color = 'Sample ID',
+           x = 'Allele',
+           y = 'Activity') +
+      scale_color_viridis_d(end = .9) + theme_light()
+
   } else {
     bee_plot = ggplot(aes(x = .data$allele,
                           y = .data$activity),
                       data = variant_activities) +
-      ggbeeswarm::geom_beeswarm(cex = 1.5)
+      ggbeeswarm::geom_beeswarm(cex = 1.5) +
+      labs(color = 'Sample ID',
+           x = 'allele',
+           y = 'Activity') +
+      theme_light()
   }
 
   bee_plot +
     geom_violin(data = violin_dat,
                 aes(.data$allele, .data$post_sample),
                 fill = rgb(0,0,0,0),
-                width = .75)
+                width = .6)
 
 }
 
