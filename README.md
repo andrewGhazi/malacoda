@@ -26,6 +26,7 @@ null hypothesis significance testing based methods:
 
 Other features include:
 
+  - automated barcode counting from MPRA library design and FASTQs
   - custom Stan models for fast posterior evaluation  
   - variational Bayes support through `rstan::vb` that allows for quick
     first pass checks  

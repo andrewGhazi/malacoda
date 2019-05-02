@@ -26,6 +26,7 @@ It uses a negative-binomial-based Bayesian model shown in the Kruschke diagram b
 
 Other features include:  
 
+* automated barcode counting from MPRA library design and FASTQs
 * custom Stan models for fast posterior evaluation  
 * variational Bayes support through `rstan::vb` that allows for quick first pass checks  
 * Annotation checking - quantitatively evaluate how much a given genomic annotation source improves empirical prior estimation by prior ratios
