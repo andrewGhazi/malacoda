@@ -33,8 +33,9 @@ barcode ends}
 
 \item{verbose}{logical indicating whether or not to print progress messages}
 
-\item{decode_barcode_set}{an optional character string to the freebarcodes
-barcode set to be used to decode error-correctable barcodes}
+\item{decode_barcode_set}{an optional character string giving the path to the
+freebarcodes barcode set .txt file to be used to decode error-correctable
+barcodes}
 }
 \value{
 a data frame of counts by file in the input directory
@@ -84,9 +85,11 @@ This function requires an installation of
   \href{https://github.com/finkelsteinlab/freebarcodes}{freebarcodes} package
   through the use of the decode_barcode_set argument. This allows the user to
   recover some barcode reads that are otherwise lost to sequencing error. See
-  the link above for installation/algorithmic details. Note that this
-  requires the MPRA to have been designed with one of these barcode sets in
-  the first place, which is easily possible through the
+  the link above for installation/algorithmic details. The decode_barcode_set
+  argument needs to be the full path to the actual barcode set .txt file
+  (typically in the barcodes/ directory where freebarcodes is installed).
+  Note that this requires the MPRA to have been designed with one of these
+  barcode sets in the first place, which is easily possible through the
   \href{https://github.com/andrewGhazi/mpradesigntools}{mpradesigntools}
   package.
 }

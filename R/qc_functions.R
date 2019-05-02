@@ -170,8 +170,9 @@ trim_and_filter = function(fastq,
 #' @param quality_cutoff an integer indicating the quality cutoff to be used
 #' @param n_cores an integer giving the number of cores to use in parallel
 #' @param verbose logical indicating whether or not to print progress messages
-#' @param decode_barcode_set an optional character string to the freebarcodes
-#'   barcode set to be used to decode error-correctable barcodes
+#' @param decode_barcode_set an optional character string giving the path to the
+#'   freebarcodes barcode set .txt file to be used to decode error-correctable
+#'   barcodes
 #' @details The \code{barcode_allele_df} should have two columns: \code{bc_id}
 #'   giving a unique identifier to each barcode and \code{barcode} which gives
 #'   the barcode. The bc_id should ideally be descriptive and denote which
@@ -211,9 +212,11 @@ trim_and_filter = function(fastq,
 #'   \href{https://github.com/finkelsteinlab/freebarcodes}{freebarcodes} package
 #'   through the use of the decode_barcode_set argument. This allows the user to
 #'   recover some barcode reads that are otherwise lost to sequencing error. See
-#'   the link above for installation/algorithmic details. Note that this
-#'   requires the MPRA to have been designed with one of these barcode sets in
-#'   the first place, which is easily possible through the
+#'   the link above for installation/algorithmic details. The decode_barcode_set
+#'   argument needs to be the full path to the actual barcode set .txt file
+#'   (typically in the barcodes/ directory where freebarcodes is installed).
+#'   Note that this requires the MPRA to have been designed with one of these
+#'   barcode sets in the first place, which is easily possible through the
 #'   \href{https://github.com/andrewGhazi/mpradesigntools}{mpradesigntools}
 #'   package.
 #' @export

@@ -91,7 +91,7 @@ count_barcodes(barcode_allele_df = my_design_df,
 
 The parameter names should be evocative of their purpose; the help documentation gives more information on each.
 
-This function can also utilize MPRA libraries designed using the [freebarcodes](https://github.com/hawkjo/freebarcodes) feature included in [mpradesigntools](https://github.com/andrewGhazi/mpradesigntools). Once freebarcodes is installed, setting `decode_barcode_set` to the name of the appropriate barcode set (e.g. "barcodes14-1") will count barcodes directly observed AND decode barcode reads containing sequencing errors. In the author's experience, this yields about 5% more data for free (although you have to have used mpradesigntools!).
+This function can also utilize MPRA libraries designed using the [freebarcodes](https://github.com/hawkjo/freebarcodes) feature included in [mpradesigntools](https://github.com/andrewGhazi/mpradesigntools). Once freebarcodes is installed, setting `decode_barcode_set` to the path to the appropriate barcode set (e.g. "/usr/local/src/freebarcodes/barcodes/barcodes14-1.txt") will count barcodes directly observed AND decode barcode reads containing sequencing errors. In the author's experience, this yields about 5% more data for free (although you have to have used mpradesigntools!).
 
 # High-throughput sequencing assay Negative Binomial model
 
