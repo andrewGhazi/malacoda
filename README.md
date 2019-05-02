@@ -38,42 +38,6 @@ Other features include:
 
 <img src="man/figures/kruschke_latex.png" width="100%" />
 
-## Installation
-
-Currently `malacoda` only works on Mac and Linux. If you’re a Windows
-user looking to use the software, open a Github issue, and we’ll bump
-Windows support up the implementation priority list.
-
-It’s best to have the most up-to-date version of R (3.5.1 as of
-11/2/2018).
-
-The first step is to install `rstan` and `Rcpp`. The following command
-will usually suffice to do this, if not you can find more in-depth
-installation instructions [on the rstan
-documentation](https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started).
-You should have root access.
-
-``` r
-# Need to have root access
-install.packages(c('Rcpp', 'rstan'), dependencies = TRUE, type = 'source')
-```
-
-Once malacoda is accepted up on CRAN it will be installable with:
-
-``` r
-install.packages('malacoda')
-```
-
-You can install the development version of malacoda from github with:
-
-``` r
-# install.packages("devtools")
-devtools::install_github("andrewGhazi/malacoda")
-```
-
-This should install the dependencies (which are mostly tidyverse
-packages), compile the malacoda Stan models, and install the package.
-
 ## Example
 
 This is a basic example which shows you how to fit the simplest form of
@@ -115,6 +79,41 @@ analysis are explained in the vignette. Most major functions like
 `fit_cond_prior` have extensive help documentation that should help
 elucidate how to use them.
 
+## Installation
+
+`malacoda` is intended for use on Mac and Linux. Windows may work aside
+from parallelization, however we do not intend to support Windows.
+
+It’s best to have the most up-to-date version of R (3.6.0 as of May 2
+2019).
+
+The first step is to install `rstan` and `Rcpp`. The following command
+will usually suffice to do this, if not you can find more in-depth
+installation instructions [on the rstan
+documentation](https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started).
+You should have root access.
+
+``` r
+# Need to have root access
+install.packages(c('Rcpp', 'rstan'), dependencies = TRUE, type = 'source')
+```
+
+Once malacoda is accepted up on CRAN it will be installable with:
+
+``` r
+# install.packages('malacoda')
+```
+
+You can install the development version of malacoda from github with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("andrewGhazi/malacoda")
+```
+
+This should install the dependencies (which are mostly tidyverse
+packages), compile the malacoda Stan models, and install the package.
+
 ## Example output
 
 In addition to the summary statistics table output above, the sampler
@@ -140,11 +139,9 @@ conditional priors.
 
 ## Upcoming Features
 
-  - Fleshed out CRISPR model support
-      - Time dependent depletion model
-  - Categorical conditional priors
-      - Estimate by-group conditional priors for non-continuous
-        annotations (i.e. likely pathogenic vs benign vs VUS)
+  - ~~Fleshed out CRISPR model support~~ ✓
+      - Informative prior estimation for CRISPR dropout screen models
+  - ~~Categorical conditional priors~~ ✓
   - additional Quality Control functionality
   - monoallelic variant analysis
 

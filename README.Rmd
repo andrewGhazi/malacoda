@@ -106,8 +106,9 @@ Other visualization functions are available for annotation checking. These help 
 
 ## Upcoming Features
 
-* Fleshed out CRISPR model support  
-* ~~Categorical conditional priors ~~ ✓
+* ~~Fleshed out CRISPR model support~~ ✓
+  + Informative prior estimation for CRISPR dropout screen models 
+* ~~Categorical conditional priors~~ ✓
 * additional Quality Control functionality
 * monoallelic variant analysis
 
