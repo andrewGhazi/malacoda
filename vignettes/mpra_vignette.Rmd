@@ -28,6 +28,7 @@ library(tidyr)
 
 This vignette presents the MPRA analysis functions present in malacoda. These features include: 
 
+* Automated barcode counting from FASTQ files
 * Bayesian negative binomial modelling of MPRA count data
 * Integrating prior information sources into informative priors
 * MPRA Quality control
@@ -60,9 +61,41 @@ devtools::install_github("andrewGhazi/malacoda")
 
 This should install the dependencies (which are mostly tidyverse packages), compile the malacoda Stan models, and install the package.
 
+# Barcode counting  
+
+The `count_barcodes` function automates the multi-step process of converting the MPRA barcode-to-variant-alle design to a per-sample count data frame.
+
+A barcode-allele data frame looks like the following, with one column `bc_id` giving a unique barcode ID and another column `barcode` giving the raw barcode sequences as character strings:
+
+|bc_id         |barcode        |
+|:-------------|:--------------|
+|rs12345_ref_1 |ATCGTATAGGTAGC |
+|rs12345_ref_2 |TCATCGGTCCTTAC |
+|rs12345_ref_3 |CATCTCTGTTGTCA |
+|rs12345_ref_4 |TAGGTGCGACGGAA |
+|rs12345_ref_5 |GCAACAGAGCTTCA |
+|rs12345_ref_6 |CGCAGGATGGTAGA |
+
+The following command will take the MPRA library design in `my_design_df` and the FASTQs in `/path/to/fastqs/` and strip out the barcodes located between `bc_start` and `bc_end` of each read. It then discards barcodes where any base qualities are below `quality_cutoff` and counts the number of occurrences of each barcode. It finally returns a data frame with a row for each barcode and appropriately-named additional columns giving the counts of each barcode in each fastq.
+
+```{r eval = FALSE}
+count_barcodes(barcode_allele_df = my_design_df,
+               fastq_dir = '/path/to/fastqs/',
+               temp_dir = '/path/with/space/',
+               bc_start = 1,
+               bc_end = 14,
+               quality_cutoff = 30,
+               n_cores = 1,
+               keep_temp = FALSE)
+```
+
+The parameter names should be evocative of their purpose; the help documentation gives more information on each.
+
+This function can also utilize MPRA libraries designed using the [freebarcodes](https://github.com/hawkjo/freebarcodes) feature included in [mpradesigntools](https://github.com/andrewGhazi/mpradesigntools). Once freebarcodes is installed, setting `decode_barcode_set` to the name of the appropriate barcode set (e.g. "barcodes14-1") will count barcodes directly observed AND decode barcode reads containing sequencing errors. In the author's experience, this yields about 5% more data for free (although you have to have used mpradesigntools!).
+
 # High-throughput sequencing assay Negative Binomial model
 
-This package provides a fully Bayesian model for count data coming from high-throughput, NGS-based assays. Massively parallel reporter assays (MPRA) are the motivating use-case, but methods are also provided for other assays with similar experimental structure/outputs.
+The main purpose of this package is to provide a fully Bayesian model for count data coming from high-throughput, NGS-based assays. Massively parallel reporter assays (MPRA) are the motivating use-case, but methods are also provided for other assays with similar experimental structure/outputs.
 
 The data outputs from a MPRA can be laid out simply in a data frame as shown below, with columns showing variant ID's, allele indicators, barcode sequence, and sequencing samples. A row for each barcode gives the number of times the given barcode was counted in each sequencing sample. The table below shows some example data from [Ulirsch et al., Cell 2016](https://www.ncbi.nlm.nih.gov/pubmed/27259154) that is included with the package as the data object `umpra_example`:
 
@@ -97,7 +130,7 @@ The package provides methods for estimating three types of priors: marginal, gro
 knitr::include_graphics('../man/figures/prior_types.png')
 ```
 
-In each panel above, the black line(s) represent the empirical prior on $\theta$ that one would derive using the given estimation method.
+In each case, a single dot represents a maximum-likelihood estimate of a given parameter (e.g. a mean of a negative binomial distribution) for a single allele of one variant. The black line(s) represent the empirical prior on $\theta$ that one would derive using the given estimation method.
 
 ## Marginal priors  
 
@@ -112,7 +145,7 @@ marg_prior = fit_marg_prior(mpra_data,
                             n_cores = 1)
 ```
 
-This prior fitting includes a pre-filtering step that involves identifying which barcodes are sufficiently well-represented in the DNA samples. It also renders a plot of the DNA barcode representation with the input representation cutoff (defaulting to the 15th percentile) indicated by a dotted line. Users can/should tune this cutoff according to their assay with `get_sample_depths()` `get_well_represented()`.
+This prior fitting includes a pre-filtering step that involves identifying which barcodes are sufficiently well-represented in the DNA samples. It also renders a plot of the DNA barcode representation with the input representation cutoff (defaulting to the 15th percentile) indicated by a dotted line. Users can and should tune this cutoff according to their assay with `get_sample_depths()` `get_well_represented()`.
 
 For a typical MPRA assay where a majority of variants assayed have practically 0 effect on transcription shift, the marginal prior ends up being fairly non-informative. For both alleles, most of the prior density ends up around the average output of the assay, but the prior ascribes a small amount of density to extreme values. 
 
@@ -165,6 +198,10 @@ knitr::include_graphics('../man/figures/cond_prior_improvement.png')
 
 There are only 100 variants included with the example data for the sake of keeping the size of the package small, however published MPRA's have tested tens of thousands of variants ([Tewhey et al., Cell, 2016](https://www.ncbi.nlm.nih.gov/pubmed/27259153)). 
 
+## Grouped priors
+
+The `fit_grouped_prior` function uses a similar syntax as above to fit a group-wise prior. Rather than continuous annotations, the annotations here are discrete. It makes a few checks to ensure there are enough variants per group then simply calls `fit_marg_prior` on each group.
+
 # Fitting the model
 
 The model can be fit with a call to `fit_mpra_model()`:
@@ -181,7 +218,7 @@ This will:
 1. Run a variational Stan model that fits the model described above for each variant. 
 2. If the variational result looks promising, it will run the standard Stan MCMC sampler on the model.
 3. Save the stanfit object for the variant as `<variant_id>.RData` in the output directory.
-4. Compute some summary statistics for each variant, including a 99% transcription shift highest density interval and (based on that) a binary call for variant function (the `is_functional` column).
+4. Compute some summary statistics for each variant, including a 95% transcription shift highest density interval and (based on that) a binary call for variant function (the `is_functional` column).
 5. Compile the results into a data frame.
 ```{r}
 load('../data/example_result.RData')
@@ -195,7 +232,7 @@ example_result %>%
 Filtering the result table like so will give the set of hits from the analysis:
 
 
-```{r, echo = TRUE}
+```{r, echo = FALSE}
  example_result %>% 
   dplyr::filter(is_functional) %>% 
   select(-note, -ts_rope_mass) %>% 
@@ -204,9 +241,11 @@ Filtering the result table like so will give the set of hits from the analysis:
 ```
 
 
-The MCMC parameters are adjustable (see `?fit_mpra_model`). 
+The MCMC parameters are adjustable (see `?fit_mpra_model`).
 
 A region of practical equivalence (ROPE) parameter `ts_rope` can be set to receive p-value-esque output in order to get some sense of how the result compares to a "null" model. Defining a ROPE requires experiment-specific statistical knowledge, so we won't provide any specific advice or examples on how to set this parameter in order to avoid misleading users. Proper use would need to involve analysis of the assay's noise and reasoned justification of the user's definition of "practically equivalent" to 0. Statisticians seeking to use this feature can find more information on ROPE's in *Doing Bayesian Data Analysis: A Tutorial with R, JAGS, and Stan* by John Kruschke.
+
+`fit_mpra_model` has several other parameters that should be inspected by the user.
 
 # Traditional Analysis  
 
@@ -258,19 +297,21 @@ knitr::include_graphics(path = '../man/figures/mpra_corr.png')
 
 # CRISPR analysis
 
-The model structure shown in the Kruschke diagram works for NGS assays beyond MPRA. In an allelic CRISPR assay, where guide RNAs selectively cut / modify genomic material by allele, an analogous model also works. By changing the column names of a properly formatted CRISPR data frame, the same model can work with CRISPR data if the experimental structure is analogous to MPRA. 
+The model structure shown in the Kruschke diagram works for NGS assays beyond MPRA. We have extended the analysis method to a traditional type of CRISPR screen that looks for the effect of CRISPR-induced gene knockout on cell survival.
 
-## Condition/Control model
+## Survival/Dropout model
 
-We have developed a modified model for CRISPR screens where gRNAs from an initial pool are modeled as becoming depleted or enriched by experimental conditions as compared to a control condition. The interface for this model is still under development, but the model itself is located in `/malacoda/src/stan_files/crispr_model.stan`. 
+We have implemented a model for the most basic type of CRISPR screen, usable with `fit_dropout_model`. This model analyzes groups of gRNAs targeting pre-specified genes, looking for significantly altered abundance in input/output sequencing pools.
 
 # Future directions 
 
 ## Improved CRISPR support
 
-We are devloping improved support for CRISPR-focused methods with different experimental structures.
+We are developing improved support for CRISPR-focused methods with different experimental structures and support for grouped/conditional priors.
 
-## Optimization 
+## Optimization / speed
 
-The conditional prior fitting process involves optimizing multiple gamma distributions for potentially thousands of weighted points thousands of times, so it can take a long time on laptops for large MPRA's -- upwards of a minute per variant. However with parallelization and an Amazon EC2 instance with a large number of cores, it's possible to analyze the full Ulirsch, 2016 dataset in around 20 minutes for about $1. 
+While MCMC has a reputation for slow computation, the slowest functionality in this package is typically fitting large conditional priors. The conditional prior fitting process can involve optimizing multiple gamma distributions for thousands of weighted points thousands of times, so it can take a long time on laptops for large MPRA's -- upwards of a minute per variant. 
+
+The actual sampling process is quite fast for the amount of computation involved. The Stan models are automatically compiled to C++, and under the hood Stan implements a No-U-Turn-Sampler which very efficiently explores parameter space. With parallelization on an Amazon EC2 instance with a large number of cores, it's possible to analyze the full Ulirsch, 2016 dataset in less than an hour for a few dollars. MPRAs are big, slow, expensive experiments. They're worth the comparatively small, fast, and cheap computation costs! 
 
