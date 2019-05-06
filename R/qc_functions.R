@@ -370,7 +370,7 @@ count_barcodes = function(barcode_allele_df,
 # Used to replace NA's in a full-join result (when combining columns of counts
 # across samples) with 0
 replace_na_0 = function(count_vec){
-  replace(count_vec, 0)
+  replace(count_vec, which(is.na(count_vec)), 0)
 }
 
 #' Decode fastq
