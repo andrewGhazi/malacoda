@@ -331,14 +331,15 @@ count_barcodes = function(barcode_allele_df,
                                    barcode_allele_df = barcode_allele_df) %>%
       purrr::reduce(dplyr::full_join, by = 'barcode') %>%
       dplyr::full_join(barcode_allele_df, by = 'barcode') %>%
-      dplyr::mutate_if(is.numeric, replace_na_0)
+      dplyr::mutate_if(is.numeric, replace_na_0) %>%
+      dplyr::select(-.data$bc_id)
 
     if (verbose) {message('Counting done. If no/few barcodes are found, check if the barcodes in your reads are the reverse complement of how you ordered them. If so, you may need to use DNAString(), reverseComplement(), and toString() from the Biostrings package on your input')}
 
     #### Cleanup if required ----
 
     if (!keep_temp){
-      unlink(temp_dir, recursive = TRUE)
+      unlink(paste0(temp_dir, '*'), recursive = TRUE)
     }
 
     return(fb_counts)
@@ -369,7 +370,7 @@ count_barcodes = function(barcode_allele_df,
   #### Cleanup if required ----
 
   if (!keep_temp){
-    unlink(temp_dir, recursive = TRUE)
+    unlink(paste0(temp_dir, '*'), recursive = TRUE)
   }
 
   #### Return ----
