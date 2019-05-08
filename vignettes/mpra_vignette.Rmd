@@ -259,7 +259,7 @@ Additional details on the statistical properties of these methods can be found i
 
 # Output visualization 
 
-The stanfit objects output by the MCMC sampler in `fit_mpra_model` are written to the user-supplied output directory. This makes them amenable for use with all of the plotting functions in packages like [bayesplot](https://cran.r-project.org/web/packages/bayesplot/index.html).
+The stanfit objects output by the MCMC sampler in `fit_mpra_model` are written to the user-supplied output directory. This makes them amenable for use with all of the plotting functions in packages like [bayesplot](https://CRAN.R-project.org/package=bayesplot).
 
 malacoda also provides a number of plotting functions for visualizing the outputs.
 
