@@ -1,6 +1,6 @@
 Package: malacoda
 Title: Bayesian Analysis of High-Throughput Genomic Assays
-Version: 0.1.0
+Version: 0.1.1
 Authors@R:
     person(given = "Andrew",
            family = "Ghazi",
