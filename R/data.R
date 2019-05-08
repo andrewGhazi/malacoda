@@ -13,7 +13,6 @@
 #'
 #' @format a data frame giving variant_id, allele identifier, barcode, and
 #'   sequencing counts for the two DNA libraries and 6 control RNA libraries
-#' @source \url{https://www.bloodgenes.org}
 "umpra_example"
 
 #' Example output of fit_mpra_model

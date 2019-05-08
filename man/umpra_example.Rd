@@ -6,9 +6,6 @@
 \title{Example MPRA counts from Ulirsch et al., 2016}
 \format{a data frame giving variant_id, allele identifier, barcode, and
   sequencing counts for the two DNA libraries and 6 control RNA libraries}
-\source{
-\url{https://www.bloodgenes.org}
-}
 \usage{
 umpra_example
 }
