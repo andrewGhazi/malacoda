@@ -23,3 +23,9 @@ fit_marg_prior(mpra_data, n_cores = 1, plot_rep_cutoff = TRUE,
 \description{
 Fit a marginal prior
 }
+\examples{
+\dontrun{marg_prior = fit_marg_prior(mpra_data,
+ rep_cutoff = .15,
+ plot_rep_cutoff = TRUE,
+ n_cores = 1)}
+}

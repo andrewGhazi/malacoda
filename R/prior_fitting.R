@@ -212,6 +212,10 @@ get_well_represented = function(mpra_data,
 #' @param rep_cutoff fraction indicating the depth-adjusted DNA count quantile to use as the cutoff
 #' @param sample_depths optional inputs to allow passing in sample_depths and well_represented objects
 #' @param well_represented optional inputs to allow passing in sample_depths and well_represented objects
+#' @examples \dontrun{marg_prior = fit_marg_prior(mpra_data,
+#'  rep_cutoff = .15,
+#'  plot_rep_cutoff = TRUE,
+#'  n_cores = 1)}
 #' @export
 fit_marg_prior = function(mpra_data,
                           n_cores = 1,
@@ -467,6 +471,13 @@ fit_grouped_prior = function(mpra_data,
 #'   by when estimating conditional priors. Smaller values (closer to 1) will
 #'   yield more refined priors but take longer.
 #' @export
+#' @examples \dontrun{cond_prior = fit_cond_prior(mpra_data = umpra_example,
+#' annotations = example_deepsea,
+#' n_cores = 1,
+#' rep_cutoff = .15,
+#' plot_rep_cutoff = TRUE,
+#' min_neighbors = 30)
+#' }
 fit_cond_prior = function(mpra_data,
                           annotations,
                           n_cores = 1,

@@ -57,3 +57,12 @@ The empirical prior returned by this object is "conditional" in the
   annotation space from being influenced too heavily by their nearest
   neighbors.
 }
+\examples{
+\dontrun{cond_prior = fit_cond_prior(mpra_data = umpra_example,
+annotations = example_deepsea,
+n_cores = 1,
+rep_cutoff = .15,
+plot_rep_cutoff = TRUE,
+min_neighbors = 30)
+}
+}
