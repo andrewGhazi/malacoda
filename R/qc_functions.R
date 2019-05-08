@@ -327,9 +327,19 @@ count_barcodes = function(barcode_allele_df,
 
     fb_counts = parallel::mclapply(fb_outputs,
                                    cut_and_count_fb,
-                                   mc.cores = n_cores) %>%
+                                   mc.cores = n_cores,
+                                   barcode_allele_df = barcode_allele_df) %>%
       purrr::reduce(dplyr::full_join, by = 'barcode') %>%
+      dplyr::full_join(barcode_allele_df, by = 'barcode') %>%
       dplyr::mutate_if(is.numeric, replace_na_0)
+
+    if (verbose) {message('Counting done. If no/few barcodes are found, check if the barcodes in your reads are the reverse complement of how you ordered them. If so, you may need to use DNAString(), reverseComplement(), and toString() from the Biostrings package on your input')}
+
+    #### Cleanup if required ----
+
+    if (!keep_temp){
+      unlink(temp_dir, recursive = TRUE)
+    }
 
     return(fb_counts)
   }
@@ -419,7 +429,8 @@ decode_errors = function(trimmed_fastqs,
 }
 
 cut_and_count_fb = function(fb_output_file,
-                            temp_dir) {
+                            temp_dir,
+                            barcode_allele_df) {
 
   # read in the fb_output,
   fb_path_split = stringr::str_split(fb_output_file,
@@ -436,7 +447,8 @@ cut_and_count_fb = function(fb_output_file,
                             col_names= c('read_id', 'barcode', 'sequence'))
 
   barcode_counts = fb_seqs %>% dplyr::count(.data$barcode,
-                                            name = fastq_name)
+                                            name = fastq_name) %>%
+    dplyr::filter(.data$barcode %in% barcode_allele_df$barcode)
 
   return(barcode_counts)
 }
