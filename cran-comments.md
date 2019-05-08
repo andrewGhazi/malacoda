@@ -28,7 +28,7 @@ Possibly mis-spelled words in DESCRIPTION:
   barcodes (9:132)
   gRNAs (9:151)
   
-This is a resubmission of this package (my first) after the first submission was rejected do to some URL formatting problems.
+This is a resubmission of this package (my first) after the first submission was rejected do to some initial problems.
 
 The words CRISPR, MPRA, barcodes, and gRNAs are all spelled correctly. These seem to be false positives from the spell-checker.
   
@@ -41,11 +41,11 @@ GNU make was added as a system requirement by rstantools::rstan_package_skeleton
   Compilation used the following non-portable flag(s):
     ‘-march=native’
     
-The compilation flag -march=native is recommended by the RStan team as part of our Stan installation. We have tried leaving off this flag and it doesn't seem to cause any problems, so we don't think users without this flag will have issues.
+The -march=native flag is recommended by the RStan team as part of our Stan installation. We have tried leaving off this flag and it doesn't seem to cause any problems, so we don't think its absence will cause issues.
 
 * on Ubuntu Linux 16.04 LTS, R-release, GCC: checking compilation flags used ... NOTE
-Compilation used the following non-portable flag(s):
-  ‘-Wdate-time’ ‘-Werror=format-security’ ‘-Wformat’
+  Compilation used the following non-portable flag(s):
+    ‘-Wdate-time’ ‘-Werror=format-security’ ‘-Wformat’
   
 Again, these compilation flags seem to be associated with how RStan is installed and don't cause problems when not present.
 
