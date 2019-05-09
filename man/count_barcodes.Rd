@@ -75,7 +75,7 @@ The \code{barcode_allele_df} should have two columns: \code{bc_id}
 \note{
 This function requires an installation of
   \href{http://hannonlab.cshl.edu/fastx_toolkit/index.html}{FASTX-Toolkit} by
-  the Hannon Lab (it's easy ot install with apt-get) and sed (which comes as
+  the Hannon Lab (it's easy to install with apt-get) and sed (which comes as
   part of any standard Unix-like OS).
 
   The temporary intermediates are comparable in size to the input FASTQ

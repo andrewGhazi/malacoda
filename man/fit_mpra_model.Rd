@@ -112,6 +112,6 @@ This function fits a negative-binomial based Bayesian model to
   pools are discarded.
 }
 \note{
-Sampler results for individaul variants will be saved to the specified
+Sampler results for individual variants will be saved to the specified
   out_dir as they can be several megabytes each
 }

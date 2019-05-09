@@ -63,7 +63,7 @@ This should install the dependencies (which are mostly tidyverse packages), comp
 
 # Barcode counting  
 
-The `count_barcodes` function automates the multi-step process of converting the MPRA barcode-to-variant-alle design to a per-sample count data frame.
+The `count_barcodes` function automates the multi-step process of converting the MPRA barcode-to-variant-allele design to a per-sample count data frame.
 
 A barcode-allele data frame looks like the following, with one column `bc_id` giving a unique barcode ID and another column `barcode` giving the raw barcode sequences as character strings:
 

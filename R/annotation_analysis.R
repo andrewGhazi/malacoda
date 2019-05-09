@@ -288,7 +288,7 @@ compute_kl_est = function(remnant_set){
 #'   fraction of parameter estimate ratios above 1 will not approach 1. It will
 #'   instead approach some difficult-to-determine limit defined by the noise in
 #'   the assay. Thus this functionality should only be used to COMPARE
-#'   annotation sources, rather than make discreate claims / measurements about
+#'   annotation sources, rather than make discrete claims / measurements about
 #'   individual annotation sources.
 score_annotation = function(mpra_data,
                             annotations,

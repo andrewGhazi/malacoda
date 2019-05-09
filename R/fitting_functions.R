@@ -138,7 +138,7 @@ fit_gamma = function(input_vec,
 #' @return a data frame with a row for each variant_id that specificies the
 #'   posterior mean TS, upper and lower HDI bounds, a binary call of functional
 #'   or non-functional, and other appropriate outputs
-#' @note Sampler results for individaul variants will be saved to the specified
+#' @note Sampler results for individual variants will be saved to the specified
 #'   out_dir as they can be several megabytes each
 #' @export
 fit_mpra_model = function(mpra_data,
