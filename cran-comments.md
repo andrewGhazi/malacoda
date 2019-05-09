@@ -16,7 +16,7 @@ Windows is not a target platform for us, so Windows-related errors/warnings/buil
 ## R CMD check results 
 There were no ERRORs or WARNINGs.
 
-There were 5 NOTEs: 
+There were 4 NOTEs: 
 * checking CRAN incoming feasibility ... NOTE
 Maintainer: 'Andrew Ghazi <arghazi@bcm.edu>'
 
@@ -43,13 +43,7 @@ GNU make was added as a system requirement by rstantools::rstan_package_skeleton
     
 The -march=native flag is recommended by the RStan team as part of our Stan installation. We have tried leaving off this flag and it doesn't seem to cause any problems, so we don't think its absence will cause issues.
 
-* on Ubuntu Linux 16.04 LTS, R-release, GCC: checking compilation flags used ... NOTE
-  Compilation used the following non-portable flag(s):
-    ‘-Wdate-time’ ‘-Werror=format-security’ ‘-Wformat’
-  
-Again, these compilation flags seem to be associated with how RStan is installed and don't cause problems when not present.
-
-* on Fedora Linux, R-devel, clang, gfortran: checking installed package size ... NOTE
+* checking installed package size ... NOTE
   installed size is 41.7Mb
   sub-directories of 1Mb or more:
     doc    1.2Mb
