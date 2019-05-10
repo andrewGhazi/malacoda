@@ -95,6 +95,8 @@ devtools::install_github("andrewGhazi/malacoda")
 
 This should install the dependencies (which are mostly tidyverse packages), compile the malacoda Stan models, and install the package.
 
+`count_barcodes()` also requires the [FASTX-Tookit](http://hannonlab.cshl.edu/fastx_toolkit/index.html) (installation instructions provided at that link) and `sed` which comes with most Unix-like operating systems.
+
 ## Example output
 
 In addition to the summary statistics table output above, the sampler outputs for each variant are saved in the user-defined output directory. These are stanfit objects, thus they can be visualized using all the tools provided in packages like [bayesplot](http://mc-stan.org/users/interfaces/bayesplot). 

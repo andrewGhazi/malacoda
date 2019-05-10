@@ -61,8 +61,7 @@ Cell, 2016](https://www.ncbi.nlm.nih.gov/pubmed/27259154)) using a
 marginal prior, save the outputs for each variant at the specified
 directory, and return a data frame of summary statistics for each
 variant, including binary calls of functional/non-functional, posterior
-means on activity levels & transcription
-shift.
+means on activity levels & transcription shift.
 
 | variant\_id  | ts\_post\_mean | ref\_post\_mean | alt\_post\_mean | is\_functional | hdi\_lower | hdi\_upper |
 | :----------- | -------------: | --------------: | --------------: | :------------- | ---------: | ---------: |
@@ -115,6 +114,11 @@ devtools::install_github("andrewGhazi/malacoda")
 
 This should install the dependencies (which are mostly tidyverse
 packages), compile the malacoda Stan models, and install the package.
+
+`count_barcodes()` also requires the
+[FASTX-Tookit](http://hannonlab.cshl.edu/fastx_toolkit/index.html)
+(installation instructions provided at that link) and `sed` which comes
+with most Unix-like operating systems.
 
 ## Example output
 
