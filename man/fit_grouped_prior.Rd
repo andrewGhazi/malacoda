@@ -14,9 +14,11 @@ fit_grouped_prior(mpra_data, group_df, n_cores, plot_rep_cutoff = TRUE,
 
 \item{n_cores}{number of cores to parallelize across}
 
-\item{plot_rep_cutoff}{logical indicating whether to plot the representation cutoff used}
+\item{plot_rep_cutoff}{logical indicating whether to plot the representation
+cutoff used}
 
-\item{rep_cutoff}{fraction indicating the depth-adjusted DNA count quantile to use as the cutoff}
+\item{rep_cutoff}{fraction indicating the depth-adjusted DNA count quantile
+to use as the cutoff}
 }
 \value{
 a grouped prior list

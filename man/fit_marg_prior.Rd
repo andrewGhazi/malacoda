@@ -12,13 +12,17 @@ fit_marg_prior(mpra_data, n_cores = 1, plot_rep_cutoff = TRUE,
 
 \item{n_cores}{number of cores to parallelize across}
 
-\item{plot_rep_cutoff}{logical indicating whether to plot the representation cutoff used}
+\item{plot_rep_cutoff}{logical indicating whether to plot the representation
+cutoff used}
 
-\item{rep_cutoff}{fraction indicating the depth-adjusted DNA count quantile to use as the cutoff}
+\item{rep_cutoff}{fraction indicating the depth-adjusted DNA count quantile
+to use as the cutoff}
 
-\item{sample_depths}{optional inputs to allow passing in sample_depths and well_represented objects}
+\item{sample_depths}{optional inputs to allow passing in sample_depths and
+well_represented objects}
 
-\item{well_represented}{optional inputs to allow passing in sample_depths and well_represented objects}
+\item{well_represented}{optional inputs to allow passing in sample_depths and
+well_represented objects}
 }
 \description{
 Fit a marginal prior

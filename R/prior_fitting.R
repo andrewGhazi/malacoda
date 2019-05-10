@@ -208,10 +208,14 @@ get_well_represented = function(mpra_data,
 #'
 #' @param mpra_data a data frame of mpra data
 #' @param n_cores number of cores to parallelize across
-#' @param plot_rep_cutoff logical indicating whether to plot the representation cutoff used
-#' @param rep_cutoff fraction indicating the depth-adjusted DNA count quantile to use as the cutoff
-#' @param sample_depths optional inputs to allow passing in sample_depths and well_represented objects
-#' @param well_represented optional inputs to allow passing in sample_depths and well_represented objects
+#' @param plot_rep_cutoff logical indicating whether to plot the representation
+#'   cutoff used
+#' @param rep_cutoff fraction indicating the depth-adjusted DNA count quantile
+#'   to use as the cutoff
+#' @param sample_depths optional inputs to allow passing in sample_depths and
+#'   well_represented objects
+#' @param well_represented optional inputs to allow passing in sample_depths and
+#'   well_represented objects
 #' @examples \dontrun{marg_prior = fit_marg_prior(mpra_data,
 #'  rep_cutoff = .15,
 #'  plot_rep_cutoff = TRUE,
