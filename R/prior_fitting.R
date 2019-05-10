@@ -216,10 +216,10 @@ get_well_represented = function(mpra_data,
 #'   well_represented objects
 #' @param well_represented optional inputs to allow passing in sample_depths and
 #'   well_represented objects
-#' @examples \dontrun{marg_prior = fit_marg_prior(mpra_data,
+#' @examples marg_prior = fit_marg_prior(umpra_example,
 #'  rep_cutoff = .15,
 #'  plot_rep_cutoff = TRUE,
-#'  n_cores = 1)}
+#'  n_cores = 1)
 #' @export
 fit_marg_prior = function(mpra_data,
                           n_cores = 1,

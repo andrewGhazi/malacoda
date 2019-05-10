@@ -28,8 +28,8 @@ well_represented objects}
 Fit a marginal prior
 }
 \examples{
-\dontrun{marg_prior = fit_marg_prior(mpra_data,
+marg_prior = fit_marg_prior(umpra_example,
  rep_cutoff = .15,
  plot_rep_cutoff = TRUE,
- n_cores = 1)}
+ n_cores = 1)
 }
