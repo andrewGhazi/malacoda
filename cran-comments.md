@@ -1,8 +1,9 @@
 ## Resubmission
 This is a resubmission of malacoda, which was previously released May 9 2019.
 
-* As requested, we added FASTX-Tookit and sed to the SystemRequirements field, along with installation instructions and notes in the Readme explaining how to install these components (which are only used for optional functionality).
-* We have unwrapped the example for fit_marg_prior() to make use of the example dataset included with the package. However calls to fit_cond_prior() are usually quite computationally expensive so running an example would not be feasible.
+* As requested, we added FASTX-Tookit, sed, and freebarcodes to the SystemRequirements field, along with installation instructions and notes in the Readme explaining how to install these components (which are only used for optional functionality).
+* We have removed the dontrun wrapper for the example for fit_marg_prior() to make use of the example dataset included with the package. However calls to fit_cond_prior() are usually quite computationally expensive so running an example would not be feasible.
+* Finally, we have added the Trustees of Columbia University as a cph to the DESCRIPTION file after consulting with the Stan development team.
 
 ## Test environments  
 * local Linux Mint 19.1, R 3.6.0
