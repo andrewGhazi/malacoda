@@ -1,9 +1,8 @@
 ## Resubmission
-This is a resubmission of malacoda, which was previously released in Nov 2018.
+This is a resubmission of malacoda, which was previously released May 9 2019.
 
-* We removed the offending URL that was down from the vignette/documentation.
-* There was a question with our previous submission if there was a method reference/citation we could put in the Description. We have not published this method yet but were hoping to have it on CRAN before doing so. We have a manuscript in preparation that we aim to submit for review before the end of this month (May 2019).
-* added additional functionality
+* As requested, we added FASTX-Tookit and sed to the SystemRequirements field, along with installation instructions and notes in the Readme explaining how to install these components (which are only used for optional functionality).
+* We have unwrapped the example for fit_marg_prior() to make use of the example dataset included with the package. However calls to fit_cond_prior() are usually quite computationally expensive so running an example would not be feasible.
 
 ## Test environments  
 * local Linux Mint 19.1, R 3.6.0
