@@ -133,7 +133,10 @@ find_prior_weights = function(given_id,
       min_dist_kernel = kernel_fold_change * min_dist_kernel
       weight_df = dist_to_others %>%
         select(-.data$value) %>%
-        summarise(mv_dens = mvtnorm::dmvt(.data$dist, sigma = diag(min_dist_kernel, n_annotations), log = FALSE)) %>% # Using a t kernel
+        summarise(mv_dens = mvtnorm::dmvt(.data$dist,
+                                          sigma = diag(min_dist_kernel, n_annotations),
+                                          df = 10,
+                                          log = FALSE)) %>% # Using a t kernel
         mutate(frac_weight = .data$mv_dens / sum(.data$mv_dens)) %>%
         arrange(desc(.data$frac_weight)) %>%
         mutate(cs = cumsum(.data$frac_weight),
@@ -604,6 +607,7 @@ fit_cond_prior = function(mpra_data,
                                                    scaled_annotations = scaled_annotations,
                                                    dist_mat = dist_mat,
                                                    min_dist_kernel = min_dist_kernel,
+                                                   kernel_fold_change = kernel_fold_increase,
                                                    mc.cores = n_cores))
 
 
