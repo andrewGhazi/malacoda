@@ -125,11 +125,11 @@ find_prior_weights = function(given_id,
     mutate(cs = cumsum(.data$frac_weight),
            n = 1:dplyr::n())
 
-  if (weight_df$cs[min_num_neighbors] > .99){
+  if (weight_df$frac_weight[min_num_neighbors] / weight_df$frac_weight[1] < .01){
     # If the first 30 (min_num_neighbors) weights account for more than 99% of
     # all weight, we need to increase the kernel and try again
 
-    while (weight_df$cs[min_num_neighbors] > .99) {
+    while (weight_df$frac_weight[min_num_neighbors] / weight_df$frac_weight[1] < .01) {
       min_dist_kernel = kernel_fold_change * min_dist_kernel
       weight_df = dist_to_others %>%
         select(-.data$value) %>%
