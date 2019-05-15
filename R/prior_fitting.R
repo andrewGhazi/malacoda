@@ -128,12 +128,13 @@ find_prior_weights = function(given_id,
   if (weight_df$frac_weight[min_num_neighbors] / weight_df$frac_weight[1] < .01){
     # If the first 30 (min_num_neighbors) weights account for more than 99% of
     # all weight, we need to increase the kernel and try again
+    dist_to_others %<>% dplyr::ungroup()
 
     while (weight_df$frac_weight[min_num_neighbors] / weight_df$frac_weight[1] < .01) {
       min_dist_kernel = kernel_fold_change * min_dist_kernel
       weight_df = dist_to_others %>%
         select(-.data$value) %>%
-        summarise(mv_dens = mvtnorm::dmvt(.data$dist,
+        mutate(mv_dens = mvtnorm::dmvt(as.matrix(.data$dist),
                                           sigma = diag(min_dist_kernel, n_annotations),
                                           df = 10,
                                           log = FALSE)) %>% # Using a t kernel
