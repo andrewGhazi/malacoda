@@ -484,15 +484,15 @@ fit_grouped_prior = function(mpra_data,
 #' n_cores = 1,
 #' rep_cutoff = .15,
 #' plot_rep_cutoff = TRUE,
-#' min_neighbors = 30)
+#' min_neighbors = 100)
 #' }
 fit_cond_prior = function(mpra_data,
                           annotations,
                           n_cores = 1,
                           plot_rep_cutoff = TRUE,
                           rep_cutoff = .15,
-                          min_neighbors = 50,
-                          kernel_fold_increase = 1.3){
+                          min_neighbors = 100,
+                          kernel_fold_increase = 1.4142){
 
   # Input checks ----
   if(!all(mpra_data$variant_id %in% annotations$variant_id)){
