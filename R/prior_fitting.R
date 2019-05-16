@@ -608,6 +608,7 @@ fit_cond_prior = function(mpra_data,
                                                    scaled_annotations = scaled_annotations,
                                                    dist_mat = dist_mat,
                                                    min_dist_kernel = min_dist_kernel,
+                                                   min_num_neighbors = min_neighbors,
                                                    kernel_fold_change = kernel_fold_increase,
                                                    mc.cores = n_cores))
 
