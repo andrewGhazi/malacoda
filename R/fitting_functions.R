@@ -140,11 +140,27 @@ fit_gamma = function(input_vec,
 #'   or non-functional, and other appropriate outputs
 #' @note Sampler results for individual variants will be saved to the specified
 #'   out_dir as they can be several megabytes each
+#' @examples
+#' # This example fits a prior on 25 variants and too-short MCMC chains on 3 variants
+#'
+#' marg_prior = fit_marg_prior(mpra_data = umpra_example,
+#'  n_cores = 1,
+#'  rep_cutoff = .05) # this is low for the sake of this example
+#'
+#' example_variants = c("11_8839229_1-2", "15_75303554_2-3", "1_203652141_2-3")
+#'
+#' example_result = fit_mpra_model(mpra_data = umpra_example[umpra_example$variant_id %in% example_variants,],
+#'  priors = marg_prior,
+#'  vb_pass = FALSE,
+#'  tot_samp = 100,
+#'  n_warmup = 10)
+#'
+#' print(example_result)
 #' @export
 fit_mpra_model = function(mpra_data,
                           annotations = NULL,
                           group_df = NULL,
-                          out_dir,
+                          out_dir = NULL,
                           save_nonfunctional = FALSE,
                           priors = NULL,
                           n_cores = 1,
@@ -169,11 +185,11 @@ fit_mpra_model = function(mpra_data,
     stop('mpra_data is missing: You must provide MPRA data to fit a MPRA model!')
   }
 
-  if (missing(out_dir)) {
+  if (is.null(out_dir)) {
     warning('out_dir is missing: Results will not be saved')
   }
 
-  if (!dir.exists(out_dir)) {
+  if (!is.null(out_dir) && !dir.exists(out_dir)) {
     stop('specified out_dir does not exist')
   }
 
@@ -187,10 +203,12 @@ fit_mpra_model = function(mpra_data,
     stop('ts_hdi_prob must be between 0 and 1!')
   }
 
-  # make sure the out_directory ends in a slash, if not, add it
-  dir_ends_in_slash = grepl('/$', out_dir)
-  if (!dir_ends_in_slash){
-    out_dir = paste0(out_dir, '/')
+  if (!is.null(out_dir)) {
+    # make sure the out_directory ends in a slash, if not, add it
+    dir_ends_in_slash = grepl('/$', out_dir)
+    if (!dir_ends_in_slash){
+      out_dir = paste0(out_dir, '/')
+    }
   }
 
   correct_columns = all(grepl('variant_id|allele|barcode|[DR]NA', names(mpra_data)))
@@ -255,8 +273,10 @@ fit_mpra_model = function(mpra_data,
                               kernel_fold_increase = 1.3)
 
       message('Conditional prior fitting done...')
-      save(priors,
-           file = paste0(out_dir, 'conditional_prior.RData'))
+      if(!is.null(out_dir)){
+        save(priors,
+             file = paste0(out_dir, 'conditional_prior.RData'))
+      }
     }
   } else {
     if (all(class(priors) == 'list')){
@@ -378,8 +398,10 @@ fit_mpra_model = function(mpra_data,
       arrange(desc(abs(.data$ts_post_mean)))
   }
 
-  save(analysis_res,
-       file = paste0(out_dir, 'analysis_res.RData'))
+  if(!is.null(out_dir)){
+    save(analysis_res,
+         file = paste0(out_dir, 'analysis_res.RData'))
+  }
 
   end_time = Sys.time()
   time_diff = end_time - start_time
@@ -415,7 +437,7 @@ fit_mpra_model = function(mpra_data,
 #'   use grouped/conditional priors, contact the malacoda developers.
 #' @export
 fit_dropout_model = function(dropout_data,
-                             out_dir,
+                             out_dir = NULL,
                              n_cores = 1,
                              tot_samp = 1e4,
                              n_warmup = 500,
@@ -444,9 +466,11 @@ fit_dropout_model = function(dropout_data,
     warning('Using less than 50,000 MCMC samples is not recommended for publication quality analyses. Inspect convergence metrics in any case.')
   }
 
-  dir_ends_in_slash = grepl('/$', out_dir)
-  if (!dir_ends_in_slash){
-    out_dir = paste0(out_dir, '/')
+  if (!is.null(out_dir)) {
+    dir_ends_in_slash = grepl('/$', out_dir)
+    if (!dir_ends_in_slash){
+      out_dir = paste0(out_dir, '/')
+    }
   }
 
   #### Clean up input ----

@@ -5,7 +5,7 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
                             n_rna,
                             n_dna,
                             depth_factors,
-                            out_dir,
+                            out_dir = NULL,
                             save_nonfunctional,
                             ts_hdi_prob,
                             vb_pass = TRUE,
@@ -93,12 +93,14 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
   is_functional = !between(0, ts_hdi_obj[1], ts_hdi_obj[2])
 
   #### Save the output ----
-  dir_ends_in_slash = grepl('/$', out_dir)
-  if (!dir_ends_in_slash){
-    out_dir = paste0(out_dir, '/')
+  if(!is.null(out_dir)){
+    dir_ends_in_slash = grepl('/$', out_dir)
+    if (!dir_ends_in_slash){
+      out_dir = paste0(out_dir, '/')
+    }
   }
 
-  if (save_nonfunctional | is_functional){
+  if ((save_nonfunctional | is_functional) && !is.null(out_dir)){
     save(sampler_res,
          file = paste0(out_dir, variant_id, '.RData'))
   }
@@ -228,7 +230,7 @@ run_dropout_sampler = function(gene_id, gene_data, gene_prior,
                                tot_samp,
                                n_warmup,
                                depth_factors,
-                               out_dir) {
+                               out_dir = NULL) {
 
   # prepare input ----
 
@@ -276,8 +278,11 @@ run_dropout_sampler = function(gene_id, gene_data, gene_prior,
                                 chains = n_chains,
                                 warmup = n_warmup,
                                 cores = 1)
-  save(sampler_res,
-       file = paste0(out_dir, gene_id, '.RData'))
+
+  if(!is.null(out_dir)){
+    save(sampler_res,
+         file = paste0(out_dir, gene_id, '.RData'))
+  }
 
   # compute summary statistics ----
 

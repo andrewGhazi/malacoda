@@ -4,11 +4,11 @@
 \alias{fit_mpra_model}
 \title{Fit a Bayesian MPRA model}
 \usage{
-fit_mpra_model(mpra_data, annotations = NULL, group_df = NULL, out_dir,
-  save_nonfunctional = FALSE, priors = NULL, n_cores = 1,
-  n_chains = 4, tot_samp = 10000, n_warmup = 500, vb_pass = TRUE,
-  vb_prob = 0.8, ts_hdi_prob = 0.95, ts_rope = NULL,
-  rep_cutoff = 0.15)
+fit_mpra_model(mpra_data, annotations = NULL, group_df = NULL,
+  out_dir = NULL, save_nonfunctional = FALSE, priors = NULL,
+  n_cores = 1, n_chains = 4, tot_samp = 10000, n_warmup = 500,
+  vb_pass = TRUE, vb_prob = 0.8, ts_hdi_prob = 0.95,
+  ts_rope = NULL, rep_cutoff = 0.15)
 }
 \arguments{
 \item{mpra_data}{a data frame of MPRA data with 1 column called variant_id,
@@ -114,4 +114,21 @@ This function fits a negative-binomial based Bayesian model to
 \note{
 Sampler results for individual variants will be saved to the specified
   out_dir as they can be several megabytes each
+}
+\examples{
+# This example fits a prior on 25 variants and too-short MCMC chains on 3 variants
+
+marg_prior = fit_marg_prior(mpra_data = umpra_example,
+ n_cores = 1,
+ rep_cutoff = .05) # this is low for the sake of this example
+
+example_variants = c("11_8839229_1-2", "15_75303554_2-3", "1_203652141_2-3")
+
+example_result = fit_mpra_model(mpra_data = umpra_example[umpra_example$variant_id \%in\% example_variants,],
+ priors = marg_prior,
+ vb_pass = FALSE,
+ tot_samp = 100,
+ n_warmup = 10)
+
+ print(example_result)
 }
