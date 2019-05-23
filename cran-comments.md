@@ -1,9 +1,7 @@
 ## Resubmission
-This is a resubmission of malacoda, which was previously released May 9 2019.
+This is a resubmission of malacoda, which was previously released May 10 2019.
 
-* As requested, we added FASTX-Tookit, sed, and freebarcodes to the SystemRequirements field, along with installation instructions and notes in the Readme explaining how to install these components (which are only used for optional functionality).
-* We have removed the dontrun wrapper for the example for fit_marg_prior() to make use of the example dataset included with the package. However calls to fit_cond_prior() are usually quite computationally expensive so running an example would not be feasible.
-* Finally, we have added the Trustees of Columbia University as a cph to the DESCRIPTION file after consulting with the Stan development team.
+* As requested, we have added examples for the packages most important functions, most prominently fit_mpra_model(). Each row of results from fit_mpra_model() involves running an MCMC chain, so the example uses too-few posterior samples for only 3 variants (rows) for the sake of running quickly (~2s on my laptop). This is noted in a comment above the example, with recommendations to the user on how to improve the MCMC. The example_result object included in the package is there to provide a precise example in the vignette; it would take too long to run to be in an example.
 
 ## Test environments  
 * local Linux Mint 19.1, R 3.6.0
