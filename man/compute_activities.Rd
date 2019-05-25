@@ -26,3 +26,6 @@ This function computes traditional MPRA activities, i.e. the
 the output is returned in a "tall" format, with sample_id's gathered
   into one column
 }
+\examples{
+compute_activities(umpra_example)
+}
