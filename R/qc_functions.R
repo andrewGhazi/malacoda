@@ -219,6 +219,17 @@ trim_and_filter = function(fastq,
 #'   barcode sets in the first place, which is easily possible through the
 #'   \href{https://github.com/andrewGhazi/mpradesigntools}{mpradesigntools}
 #'   package.
+#' @examples \dontrun{
+#' count_barcodes(barcode_allele_df = barcode_by_id,
+#'               fastq_dir = '/path/to/fastqs/',
+#'               temp_dir = '/path/to/directory/for/temp/files/',
+#'               bc_start = 1, # The barcode starts at the first base read
+#'               bc_end = 14, # and ends at the 14th
+#'               quality_cutoff = 30,
+#'               n_cores = 12,
+#'               decode_barcode_set = '/usr/local/src/freebarcodes/barcodes/barcodes14-1.txt',
+#'               keep_temp = FALSE)
+#'               }
 #' @export
 count_barcodes = function(barcode_allele_df,
                           fastq_dir,
