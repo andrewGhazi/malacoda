@@ -73,17 +73,18 @@ generate_distance_matrix = function(annotations,
 #'   distance kernel
 #' @param min_num_neighbors the minimum number of neighbors which must make a
 #'   meaningful contribution to the weights before stopping
-#' @details "Meaningful contribution" to the weights means that the sum of the
-#'   weights of the first min_num_neighbors of other variants must account for
-#'   <= 99% of the total weight. This prevents some small number of extremely
-#'   close neighbors from dominating the prior estimation later on.
+#' @details The "meaningful contribution" is defined in this way: The variants
+#'   are sorted by weight. The min_num_neighbors-th variant will be weighted to
+#'   at least 1% of the highest most strongly weighted variant. This prevents
+#'   some small number of extremely close neighbors from dominating the prior
+#'   estimation later on.
 #' @export
 find_prior_weights = function(given_id,
                               scaled_annotations,
                               dist_mat,
                               min_dist_kernel,
                               kernel_fold_change = 1.3,
-                              min_num_neighbors = 30){
+                              min_num_neighbors = 100){
 
   n_annotations = dplyr::n_distinct(scaled_annotations$annotation)
 

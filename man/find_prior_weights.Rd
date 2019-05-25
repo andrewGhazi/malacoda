@@ -5,7 +5,7 @@
 \title{Find prior weights}
 \usage{
 find_prior_weights(given_id, scaled_annotations, dist_mat, min_dist_kernel,
-  kernel_fold_change = 1.3, min_num_neighbors = 30)
+  kernel_fold_change = 1.3, min_num_neighbors = 100)
 }
 \arguments{
 \item{given_id}{a variant_id to get weights for}
@@ -30,8 +30,9 @@ For a given variant and annotation set (scaled) and distance
   matrix, get the weights of all other variants
 }
 \details{
-"Meaningful contribution" to the weights means that the sum of the
-  weights of the first min_num_neighbors of other variants must account for
-  <= 99% of the total weight. This prevents some small number of extremely
-  close neighbors from dominating the prior estimation later on.
+The "meaningful contribution" is defined in this way: The variants
+  are sorted by weight. The min_num_neighbors-th variant will be weighted to
+  at least 1% of the highest most strongly weighted variant. This prevents
+  some small number of extremely close neighbors from dominating the prior
+  estimation later on.
 }
