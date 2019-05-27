@@ -18,7 +18,12 @@ posterior_beeswarm = function(sampler_result,
   n_sampler_bc = sum(grepl('dna_m', names(sampler_result)))
 
   if (n_bc > 2*n_sampler_bc){
-    stop('Found more than twice as many barcodes in the activities input than the sampler result. Did you restrict variant_activities to just those for this variant? Try dplyr::filter()')
+    # Check to make sure the user didn't input the activities for the entire
+    # assay.
+    stop('Found more than twice as many barcodes in the activities input
+         than the sampler result. Did you forget to restrict variant_activities
+         to just this variant? Try this:
+         dplyr::filter(variant_activities, variant_id == variant_id_to_plot)')
   }
 
   violin_dat = sampler_result %>%
