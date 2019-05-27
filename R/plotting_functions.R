@@ -13,6 +13,13 @@ posterior_beeswarm = function(sampler_result,
                               variant_activities,
                               color_by_sample = FALSE) {
 
+  n_samples = dplyr::n_distinct(variant_activities$sample_id)
+  n_bc = dplyr::n_distinct(variant_activities$barcode)
+  n_sampler_bc = sum(grepl('dna_m', names(sampler_result)))
+
+  if (n_bc > 2*n_sampler_bc){
+    stop('Found more than twice as many barcodes in the activities input than the sampler result. Did you restrict variant_activities to just those for this variant? Try dplyr::filter()')
+  }
 
   violin_dat = sampler_result %>%
     rstan::extract(pars = c('ref_act', 'alt_act')) %>%
@@ -23,7 +30,7 @@ posterior_beeswarm = function(sampler_result,
 
 
   if (color_by_sample){
-    print('Coloring dots by sample. Colors should be mixed i.e. identically distributed!')
+    message('Coloring dots by sample. Colors should be mixed i.e. identically distributed!')
     bee_plot = ggplot(aes(x = .data$allele,
                           y = .data$activity),
                       data = variant_activities) +
