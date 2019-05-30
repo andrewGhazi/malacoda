@@ -20,3 +20,6 @@ Compute the correlations of MPRA sequencing samples. This can be
 \details{
 the output is ready to be presented to plot_mpra_correlations
 }
+\examples{
+get_sample_correlations(umpra_example)
+}

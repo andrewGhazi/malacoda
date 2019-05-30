@@ -7,6 +7,8 @@
 #' @param mpra_data a data frame of mpra data
 #' @return a data frame of pairwise correlations
 #' @details the output is ready to be presented to plot_mpra_correlations
+#' @examples
+#' get_sample_correlations(umpra_example)
 #' @export
 get_sample_correlations = function(mpra_data){
   mpra_data %>%

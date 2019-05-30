@@ -25,3 +25,7 @@ This function visualizes the pairwise correlations of count samples
 \note{
 Get \code{sample_correlations} from get_sample_correlations
 }
+\examples{
+example_correlations = get_sample_correlations(umpra_example)
+plot_mpra_correlations(example_correlations)
+}

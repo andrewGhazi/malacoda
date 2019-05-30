@@ -164,6 +164,9 @@ plot_ratio_hexs = function(prior_ratios,
 #'   correlate highly with one another, this can indicate DNA contamination in
 #'   the RNA libraries.
 #' @note Get \code{sample_correlations} from get_sample_correlations
+#' @examples
+#' example_correlations = get_sample_correlations(umpra_example)
+#' plot_mpra_correlations(example_correlations)
 #' @export
 plot_mpra_correlations = function(sample_correlations){
   sample_correlations %>%

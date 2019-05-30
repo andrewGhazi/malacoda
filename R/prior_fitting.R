@@ -155,13 +155,33 @@ find_prior_weights = function(given_id,
 
 #' Get well represented barcodes
 #'
-#' @description Identify barcodes well-represented in DNA samples from input MPRA data.
+#' @description Identify barcodes well-represented in DNA samples from input
+#'   MPRA data.
 #' @param mpra_data a data frame of MPRA data
 #' @param sample_depths a data frame of sample depths
 #' @param rep_cutoff a representation cutoff
-#' @param plot_rep_cutoff logical indicating whether to plot the DNA representation distribution with the input rep_cutoff indicated
-#' @param verbose logical indicating to print messages about DNA removal statistics
-#' @note properly formatted sample_depths can be obtained from get_well_represented
+#' @param plot_rep_cutoff logical indicating whether to plot the DNA
+#'   representation distribution with the input rep_cutoff indicated
+#' @param verbose logical indicating to print messages about DNA removal
+#'   statistics
+#' @details Use this function to tune the representation cutoff shown on the
+#'   resulting histogram in order to discard failed and poorly-represented
+#'   barcodes. These will sometimes be visible as a noticeable bump on the left
+#'   side of the plot, though carefully prepared oligo libraries my not exhibit
+#'   this.
+#'
+#'   After turning, plot_rep_cutoff may be set to FALSE to suppress the
+#'   plotting.
+#' @note properly formatted sample_depths can be obtained from
+#'   \code{get_sample_depths()}
+#' @examples
+#' example_depths = get_sample_depths(umpra_example)
+#' get_well_represented(umpra_example,
+#'     sample_depths = example_depths,
+#'     rep_cutoff = .15,
+#'     plot_rep_cutoff = TRUE)
+#' # The final depth adjusted cutoff value will be lower for non-subsampled
+#' # datasets that have higher total sequencing depth.
 #' @export
 get_well_represented = function(mpra_data,
                                 sample_depths,
@@ -184,7 +204,7 @@ get_well_represented = function(mpra_data,
 
   zero_pct = round(zero_num / nrow(all_dna) * 100, digits = 3)
 
-  message(paste0(zero_pct, '% of all barcodes have exactly 0 representation in all samples.'))
+  message(paste0('* ', zero_pct, '% of all barcodes have exactly 0 representation in all samples.'))
 
   if (plot_rep_cutoff) {
      rep_cutoff_plot = all_dna %>%
@@ -200,7 +220,7 @@ get_well_represented = function(mpra_data,
     unique
 
   if (verbose) {
-    message(paste0(nrow(well_represented) , ' out of ', n_distinct(mpra_data$barcode),
+    message(paste0('* ', nrow(well_represented) , ' out of ', n_distinct(mpra_data$barcode),
                  ' (', round(100* nrow(well_represented) / n_distinct(mpra_data$barcode), digits = 2),'%)',
                  ' barcodes in input are well represented in the DNA pools.'))
   }

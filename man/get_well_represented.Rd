@@ -14,13 +14,36 @@ get_well_represented(mpra_data, sample_depths, rep_cutoff,
 
 \item{rep_cutoff}{a representation cutoff}
 
-\item{plot_rep_cutoff}{logical indicating whether to plot the DNA representation distribution with the input rep_cutoff indicated}
+\item{plot_rep_cutoff}{logical indicating whether to plot the DNA
+representation distribution with the input rep_cutoff indicated}
 
-\item{verbose}{logical indicating to print messages about DNA removal statistics}
+\item{verbose}{logical indicating to print messages about DNA removal
+statistics}
 }
 \description{
-Identify barcodes well-represented in DNA samples from input MPRA data.
+Identify barcodes well-represented in DNA samples from input
+  MPRA data.
+}
+\details{
+Use this function to tune the representation cutoff shown on the
+  resulting histogram in order to discard failed and poorly-represented
+  barcodes. These will sometimes be visible as a noticeable bump on the left
+  side of the plot, though carefully prepared oligo libraries my not exhibit
+  this.
+
+  After turning, plot_rep_cutoff may be set to FALSE to suppress the
+  plotting.
 }
 \note{
-properly formatted sample_depths can be obtained from get_well_represented
+properly formatted sample_depths can be obtained from
+  \code{get_sample_depths()}
+}
+\examples{
+example_depths = get_sample_depths(umpra_example)
+get_well_represented(umpra_example,
+    sample_depths = example_depths,
+    rep_cutoff = .15,
+    plot_rep_cutoff = TRUE)
+# The final depth adjusted cutoff value will be lower for non-subsampled
+# datasets that have higher total sequencing depth.
 }
