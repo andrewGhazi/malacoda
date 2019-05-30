@@ -99,7 +99,12 @@ test_one_variant = function(variant_activities,
 #'   numbers more easily interpretable
 #' @note The \code{depth_multiplier} input has no effect on the downstream
 #'   analysis as it divides out because both RNA and DNA counts are normalized
-#'   by this same factor. It simply sets the scale of depth factors at an easily-readable range.
+#'   by this same factor. It simply sets the scale of depth factors at an
+#'   easily-readable range.
+#' @examples
+#' get_sample_depths(umpra_example)
+#' # Data from non-subsampled datasets with typical sequencing depths will typically
+#' # show depth factors in the 10-100 range.
 #' @export
 get_sample_depths = function(mpra_data,
                              depth_multiplier = 1e6){
