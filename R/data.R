@@ -3,7 +3,7 @@
 #' DeepSea v0.94 K562 DNase hypersensitivity estimates for the variants in Ulirsch et
 #' al., Cell, 2016.
 #' @format a data frame containing variant_id and annotation columns
-#' @source \url{deepsea.princeton.edu}
+#' @source \url{http://deepsea.princeton.edu/}
 "u_deepsea"
 
 #' Example MPRA counts from Ulirsch et al., 2016

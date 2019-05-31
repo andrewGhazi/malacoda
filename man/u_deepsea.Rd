@@ -6,7 +6,7 @@
 \title{Example MPRA annotation set}
 \format{a data frame containing variant_id and annotation columns}
 \source{
-\url{deepsea.princeton.edu}
+\url{http://deepsea.princeton.edu/}
 }
 \usage{
 u_deepsea
