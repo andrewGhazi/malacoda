@@ -54,7 +54,7 @@ the transcription shift region of practical equivalence}
 \item{rep_cutoff}{a representation cutoff quantile (0 to 1)}
 }
 \value{
-a data frame with a row for each variant_id that specificies the
+a data frame with a row for each variant_id that specifies the
   posterior mean TS, upper and lower HDI bounds, a binary call of functional
   or non-functional, and other appropriate outputs
 }

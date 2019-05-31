@@ -135,7 +135,7 @@ fit_gamma = function(input_vec,
 #'   Barcodes below the \code{rep_cutoff} quantile of representation in the DNA
 #'   pools are discarded.
 #'
-#' @return a data frame with a row for each variant_id that specificies the
+#' @return a data frame with a row for each variant_id that specifies the
 #'   posterior mean TS, upper and lower HDI bounds, a binary call of functional
 #'   or non-functional, and other appropriate outputs
 #' @note Sampler results for individual variants will be saved to the specified

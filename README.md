@@ -116,7 +116,7 @@ This should install the dependencies (which are mostly tidyverse
 packages), compile the malacoda Stan models, and install the package.
 
 `count_barcodes()` requires the
-[FASTX-Tookit](http://hannonlab.cshl.edu/fastx_toolkit/index.html)
+[FASTX-Toolkit](http://hannonlab.cshl.edu/fastx_toolkit/index.html)
 (installation instructions provided at that link) and `sed` which comes
 with most Unix-like operating systems. It can also optionally take
 advantage of the [FreeBarcodes](https://github.com/hawkjo/freebarcodes)
