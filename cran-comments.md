@@ -1,7 +1,9 @@
 ## Resubmission
-This is a resubmission of malacoda, which was previously released May 10 2019.
+This is a resubmission of malacoda, which was previously released May 10 2019. In this submission:
 
 * As requested, we have added examples for the packages most important functions, most prominently fit_mpra_model(). Each row of results from fit_mpra_model() involves running an MCMC chain, so the example uses too-few posterior samples for only 3 variants (rows) for the sake of running quickly (~2s on my laptop). This is noted in a comment above the example, with recommendations to the user on how to improve the MCMC. The example_result object included in the package is there to provide a precise example in the vignette; it would take too long to run to be in an example.
+* Examples & informative comments on the examples have been added to: get_sample_depths, get_well_represented, fit_marg_prior, get_sample correlations, plot_mpra_correlations, fit_cond_prior, count_barcodes, and compute_activities. This covers the majority of the functions demonstrated in the vignette. These examples are either runnable or too slow for runnable examples.
+* Other functionality has been tweaked/improved
 
 ## Test environments  
 * local Linux Mint 19.1, R 3.6.0
@@ -26,7 +28,7 @@ Possibly mis-spelled words in DESCRIPTION:
   barcodes (9:132)
   gRNAs (9:151)
   
-This is a resubmission of this package (my first) after the first submission was rejected do to some initial problems.
+This is a resubmission of this package (my first) after previous submission was rejected do to some initial problems.
 
 The words CRISPR, MPRA, barcodes, and gRNAs are all spelled correctly. These seem to be false positives from the spell-checker.
   
