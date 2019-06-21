@@ -95,14 +95,21 @@ This function requires an installation of
 }
 \examples{
 \dontrun{
+fastq_dir_example = tempdir()
+
+# V This writes out an example directory of fastqs to a temporary directory
+mapply(function(x,y){write.table(x, file = y, quote = FALSE, col.names = FALSE, row.names = FALSE)},
+fastq_examples,
+paste0(fastq_dir_example, '/', names(fastq_examples), '.fastq'))
+tmp_dir = paste0(fastq_dir, '/count_temp')
+
+# The data frame of counts this returns will be mostly zeroes, as the example fastqs included with this package are very small.
 count_barcodes(barcode_allele_df = barcode_by_id,
-              fastq_dir = '/path/to/fastqs/',
-              temp_dir = '/path/to/directory/for/temp/files/',
-              bc_start = 1, # The barcode starts at the first base read
-              bc_end = 14, # and ends at the 14th
-              quality_cutoff = 30,
-              n_cores = 12,
-              decode_barcode_set = '/usr/local/src/freebarcodes/barcodes/barcodes14-1.txt',
-              keep_temp = FALSE)
-              }
+fastq_dir = fastq_dir_example,
+temp_dir = tmp_dir,
+bc_start = 1, # The barcode starts at the first base read
+bc_end = 10, # and ends at the 14th
+quality_cutoff = 30,
+n_cores = 1,
+keep_temp = FALSE)}
 }
