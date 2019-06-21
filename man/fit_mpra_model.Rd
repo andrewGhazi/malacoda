@@ -8,7 +8,8 @@ fit_mpra_model(mpra_data, annotations = NULL, group_df = NULL,
   out_dir = NULL, save_nonfunctional = FALSE, priors = NULL,
   n_cores = 1, n_chains = 4, tot_samp = 10000, n_warmup = 500,
   vb_pass = TRUE, vb_prob = 0.8, ts_hdi_prob = 0.95,
-  ts_rope = NULL, rep_cutoff = 0.15)
+  ts_rope = c(-0.405, 0.405), rope_alpha = 1 - ts_hdi_prob,
+  rep_cutoff = 0.15)
 }
 \arguments{
 \item{mpra_data}{a data frame of MPRA data with 1 column called variant_id,
@@ -20,7 +21,8 @@ variant_ids and an arbitrary number of functional annotations. If omitted,
 the prior for a given variant is influenced by all other variants in the
 assay equally.}
 
-\item{group_df}{an optional data frame giving group identity by variant_id in mpra_data}
+\item{group_df}{an optional data frame giving group identity by variant_id in
+mpra_data}
 
 \item{out_dir}{path to output directory}
 
@@ -48,15 +50,21 @@ for identifying "promising" candidates for MCMC followup}
 \item{ts_hdi_prob}{probability mass to include in the highest density
 interval on transcription shift to call MPRA-functional variants.}
 
-\item{ts_rope}{optional length 2 numeric vector describing the boundaries of
-the transcription shift region of practical equivalence}
+\item{ts_rope}{length 2 numeric vector describing the boundaries of the
+transcription shift region of practical equivalence (ROPE), defaulting to
++/- log(3/2)}
+
+\item{rope_alpha}{The alpha level used to define functional variants based on
+the ROPE (defaults to 1 - ts_hdi_prob)}
 
 \item{rep_cutoff}{a representation cutoff quantile (0 to 1)}
 }
 \value{
 a data frame with a row for each variant_id that specifies the
   posterior mean TS, upper and lower HDI bounds, a binary call of functional
-  or non-functional, and other appropriate outputs
+  or non-functional, and other appropriate outputs. The output column
+  \code{is_functional} is defined by the TS HDI excluding 0 and the posterior
+  mass in the ROPE falling below the ROPE alpha level.
 }
 \description{
 This function fits a negative-binomial based Bayesian model to
@@ -99,14 +107,14 @@ This function fits a negative-binomial based Bayesian model to
 
   \code{ts_rope} can be used to define a "Region Of Practical Equivalence"
   for transcription shift. This is some small-ish region around 0 where
-  observed posterior samples are "practically equivalent" to 0. Enabling this
-  option will return the fraction of transcription shift posterior samples
-  that fall within the defined ROPE along with the usual model outputs. If
-  this fraction is small, one can say that there is very little posterior
-  belief that the variant's transcription shift is practically equivalent to
-  0. If used, the user must be cognizant of defining the region in accordance
-  with observed noise and effect size levels. Note that the output ROPE
-  fractions ARE NOT p-values.
+  observed posterior samples are "practically equivalent" to 0. The output
+  column \code{ts_rope_mass} returns the fraction of transcription shift
+  posterior samples that fall within the defined ROPE along with the usual
+  model outputs. If this fraction is small, one can say that there is very
+  little posterior belief that the variant's transcription shift is
+  practically equivalent to 0. The user must be cognizant of defining the
+  region in accordance with observed noise and effect size levels. Note that
+  the output ROPE fractions are NOT p-values.
 
   Barcodes below the \code{rep_cutoff} quantile of representation in the DNA
   pools are discarded.
