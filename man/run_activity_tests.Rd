@@ -35,3 +35,6 @@ These tests assume that after depth correction, MPRA activities are
   same barcodes across different samples are considered as independent
   measurements.
 }
+\examples{
+run_activity_tests(activities_example)
+}
