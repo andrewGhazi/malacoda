@@ -20,3 +20,25 @@
 #' Example needed for the vignette
 #' @format a data frame of mpra modelling results
 "example_result"
+
+#' Example activity measurements
+#'
+#' Example activities for the variants in umpra_example
+"activities_example"
+
+#' Example FASTQ data
+#'
+#' Example FASTQ entries, used for the example in count_barcodes(). Taken from
+#' Ulirsch et al., Cell, 2016.
+"fastq_examples"
+
+#' Example barcode_allele_df
+#'
+#' Example barcode_allele_df, used for the example in count_barcodes(). Adapted
+#' from Ulirsch et al., Cell, 2016.
+"barcode_by_id"
+
+#' Example DeepSea annotations
+#'
+#' Example DeepSea annotations for the example MPRA data.
+"u_deepsea"
