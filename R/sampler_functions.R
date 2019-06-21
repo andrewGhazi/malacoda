@@ -90,7 +90,12 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
   ts_hdi_obj = coda::HPDinterval(coda::mcmc(as.matrix(ts_vec)),
                                  prob = ts_hdi_prob)
 
-  is_functional = !between(0, ts_hdi_obj[1], ts_hdi_obj[2])
+  rope_alpha = 1 - ts_hdi_prob
+
+  ts_rope_mass = sum(ts_vec < ts_rope[2] & ts_vec > ts_rope[1]) / tot_samp
+  excludes_zero = !between(0, ts_hdi_obj[1], ts_hdi_obj[2])
+
+  is_functional = excludes_zero & (ts_rope_mass < rope_alpha)
 
   #### Save the output ----
   if(!is.null(out_dir)){
@@ -113,12 +118,8 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
                       ts_hdi = list(ts_hdi_obj),
                       hdi_lower = ts_hdi_obj[1],
                       hdi_upper = ts_hdi_obj[2],
+                      ts_rope_mass = ts_rope_mass,
                       note = note)
-
-  if(!is.null(ts_rope)) {
-    ts_rope_mass = sum(ts_vec < ts_rope[2] & ts_vec > ts_rope[1]) / tot_samp
-    res_df$ts_rope_mass = ts_rope_mass
-  }
 
   return(res_df)
 

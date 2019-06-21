@@ -67,7 +67,8 @@ fit_gamma = function(input_vec,
 #'   variant_ids and an arbitrary number of functional annotations. If omitted,
 #'   the prior for a given variant is influenced by all other variants in the
 #'   assay equally.
-#' @param group_df an optional data frame giving group identity by variant_id in mpra_data
+#' @param group_df an optional data frame giving group identity by variant_id in
+#'   mpra_data
 #' @param priors optional objects provided by either fit_marg_prior() or
 #'   fit_cond_prior.
 #' @param out_dir path to output directory
@@ -84,8 +85,11 @@ fit_gamma = function(input_vec,
 #'   for identifying "promising" candidates for MCMC followup
 #' @param ts_hdi_prob probability mass to include in the highest density
 #'   interval on transcription shift to call MPRA-functional variants.
-#' @param ts_rope optional length 2 numeric vector describing the boundaries of
-#'   the transcription shift region of practical equivalence
+#' @param ts_rope length 2 numeric vector describing the boundaries of the
+#'   transcription shift region of practical equivalence (ROPE), defaulting to
+#'   +/- log(3/2)
+#' @param rope_alpha The alpha level used to define functional variants based on
+#'   the ROPE (defaults to 1 - ts_hdi_prob)
 #' @param rep_cutoff a representation cutoff quantile (0 to 1)
 #'
 #' @details \code{mpra_data} must contain the following groups of columns:
@@ -123,21 +127,23 @@ fit_gamma = function(input_vec,
 #'
 #'   \code{ts_rope} can be used to define a "Region Of Practical Equivalence"
 #'   for transcription shift. This is some small-ish region around 0 where
-#'   observed posterior samples are "practically equivalent" to 0. Enabling this
-#'   option will return the fraction of transcription shift posterior samples
-#'   that fall within the defined ROPE along with the usual model outputs. If
-#'   this fraction is small, one can say that there is very little posterior
-#'   belief that the variant's transcription shift is practically equivalent to
-#'   0. If used, the user must be cognizant of defining the region in accordance
-#'   with observed noise and effect size levels. Note that the output ROPE
-#'   fractions ARE NOT p-values.
+#'   observed posterior samples are "practically equivalent" to 0. The output
+#'   column \code{ts_rope_mass} returns the fraction of transcription shift
+#'   posterior samples that fall within the defined ROPE along with the usual
+#'   model outputs. If this fraction is small, one can say that there is very
+#'   little posterior belief that the variant's transcription shift is
+#'   practically equivalent to 0. The user must be cognizant of defining the
+#'   region in accordance with observed noise and effect size levels. Note that
+#'   the output ROPE fractions are NOT p-values.
 #'
 #'   Barcodes below the \code{rep_cutoff} quantile of representation in the DNA
 #'   pools are discarded.
 #'
 #' @return a data frame with a row for each variant_id that specifies the
 #'   posterior mean TS, upper and lower HDI bounds, a binary call of functional
-#'   or non-functional, and other appropriate outputs
+#'   or non-functional, and other appropriate outputs. The output column
+#'   \code{is_functional} is defined by the TS HDI excluding 0 and the posterior
+#'   mass in the ROPE falling below the ROPE alpha level.
 #' @note Sampler results for individual variants will be saved to the specified
 #'   out_dir as they can be several megabytes each
 #' @examples
@@ -173,7 +179,8 @@ fit_mpra_model = function(mpra_data,
                           vb_pass = TRUE,
                           vb_prob = .8,
                           ts_hdi_prob = .95,
-                          ts_rope = NULL,
+                          ts_rope = c(-.405, .405),
+                          rope_alpha = 1 - ts_hdi_prob,
                           rep_cutoff = .15) {
 
   start_time = Sys.time()
@@ -333,6 +340,7 @@ fit_mpra_model = function(mpra_data,
                                                                 save_nonfunctional = save_nonfunctional,
                                                                 ts_hdi_prob = ts_hdi_prob,
                                                                 ts_rope = ts_rope,
+                                                                rope_alpha = rope_alpha,
                                                                 vb_pass = vb_pass,
                                                                 vb_prob = vb_prob),
                                                 mc.cores = n_cores,
@@ -362,6 +370,7 @@ fit_mpra_model = function(mpra_data,
                                                                 save_nonfunctional = save_nonfunctional,
                                                                 ts_hdi_prob = ts_hdi_prob,
                                                                 ts_rope = ts_rope,
+                                                                rope_alpha = rope_alpha,
                                                                 vb_pass = vb_pass,
                                                                 vb_prob = vb_prob),
                                                 mc.cores = n_cores,
@@ -391,6 +400,7 @@ fit_mpra_model = function(mpra_data,
                                                                 save_nonfunctional = save_nonfunctional,
                                                                 ts_hdi_prob = ts_hdi_prob,
                                                                 ts_rope = ts_rope,
+                                                                rope_alpha = rope_alpha,
                                                                 vb_pass = vb_pass,
                                                                 vb_prob = vb_prob),
                                                 mc.cores = n_cores,

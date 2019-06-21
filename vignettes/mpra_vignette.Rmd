@@ -218,7 +218,7 @@ This will:
 1. Run a variational Stan model that fits the model described above for each variant. 
 2. If the variational result looks promising, it will run the standard Stan MCMC sampler on the model.
 3. Save the stanfit object for the variant as `<variant_id>.RData` in the output directory.
-4. Compute some summary statistics for each variant, including a 95% transcription shift highest density interval and (based on that) a binary call for variant function (the `is_functional` column).
+4. Compute some summary statistics for each variant, including a 95% transcription shift highest density interval and (based on that and the ROPE) a binary call for variant function (the `is_functional` column).
 5. Compile the results into a data frame.
 ```{r}
 load('../data/example_result.RData')
@@ -243,7 +243,7 @@ Filtering the result table like so will give the set of hits from the analysis:
 
 The MCMC parameters are adjustable (see `?fit_mpra_model`).
 
-A region of practical equivalence (ROPE) parameter `ts_rope` can be set to receive p-value-esque output in order to get some sense of how the result compares to a "null" model. Defining a ROPE requires experiment-specific statistical knowledge, so we won't provide any specific advice or examples on how to set this parameter in order to avoid misleading users. Proper use would need to involve analysis of the assay's noise and reasoned justification of the user's definition of "practically equivalent" to 0. Statisticians seeking to use this feature can find more information on ROPE's in *Doing Bayesian Data Analysis: A Tutorial with R, JAGS, and Stan* by John Kruschke.
+A region of practical equivalence (ROPE) parameter `ts_rope` can be set to receive p-value-esque output in order to get some sense of how the result compares to a "null" model. Defining a ROPE requires experiment-specific statistical knowledge, so the default is intentionally fairly liberal at +/- log(3/2). This means that any posterior belief that the alternate allele causes less than a +/- 50% shift is deemed "practicially equivalent" to no shift at all. Ideally users should analyze the assay's noise and use some reasonable justification to set this argument themselves. Statisticians seeking to use this feature can find more information on ROPE's in *Doing Bayesian Data Analysis: A Tutorial with R, JAGS, and Stan* by John Kruschke.
 
 `fit_mpra_model` has several other parameters that should be inspected by the user.
 
