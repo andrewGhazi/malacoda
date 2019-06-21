@@ -254,7 +254,7 @@ count_barcodes = function(barcode_allele_df,
   if (verbose) {message('Beginning input checks...')}
 
   #### Input checks ----
-  fastx_toolkit_installed = length(system('which fastx_trimmer', intern = TRUE)) == 1 # There's probably a better way to check for this...
+  fastx_toolkit_installed = Sys.which('fastx_trimmer') != ""
 
   if (!fastx_toolkit_installed){
     stop('It seems the FASTX-Toolkit is not installed. See http://hannonlab.cshl.edu/fastx_toolkit/download.html for installation details.')
