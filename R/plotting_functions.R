@@ -189,8 +189,6 @@ plot_mpra_correlations = function(sample_correlations){
 #' @return a DNA representation ggplot
 #' @note see the first command in the source code of get_well_represented() for
 #'   how to generate dna_df
-#'
-#' @export
 plot_dna_representation = function(dna_df, rep_cutoff){
 
   dna_df %>%
