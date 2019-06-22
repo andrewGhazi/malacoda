@@ -10,7 +10,8 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
                             ts_hdi_prob,
                             vb_pass = TRUE,
                             vb_prob = .8,
-                            ts_rope = NULL) {
+                            ts_rope = NULL,
+                            rope_alpha = .05) {
 
   # This fits the malacoda biallelic MPRA model (i.e. the main one) for ONE variant.
 
