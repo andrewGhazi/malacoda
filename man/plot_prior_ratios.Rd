@@ -16,3 +16,11 @@ plot_prior_ratios(prior_ratios, x_limits = c(-1, 1), n_bins = 100)
 \description{
 Visualize prior ratios by histogram
 }
+\examples{
+marg_prior = fit_marg_prior(umpra_example)
+cond_prior = fit_cond_prior(mpra_data = umpra_example,
+                            annotations = u_deepsea,
+                            min_neighbors = 10)
+ratio_df = get_prior_ratios(umpra_example, marg_prior, cond_prior)
+plot_prior_ratios(ratio_df, n_bins = 30)
+}

@@ -79,6 +79,13 @@ get_label_y = function(ratio_values){
 #' @param prior_ratios a data frame of prior ratios from \code{get_prior_ratios}
 #' @param x_limits a length two vector for the x-limits of the histograms
 #' @param n_bins number of bins in the histogram
+#' @examples
+#' marg_prior = fit_marg_prior(umpra_example)
+#' cond_prior = fit_cond_prior(mpra_data = umpra_example,
+#'                             annotations = u_deepsea,
+#'                             min_neighbors = 10)
+#' ratio_df = get_prior_ratios(umpra_example, marg_prior, cond_prior)
+#' plot_prior_ratios(ratio_df, n_bins = 30)
 #' @export
 plot_prior_ratios = function(prior_ratios,
                              x_limits = c(-1,1),
@@ -105,7 +112,7 @@ plot_prior_ratios = function(prior_ratios,
     geom_histogram(bins = n_bins,
                    aes(y = .data$..density..)) +
     xlim(c(x_limits[1],x_limits[2])) +
-    geom_density() +
+    geom_density(adjust = 2) +
     geom_vline(lty = 2, xintercept = 0, color = 'grey35') +
     facet_grid(param_type ~ sample_id, scales = 'free_y') +
     geom_text(data = fraction_labels,
@@ -113,7 +120,9 @@ plot_prior_ratios = function(prior_ratios,
               aes(label = .data$facet_label,
                   y = .data$y),
               size = 3) +
-    labs(title = 'log(Conditional:Marginal) prior density of maximum-likelihood estimates')
+    labs(title = 'log(Conditional:Marginal) prior density of maximum-likelihood estimates',
+         x = 'log Prior Ratio',
+         y = 'density')
 
 }
 
@@ -128,6 +137,21 @@ plot_prior_ratios = function(prior_ratios,
 #' @note The default y_limits cut off a small fraction of points where one prior
 #'   or the other does vastly better. It can be set to larger values to avoid
 #'   this behavior.
+#' marg_prior = fit_marg_prior(umpra_example)
+#' cond_prior = fit_cond_prior(mpra_data = umpra_example,
+#'                             annotations = u_deepsea,
+#'                             min_neighbors = 10)
+#' ratio_df = get_prior_ratios(umpra_example, marg_prior, cond_prior)
+#' example_variants = c("11_8839229_1-2", "15_75303554_2-3", "1_203652141_2-3")
+#'
+#' examples_to_evaluate = umpra_example[umpra_example$variant_id %in% example_variants,]
+#' example_result = fit_mpra_model(mpra_data = examples_to_evaluate,
+#'  priors = marg_prior,
+#' vb_pass = FALSE,
+#' tot_samp = 100,
+#' n_warmup = 10) # Likewise, n_warmup should be >500
+#'
+#' plot_ratio_hexs(ratio_df, example_result)
 #' @export
 plot_ratio_hexs = function(prior_ratios,
                            model_result,
