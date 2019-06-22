@@ -10,9 +10,13 @@
 }
 \usage{
 u_deepsea
+
+u_deepsea
 }
 \description{
 DeepSea v0.94 K562 DNase hypersensitivity estimates for the variants in Ulirsch et
 al., Cell, 2016.
+
+Example DeepSea annotations for the example MPRA data.
 }
 \keyword{datasets}

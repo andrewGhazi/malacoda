@@ -24,5 +24,5 @@ The \code{depth_multiplier} input has no effect on the downstream
 \examples{
 get_sample_depths(umpra_example)
 # Data from non-subsampled datasets with typical sequencing depths will typically
-# show depth factors in the 10-100 range.
+# show depth factors larger than this example, in the 10-100 range.
 }
