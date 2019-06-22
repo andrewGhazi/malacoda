@@ -228,9 +228,12 @@ trim_and_filter = function(fastq,
 #' mapply(function(x,y){write.table(x, file = y, quote = FALSE, col.names = FALSE, row.names = FALSE)},
 #' fastq_examples,
 #' paste0(fastq_dir_example, '/', names(fastq_examples), '.fastq'))
-#' tmp_dir = paste0(fastq_dir, '/count_temp')
 #'
-#' # The data frame of counts this returns will be mostly zeroes, as the example fastqs included with this package are very small.
+#' tmp_dir = paste0(fastq_dir_example, '/count_temp_', format(Sys.time(), "%Y_%m_%d_%H_%M_%S"))
+#'
+#' # The data frame of counts this returns will be mostly zeroes because
+#' # the example fastqs included with this package are very small.
+#'
 #' count_barcodes(barcode_allele_df = barcode_by_id,
 #' fastq_dir = fastq_dir_example,
 #' temp_dir = tmp_dir,
