@@ -500,13 +500,13 @@ fit_grouped_prior = function(mpra_data,
 #'   by when estimating conditional priors. Smaller values (closer to 1) will
 #'   yield more refined priors but take longer.
 #' @export
-#' @examples \dontrun{cond_prior = fit_cond_prior(mpra_data = umpra_example,
-#' annotations = example_deepsea,
-#' n_cores = 1,
-#' rep_cutoff = .15,
-#' plot_rep_cutoff = TRUE,
-#' min_neighbors = 100)
-#' }
+#' @examples
+#' cond_prior = fit_cond_prior(mpra_data = umpra_example,
+#'                             annotations = u_deepsea,
+#'                             n_cores = 1,
+#'                             rep_cutoff = .15,
+#'                             plot_rep_cutoff = TRUE,
+#'                             min_neighbors = 10)
 fit_cond_prior = function(mpra_data,
                           annotations,
                           n_cores = 1,
