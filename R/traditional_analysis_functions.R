@@ -16,8 +16,8 @@
 #' @examples compute_activities(umpra_example)
 #' @export
 compute_activities = function(mpra_data,
-                             rep_cutoff = .15,
-                             plot_rep_cutoff = TRUE){
+                              rep_cutoff = .15,
+                              plot_rep_cutoff = TRUE){
 
   sample_depths = get_sample_depths(mpra_data)
 
@@ -104,7 +104,7 @@ test_one_variant = function(variant_activities,
 #' @examples
 #' get_sample_depths(umpra_example)
 #' # Data from non-subsampled datasets with typical sequencing depths will typically
-#' # show depth factors in the 10-100 range.
+#' # show depth factors larger than this example, in the 10-100 range.
 #' @export
 get_sample_depths = function(mpra_data,
                              depth_multiplier = 1e6){
@@ -132,6 +132,7 @@ get_sample_depths = function(mpra_data,
 #'   identically distributed across sequencing samples. Thus activities for the
 #'   same barcodes across different samples are considered as independent
 #'   measurements.
+#' @examples run_activity_tests(activities_example)
 #' @export
 run_activity_tests = function(mpra_activities,
                               test_type = 't',
@@ -170,7 +171,8 @@ run_activity_tests = function(mpra_activities,
                      bins = 30,
                      color = 'black',
                      fill = 'grey50') +
-      labs(title = 'Activity tests p-value distribution')
+      labs(title = 'Activity tests p-value distribution',
+           x = 'p-value')
     print(p_hist)
   }
 
