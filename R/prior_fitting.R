@@ -78,7 +78,6 @@ generate_distance_matrix = function(annotations,
 #'   at least 1% of the highest most strongly weighted variant. This prevents
 #'   some small number of extremely close neighbors from dominating the prior
 #'   estimation later on.
-#' @export
 find_prior_weights = function(given_id,
                               scaled_annotations,
                               dist_mat,
