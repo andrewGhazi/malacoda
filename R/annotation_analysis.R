@@ -19,6 +19,12 @@
 #'   knowledge of DNA counts)
 #'
 #'   The current maximum likelihood estimates are sub-par and will be improved. Interpret with caution.
+#' @examples
+#' marg_prior = fit_marg_prior(umpra_example)
+#' cond_prior = fit_cond_prior(mpra_data = umpra_example,
+#'                             annotations = u_deepsea,
+#'                             min_neighbors = 10)
+#' get_prior_ratios(umpra_example, marg_prior, cond_prior)
 #' @export
 get_prior_ratios = function(mpra_data,
                             marg_prior,
@@ -229,9 +235,12 @@ get_kl_divergences = function(mpra_data,
 
 #' Compute KL divergence estimate
 #'
-#' @description Approximate the KL divergence between a set of normalized counts and a prior. An empirical density
-#' @param remnant_set a data frame of count remnants (i.e. post sample/DNA abundance normalization) with columns specifying the prior
-#' @return the Kullback-Leibler divergence between the empirical estimate and the prior
+#' @description Approximate the KL divergence between a set of normalized counts
+#'   and a prior. An empirical density
+#' @param remnant_set a data frame of count remnants (i.e. post sample/DNA
+#'   abundance normalization) with columns specifying the prior
+#' @return the Kullback-Leibler divergence between the empirical estimate and
+#'   the prior
 compute_kl_est = function(remnant_set){
   # KL = int(p*log(p/q), x)
   # p is the empirical distribution of count remnants

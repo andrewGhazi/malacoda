@@ -7,11 +7,14 @@
 compute_kl_est(remnant_set)
 }
 \arguments{
-\item{remnant_set}{a data frame of count remnants (i.e. post sample/DNA abundance normalization) with columns specifying the prior}
+\item{remnant_set}{a data frame of count remnants (i.e. post sample/DNA
+abundance normalization) with columns specifying the prior}
 }
 \value{
-the Kullback-Leibler divergence between the empirical estimate and the prior
+the Kullback-Leibler divergence between the empirical estimate and
+  the prior
 }
 \description{
-Approximate the KL divergence between a set of normalized counts and a prior. An empirical density
+Approximate the KL divergence between a set of normalized counts
+  and a prior. An empirical density
 }
