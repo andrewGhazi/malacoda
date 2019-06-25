@@ -4,12 +4,12 @@
 \alias{sample_from_prior}
 \title{Sample from prior}
 \usage{
-sample_from_prior(prior_df, n_iter)
+sample_from_prior(prior_df, n_samp)
 }
 \arguments{
 \item{prior_df}{a data frame of the prior for one variant}
 
-\item{n_iter}{number of prior simulation draws to pull}
+\item{n_samp}{number of prior simulation draws to pull}
 }
 \value{
 a data data frame of activity draws and the simulated transcription
@@ -20,6 +20,6 @@ Randomly draw activities levels and transcription shifts from
   the prior
 }
 \details{
-This function draws \code{n_iter} draws from the prior for one
+This function draws \code{n_samp} draws from the prior for one
   variant.
 }
