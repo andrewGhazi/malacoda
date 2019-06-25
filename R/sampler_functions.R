@@ -138,15 +138,17 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
 #'   shift at each draw
 #' @export
 sample_from_prior = function(prior_df, n_iter){
-  sim_df = prior_df %>%
+  sim_df = prior_df %>% filter(.data$prior_type == 'mu_prior') %>%
     mutate(allele = case_when(tolower(.data$allele) == 'ref' ~ 'ref',
                               tolower(.data$allele) != 'ref' ~ 'alt'),
            draws = map2(.data$alpha_est, .data$beta_est,
                         ~rgamma(n_iter, shape = .x, rate = .y))) %>%
     select(.data$allele, .data$draws) %>%
     unnest %>%
+    filter(!is.na(.data$allele)) %>%
     mutate(iter = rep(1:n_iter, times = 2)) %>%
     spread(.data$allele, .data$draws) %>%
+    mutate_if(is.double, log) %>%
     mutate(sim_ts = .data$alt - .data$ref)
 
   return(sim_df)
