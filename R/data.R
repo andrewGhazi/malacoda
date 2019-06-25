@@ -42,3 +42,10 @@
 #'
 #' Example DeepSea annotations for the example MPRA data.
 "u_deepsea"
+
+#' Example posterior
+#'
+#' Example posterior for chr6:135426558 1/2 variant in Ulirsch et al., Cell,
+#' 2016. This example used too-few MCMC samples for the sake of keeping the file
+#' size small.
+"example_posterior"
