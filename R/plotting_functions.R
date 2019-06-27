@@ -8,6 +8,10 @@
 #'   sample
 #' @return a posterior beeswarm ggplot object
 #' @note sampler_result objects are written by fit_mpra_model to the out_dir argument for each variant_id
+#' @examples
+#' variant_activities = activities_example[activities_example$variant_id == '6_135426558_2-3',]
+#' posterior_beeswarm(example_posterior,
+#'                    variant_activities)
 #' @export
 posterior_beeswarm = function(sampler_result,
                               variant_activities,
