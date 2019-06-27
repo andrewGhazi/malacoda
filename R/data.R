@@ -49,3 +49,11 @@
 #' 2016. This example used too-few MCMC samples for the sake of keeping the file
 #' size small.
 "example_posterior"
+
+#' Example conditional prior
+#'
+#' Example conditional prior for the example variants taken from from Ulirsch et
+#' al., Cell, 2016. This prior is the full, accurate prior using all 7000+
+#' variants from that assay, so conditionl priors derived from the subsetted
+#' example data included in malacoda will be different.
+"cond_prior_example"
