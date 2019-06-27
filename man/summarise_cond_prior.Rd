@@ -4,14 +4,14 @@
 \alias{summarise_cond_prior}
 \title{Summarise a conditional prior}
 \usage{
-summarise_cond_prior(cond_prior, n_cores = 1, n_iter = 50000)
+summarise_cond_prior(cond_prior, n_cores = 1, n_samp = 50000)
 }
 \arguments{
 \item{cond_prior}{a conditional prior object}
 
 \item{n_cores}{number of cores for parallelization}
 
-\item{n_iter}{number of prior simulation draws}
+\item{n_samp}{number of prior simulation draws}
 }
 \value{
 a data frame of RNA priors with prior simulation summary statistics
@@ -40,4 +40,7 @@ This is used to ensure that the prior is not TOO specific. While we
 \note{
 simulations for individual variants can be obtained with
   \code{summarise_one_prior()} and \code{sample_from_prior()}
+}
+\examples{
+summarise_cond_prior(cond_prior_example, n_samp = 1000, n_cores = 1)
 }

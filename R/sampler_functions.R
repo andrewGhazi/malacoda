@@ -201,7 +201,7 @@ summarise_one_prior = function(prior_df,
 #'   conditional mean priors.
 #' @param cond_prior a conditional prior object
 #' @param n_cores number of cores for parallelization
-#' @param n_iter number of prior simulation draws
+#' @param n_samp number of prior simulation draws
 #' @return a data frame of RNA priors with prior simulation summary statistics
 #' @details This is used to ensure that the prior is not TOO specific. While we
 #'   want the prior distribution to accurately reflect prior beliefs on a given
@@ -220,16 +220,18 @@ summarise_one_prior = function(prior_df,
 #'   variants.
 #' @note simulations for individual variants can be obtained with
 #'   \code{summarise_one_prior()} and \code{sample_from_prior()}
+#' @examples
+#' summarise_cond_prior(cond_prior_example, n_samp = 1000, n_cores = 1)
 #' @export
 summarise_cond_prior = function(cond_prior,
                                 n_cores = 1,
-                                n_iter = 5e4){
+                                n_samp = 5e4){
 
   cond_prior$rna_priors %>%
     mutate(prior_sim_res = parallel::mclapply(.data$variant_m_prior,
                                               summarise_one_prior,
                                               mc.cores = n_cores,
-                                              n_iter = n_iter)) %>%
+                                              n_samp = n_samp)) %>%
     unnest(... = .data$prior_sim_res) %>%
     select(-.data$prior_sim_res) %>%
     arrange(desc(abs(.data$mean_prior_ts)))
