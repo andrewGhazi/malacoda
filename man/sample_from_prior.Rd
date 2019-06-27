@@ -23,3 +23,6 @@ Randomly draw activities levels and transcription shifts from
 This function draws \code{n_samp} draws from the prior for one
   variant.
 }
+\examples{
+sample_from_prior(marg_prior_example, n_samp = 1000)
+}

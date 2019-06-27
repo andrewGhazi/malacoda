@@ -135,6 +135,8 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
 #'   variant.
 #' @return a data data frame of activity draws and the simulated transcription
 #'   shift at each draw
+#' @examples
+#' sample_from_prior(marg_prior_example, n_samp = 1000)
 #' @export
 sample_from_prior = function(prior_df, n_samp){
   sim_df = prior_df %>% filter(.data$prior_type == 'mu_prior') %>%
@@ -158,14 +160,19 @@ sample_from_prior = function(prior_df, n_samp){
 #'
 #' @description Compute summary statistics for input prior simulation draws
 #' @param sim_df a data frame of simulation draws
+#' @details You can get simulated prior draws using \code{sample_from_prior()}
 #' @return a row data frame with columns of summary statistics
+#' @examples
+#' prior_draws = sample_from_prior(marg_prior_example, n_samp = 1000)
+#' summarise_prior_samples(prior_draws)
 #' @export
-summarise_prior_samples = function(sim_df){
+summarise_prior_samples = function(sim_df,
+                                   ts_hdi_prob = .95){
 
   sim_summary = sim_df %>%
     summarise(mean_prior_ts = mean(.data$sim_ts),
               sd_prior_ts = sd(.data$sim_ts),
-              prior_ts_hdi = list(coda::HPDinterval(coda::mcmc(.data$sim_ts), prob = .99)),
+              prior_ts_hdi = list(coda::HPDinterval(coda::mcmc(.data$sim_ts), prob = ts_hdi_prob)),
               prior_lower_ts = .data$prior_ts_hdi[[1]][1],
               prior_upper_ts = .data$prior_ts_hdi[[1]][2],
               prior_is_func = !between(0, .data$prior_lower_ts, .data$prior_upper_ts))
@@ -177,12 +184,14 @@ summarise_prior_samples = function(sim_df){
 #'
 #' @description Sample from one RNA prior and compute summary statistics
 #' @param prior_df a single RNA prior
-#' @param n_iter number of prior draws used in simulation
+#' @param n_samp number of prior draws used in simulation
 #' @return a data frame with summary statistics for the input prior
+#' @examples
+#' summarise_one_prior(marg_prior_example, n_samp = 1000)
 #' @export
 summarise_one_prior = function(prior_df,
-                               n_iter){
-  prior_samples = sample_from_prior(prior_df, n_iter = n_iter)
+                               n_samp){
+  prior_samples = sample_from_prior(prior_df, n_samp = n_samp)
 
   prior_summary = summarise_prior_samples(prior_samples)
 

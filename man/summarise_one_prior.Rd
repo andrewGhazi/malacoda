@@ -4,16 +4,19 @@
 \alias{summarise_one_prior}
 \title{Summarise one RNA prior}
 \usage{
-summarise_one_prior(prior_df, n_iter)
+summarise_one_prior(prior_df, n_samp)
 }
 \arguments{
 \item{prior_df}{a single RNA prior}
 
-\item{n_iter}{number of prior draws used in simulation}
+\item{n_samp}{number of prior draws used in simulation}
 }
 \value{
 a data frame with summary statistics for the input prior
 }
 \description{
 Sample from one RNA prior and compute summary statistics
+}
+\examples{
+summarise_one_prior(marg_prior_example, n_samp = 1000)
 }

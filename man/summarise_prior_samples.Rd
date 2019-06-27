@@ -4,7 +4,7 @@
 \alias{summarise_prior_samples}
 \title{Summarise prior samples}
 \usage{
-summarise_prior_samples(sim_df)
+summarise_prior_samples(sim_df, ts_hdi_prob = 0.95)
 }
 \arguments{
 \item{sim_df}{a data frame of simulation draws}
@@ -14,4 +14,11 @@ a row data frame with columns of summary statistics
 }
 \description{
 Compute summary statistics for input prior simulation draws
+}
+\details{
+You can get simulated prior draws using \code{sample_from_prior()}
+}
+\examples{
+prior_draws = sample_from_prior(marg_prior_example, n_samp = 1000)
+summarise_prior_samples(prior_draws)
 }
