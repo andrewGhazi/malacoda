@@ -25,7 +25,12 @@ chains}
 
 \item{rep_cutoff}{a representation cutoff quantile (0 to 1)}
 
-\item{plot_rep_cutoff}{logical indicating whether to plot the representation cutoff histogram}
+\item{plot_rep_cutoff}{logical indicating whether to plot the representation
+cutoff histogram}
+}
+\value{
+a data frame of input counts, fit and model statistics for the
+  log-fold-change for each input gene.
 }
 \description{
 This function fits a Bayesian model of survival/dropout CRISPR
@@ -35,16 +40,28 @@ This function fits a Bayesian model of survival/dropout CRISPR
 }
 \details{
 \code{dropout_data} requires the following columns:
-  \itemize{\item{gene_id - character column giving a unique identifier for each gene}
-  \item{gRNA - character column giving identifiers for individual gRNAs (usually the gRNA
-  sequence itself)} \item{input count columns - columns of sequencing counts
-  of the input gRNA library. Multiple columns for sequencing replicates are
-  allowed (which require unique identifiers). Column names must contain the
-  string "input".} \item{output count columns - columns of sequencing counts
-  of gRNAs in the output libraries. Multiple columns allowed (which in turn
-  require unique names). Column name must contain the string "output".}}
+  \itemize{\item{gene_id - character column giving a unique identifier for
+  each gene} \item{gRNA - character column giving identifiers for individual
+  gRNAs (usually the gRNA sequence itself)} \item{input count columns -
+  columns of sequencing counts of the input gRNA library. Multiple columns
+  for sequencing replicates are allowed (which require unique identifiers).
+  Column names must contain the string "input".} \item{output count columns -
+  columns of sequencing counts of gRNAs in the output libraries. Multiple
+  columns allowed (which in turn require unique names). Column name must
+  contain the string "output".}}
 }
 \note{
 Currently this function only supports marginal priors. If you want to
   use grouped/conditional priors, contact the malacoda developers.
+
+  The \code{gene_data} column in the output contains only the gRNAs that
+  passed the representation cutoff.
+}
+\examples{
+# This example uses too-few MCMC samples for the sake of run time. Convergence will be poor.
+
+fit_dropout_model(dropout_data = dropout_example,
+n_cores = 1,
+tot_samp = 100,
+n_warmup = 10)
 }
