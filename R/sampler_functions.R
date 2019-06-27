@@ -10,8 +10,7 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
                             ts_hdi_prob,
                             vb_pass = TRUE,
                             vb_prob = .8,
-                            ts_rope = NULL,
-                            rope_alpha = .05) {
+                            ts_rope = NULL) {
 
   # This fits the malacoda biallelic MPRA model (i.e. the main one) for ONE variant.
 
@@ -91,12 +90,12 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
   ts_hdi_obj = coda::HPDinterval(coda::mcmc(as.matrix(ts_vec)),
                                  prob = ts_hdi_prob)
 
-  rope_alpha = 1 - ts_hdi_prob
+  # rope_alpha = 1 - ts_hdi_prob
 
   ts_rope_mass = sum(ts_vec < ts_rope[2] & ts_vec > ts_rope[1]) / tot_samp
   excludes_zero = !between(0, ts_hdi_obj[1], ts_hdi_obj[2])
 
-  is_functional = excludes_zero & (ts_rope_mass < rope_alpha)
+  is_functional = excludes_zero # & (ts_rope_mass < rope_alpha)
 
   #### Save the output ----
   if(!is.null(out_dir)){

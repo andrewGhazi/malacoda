@@ -88,8 +88,6 @@ fit_gamma = function(input_vec,
 #' @param ts_rope length 2 numeric vector describing the boundaries of the
 #'   transcription shift region of practical equivalence (ROPE), defaulting to
 #'   +/- log(3/2)
-#' @param rope_alpha The alpha level used to define functional variants based on
-#'   the ROPE (defaults to 1 - ts_hdi_prob)
 #' @param rep_cutoff a representation cutoff quantile (0 to 1)
 #'
 #' @details \code{mpra_data} must contain the following groups of columns:
@@ -180,7 +178,6 @@ fit_mpra_model = function(mpra_data,
                           vb_prob = .8,
                           ts_hdi_prob = .95,
                           ts_rope = c(-.405, .405),
-                          rope_alpha = 1 - ts_hdi_prob,
                           rep_cutoff = .15) {
 
   start_time = Sys.time()
@@ -340,7 +337,6 @@ fit_mpra_model = function(mpra_data,
                                                                 save_nonfunctional = save_nonfunctional,
                                                                 ts_hdi_prob = ts_hdi_prob,
                                                                 ts_rope = ts_rope,
-                                                                rope_alpha = rope_alpha,
                                                                 vb_pass = vb_pass,
                                                                 vb_prob = vb_prob),
                                                 mc.cores = n_cores,
@@ -370,7 +366,6 @@ fit_mpra_model = function(mpra_data,
                                                                 save_nonfunctional = save_nonfunctional,
                                                                 ts_hdi_prob = ts_hdi_prob,
                                                                 ts_rope = ts_rope,
-                                                                rope_alpha = rope_alpha,
                                                                 vb_pass = vb_pass,
                                                                 vb_prob = vb_prob),
                                                 mc.cores = n_cores,
@@ -400,7 +395,6 @@ fit_mpra_model = function(mpra_data,
                                                                 save_nonfunctional = save_nonfunctional,
                                                                 ts_hdi_prob = ts_hdi_prob,
                                                                 ts_rope = ts_rope,
-                                                                rope_alpha = rope_alpha,
                                                                 vb_pass = vb_pass,
                                                                 vb_prob = vb_prob),
                                                 mc.cores = n_cores,

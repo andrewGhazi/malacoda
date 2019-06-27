@@ -8,8 +8,7 @@ fit_mpra_model(mpra_data, annotations = NULL, group_df = NULL,
   out_dir = NULL, save_nonfunctional = FALSE, priors = NULL,
   n_cores = 1, n_chains = 4, tot_samp = 10000, n_warmup = 500,
   vb_pass = TRUE, vb_prob = 0.8, ts_hdi_prob = 0.95,
-  ts_rope = c(-0.405, 0.405), rope_alpha = 1 - ts_hdi_prob,
-  rep_cutoff = 0.15)
+  ts_rope = c(-0.405, 0.405), rep_cutoff = 0.15)
 }
 \arguments{
 \item{mpra_data}{a data frame of MPRA data with 1 column called variant_id,
@@ -53,9 +52,6 @@ interval on transcription shift to call MPRA-functional variants.}
 \item{ts_rope}{length 2 numeric vector describing the boundaries of the
 transcription shift region of practical equivalence (ROPE), defaulting to
 +/- log(3/2)}
-
-\item{rope_alpha}{The alpha level used to define functional variants based on
-the ROPE (defaults to 1 - ts_hdi_prob)}
 
 \item{rep_cutoff}{a representation cutoff quantile (0 to 1)}
 }
