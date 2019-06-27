@@ -168,7 +168,8 @@ run_activity_tests = function(mpra_activities,
     p_hist = activity_tests %>%
       ggplot(aes(.data$p.value)) +
       geom_histogram(boundary = 0,
-                     bins = 30,
+                     binwidth = 1/40,
+                     bins = 40,
                      color = 'black',
                      fill = 'grey50') +
       labs(title = 'Activity tests p-value distribution',
