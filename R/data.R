@@ -50,6 +50,12 @@
 #' size small.
 "example_posterior"
 
+#' Example marginal prior
+#'
+#' Example marginal prior derived from MPRA data from Ulirsch et al., Cell,
+#' 2016.
+"marg_prior_example"
+
 #' Example conditional prior
 #'
 #' Example conditional prior for the example variants taken from from Ulirsch et
