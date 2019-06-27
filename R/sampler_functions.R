@@ -180,24 +180,6 @@ summarise_prior_samples = function(sim_df,
   return(sim_summary)
 }
 
-#' Summarise one RNA prior
-#'
-#' @description Sample from one RNA prior and compute summary statistics
-#' @param prior_df a single RNA prior
-#' @param n_samp number of prior draws used in simulation
-#' @return a data frame with summary statistics for the input prior
-#' @examples
-#' summarise_one_prior(marg_prior_example, n_samp = 1000)
-#' @export
-summarise_one_prior = function(prior_df,
-                               n_samp){
-  prior_samples = sample_from_prior(prior_df, n_samp = n_samp)
-
-  prior_summary = summarise_prior_samples(prior_samples)
-
-  return(prior_summary)
-}
-
 #' Summarise a conditional prior
 #'
 #' @description This function runs Monte Carlo simulations for each variant's
