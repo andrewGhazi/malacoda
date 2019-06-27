@@ -8,6 +8,9 @@ summarise_prior_samples(sim_df, ts_hdi_prob = 0.95)
 }
 \arguments{
 \item{sim_df}{a data frame of simulation draws}
+
+\item{ts_hdi_prob}{probability mass to include in the highest density
+interval on transcription shift to call MPRA-functional variants}
 }
 \value{
 a row data frame with columns of summary statistics
