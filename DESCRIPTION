@@ -17,7 +17,7 @@ Description: Bayesian analysis of high-throughput genomic assays, such as MPRA
 License: GPL (>=3)
 Depends:
     methods,
-    R (>= 3.4.0),
+    R (>= 3.5.0),
     Rcpp (>= 0.12.18)
 Imports:
     rstan (>= 2.17.3),
