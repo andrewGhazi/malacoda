@@ -1,13 +1,11 @@
 ## Resubmission
 This is a resubmission of malacoda, which was previously released May 31 2019. In this submission:
 
-* We have corrected the URL in the documentation for u_deepsea 
-* There was a question with our previous submission if there was a method reference/citation we could put in the Description. We have not published this method yet but we were hoping to have it on CRAN before doing so. We have a manuscript in preparation that we aim to submit in the next few months.
+* We have added runnable examples for all exported functions with one exception, count_barcodes(). count_barcodes() calls external bioinformatics software (the FAST-X toolkit mentioned in the SystemRequirements field) and hence we have still left it wrapped in \dontrun{}. However the example there will run if that software is installed. count_barcodes() is a convenient utility function but not essential to the core purpose of this package. count_barcodes() immediately checks if the FASTX-Toolkit is installed with Sys.which() and stops and gives an installation URL if it's not.
 
 ### Previous submission comments
-* As requested, we have added examples for the packages most important functions, most prominently fit_mpra_model(). Each row of results from fit_mpra_model() involves running an MCMC chain, so the example uses too-few posterior samples for only 3 variants (rows) for the sake of running quickly (~2s on my laptop). This is noted in a comment above the example, with recommendations to the user on how to improve the MCMC. The example_result object included in the package is there to provide a precise example in the vignette; it would take too long to run to be in an example.
-* Examples & informative comments on the examples have been added to: get_sample_depths, get_well_represented, fit_marg_prior, get_sample correlations, plot_mpra_correlations, fit_cond_prior, count_barcodes, and compute_activities. This covers the majority of the functions demonstrated in the vignette. These examples are either runnable or too slow for runnable examples.
-* Other functionality has been tweaked/improved
+* We have corrected the URL in the documentation for u_deepsea 
+* There was a question with our previous submission if there was a method reference/citation we could put in the Description. We have not published this method yet but we were hoping to have it on CRAN before doing so. We have a manuscript in preparation that we aim to submit in the next few months.
 
 ## Test environments  
 * local Linux Mint 19.1, R 3.6.0
