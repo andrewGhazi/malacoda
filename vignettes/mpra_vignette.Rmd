@@ -218,7 +218,7 @@ This will:
 1. Run a variational Stan model that fits the model described above for each variant. 
 2. If the variational result looks promising, it will run the standard Stan MCMC sampler on the model.
 3. Save the stanfit object for the variant as `<variant_id>.RData` in the output directory.
-4. Compute some summary statistics for each variant, including a 95% transcription shift highest density interval and (based on that and the ROPE) a binary call for variant function (the `is_functional` column).
+4. Compute some summary statistics for each variant, including a 95% transcription shift highest density interval and (based on that) a binary call for variant function (the `is_functional` column).
 5. Compile the results into a data frame.
 ```{r}
 load('../data/example_result.RData')
