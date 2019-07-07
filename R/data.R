@@ -70,3 +70,9 @@
 #' libraries for CRISPR-Cas9 genetic screens with multiple modalities", Doench
 #' et al., Nature Communications, 2018
 "dropout_example"
+
+#' Example prior ratios object
+#'
+#' Example prior ratios for the conditional and marginal priors trained on the
+#' example dataset. See the example in ?plot_prior_ratios to see how it is computed.
+"ratios_example"
