@@ -39,7 +39,7 @@ SystemRequirements.
 
 GNU make was added as a system requirement by rstantools::rstan_package_skeleton(). Removing this requirement would likely interfere with the compilation of the Stan models in this package.
 
-* on local Linux Mint 19.1, R 3.6.0: checking compilation flags used ... NOTE
+* on local Linux Mint 19.1, R 3.6.1: checking compilation flags used ... NOTE
   Compilation used the following non-portable flag(s):
     ‘-march=native’
     
