@@ -59,8 +59,7 @@ transcription shift region of practical equivalence (ROPE), defaulting to
 a data frame with a row for each variant_id that specifies the
   posterior mean TS, upper and lower HDI bounds, a binary call of functional
   or non-functional, and other appropriate outputs. The output column
-  \code{is_functional} is defined by the TS HDI excluding 0 and the posterior
-  mass in the ROPE falling below the ROPE alpha level.
+  \code{is_functional} is defined by the TS HDI excluding 0.
 }
 \description{
 This function fits a negative-binomial based Bayesian model to
