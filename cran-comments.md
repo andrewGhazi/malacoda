@@ -8,10 +8,10 @@ This is a resubmission of malacoda, which was previously released May 31 2019. I
 * There was a question with our previous submission if there was a method reference/citation we could put in the Description. We have not published this method yet but we were hoping to have it on CRAN before doing so. We have a manuscript in preparation that we aim to submit in the next few months.
 
 ## Test environments  
-* local Linux Mint 19.1, R 3.6.0
-* local macOS Mojave 10.14.1, R 3.6.0
+* local Linux Mint 19.1, R 3.6.1
 * Ubuntu Linux 16.04 LTS, R-release, GCC via Rhub
 * Fedora Linux, R-devel, clang, gfortran via Rhub
+* macOS 10.11 El Capitan, R-release via Rhub
 
 Windows is not a target platform for us, so Windows-related errors/warnings/build-failures do not bother us if they are not a problem for the CRAN maintainers.
 
@@ -32,7 +32,7 @@ Possibly mis-spelled words in DESCRIPTION:
   
 This is a resubmission of this package (my first) after previous submission was rejected do to some initial problems.
 
-The words CRISPR, MPRA, barcodes, and gRNAs are all spelled correctly. These seem to be false positives from the spell-checker.
+The words CRISPR, MPRA, barcodes, and gRNAs are all spelled correctly. These seem to be false positives from the spell-checker. We have used devtools::spell_check() and didn't spot any problems.
   
 * checking for GNU extensions in Makefiles ... NOTE GNU make is a
 SystemRequirements.
