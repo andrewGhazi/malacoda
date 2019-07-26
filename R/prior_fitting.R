@@ -293,7 +293,7 @@ fit_marg_prior = function(mpra_data,
     mutate(depth_adj_mu_est = map2_dbl(.data$nb_fit, .data$depth_factor, ~.x$par[1] / .y),
            phi_est = map_dbl(.data$nb_fit, ~.x$par[2]),
            acid_type = factor(stringr::str_extract(.data$sample_id, 'DNA|RNA'))) %>%
-    filter(.data$phi_est < quantile(.data$phi_est, probs = .995)) # cut out severely underdispersed alleles
+    filter(.data$phi_est < quantile(.data$phi_est, probs = .95)) # cut out severely underdispersed alleles
 
   dna_gamma_prior = dna_nb_fits %>%
     summarise(mu_prior = list(fit_gamma(.data$depth_adj_mu_est)),
@@ -342,7 +342,7 @@ fit_marg_prior = function(mpra_data,
               size_guess = .data$mean_est^2 / (.data$var_est - .data$mean_est)) %>%
     filter(.data$size_guess > 0 & is.finite(.data$size_guess)) %>% # negative size guess = var < mean = underdispersed
     filter(.data$size_guess < quantile(.data$size_guess,
-                                       probs = .99)) %>% # HUGE size guess = underdispersed, cut out barcodes that are TOO consistent i.e. underdispersed
+                                       probs = .95)) %>% # HUGE size guess = underdispersed, cut out barcodes that are TOO consistent i.e. underdispersed
     summarise(phi_prior = list(fit_gamma(.data$size_guess))) %>%
     gather('prior_type', 'prior', matches('prior')) %>%
     mutate(alpha_est = map_dbl(.data$prior, ~.x$par[1]),
