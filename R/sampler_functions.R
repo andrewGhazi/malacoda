@@ -111,15 +111,15 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
   }
 
   #### Compile summary data frame ----
-  res_df = data_frame(ts_post_mean = mean(ts_vec),
-                      ref_act_post_mean = mean(ref_act),
-                      alt_act_post_mean = mean(alt_act),
-                      is_functional = is_functional,
-                      ts_hdi = list(ts_hdi_obj),
-                      hdi_lower = ts_hdi_obj[1],
-                      hdi_upper = ts_hdi_obj[2],
-                      ts_rope_mass = ts_rope_mass,
-                      note = note)
+  res_df = tibble(ts_post_mean = mean(ts_vec),
+                  ref_act_post_mean = mean(ref_act),
+                  alt_act_post_mean = mean(alt_act),
+                  is_functional = is_functional,
+                  ts_hdi = list(ts_hdi_obj),
+                  hdi_lower = ts_hdi_obj[1],
+                  hdi_upper = ts_hdi_obj[2],
+                  ts_rope_mass = ts_rope_mass,
+                  note = note)
 
   return(res_df)
 
