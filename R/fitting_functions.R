@@ -323,7 +323,7 @@ fit_mpra_model = function(mpra_data,
                                  format_conditional_prior,
                                  cond_priors = priors))
 
-    analysis_res =  sampler_input %>%
+    analysis_res = sampler_input %>%
       mutate(sampler_stats = parallel::mcmapply(run_mpra_sampler,
                                                 .data$variant_id, .data$variant_data, .data$variant_prior,
                                                 MoreArgs = list(n_chains = n_chains,
