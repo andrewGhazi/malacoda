@@ -87,7 +87,7 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
   alt_act = rstan::extract(sampler_res,
                            pars = 'alt_act')$alt_act
 
-  ts_hdi_obj = coda::HPDinterval(coda::mcmc(as.matrix(ts_vec)),
+  ts_hdi_obj = coda::HPDinterval(coda::as.mcmc(ts_vec),
                                  prob = ts_hdi_prob)
 
   # rope_alpha = 1 - ts_hdi_prob
