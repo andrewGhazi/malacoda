@@ -311,6 +311,17 @@ fit_mpra_model = function(mpra_data,
                                           plot_rep_cutoff = FALSE, # this will have been plotted in the prior fitting already if necessary
                                           verbose = FALSE)
 
+  biallelic_wr = mpra_data %>%
+    filter(.data$barcode %in% well_represented$barcode) %>%
+    select(.data$variant_id, .data$allele, .data$barcode) %>%
+    group_by(.data$variant_id) %>%
+    mutate(n_alleles = n_distinct(.data$allele)) %>%
+    filter(n_alleles == 2) %>%
+    ungroup
+
+  well_represented = well_represented %>%
+    filter(.data$barcode %in% biallelic_wr$barcode)
+
   arg_list = list(n_chains = n_chains,
                   n_warmup = n_warmup,
                   tot_samp = tot_samp,
@@ -340,6 +351,7 @@ fit_mpra_model = function(mpra_data,
                                                 .data$variant_id, .data$variant_data, .data$variant_prior,
                                                 MoreArgs = arg_list,
                                                 mc.cores = n_cores,
+                                                mc.preschedule = FALSE,
                                                 SIMPLIFY = FALSE)) %>%
       unnest(.data$sampler_stats,
              .drop = TRUE,
@@ -358,6 +370,7 @@ fit_mpra_model = function(mpra_data,
                                                 .data$variant_id, .data$variant_data, .data$variant_prior,
                                                 MoreArgs = arg_list,
                                                 mc.cores = n_cores,
+                                                mc.preschedule = FALSE,
                                                 SIMPLIFY = FALSE)) %>%
       unnest(.data$sampler_stats,
              .drop = TRUE,
@@ -376,6 +389,7 @@ fit_mpra_model = function(mpra_data,
                                                 .data$variant_id, .data$variant_data, .data$variant_prior,
                                                 MoreArgs = arg_list,
                                                 mc.cores = n_cores,
+                                                mc.preschedule = FALSE,
                                                 SIMPLIFY = FALSE)) %>%
       unnest(.data$sampler_stats,
              .drop = TRUE,
