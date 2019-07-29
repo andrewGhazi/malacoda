@@ -298,7 +298,7 @@ fit_mpra_model = function(mpra_data,
   }
 
 
-  #### Run samplers ----
+  #### Prepare to run samplers ----
   message('Running model samplers...')
 
   n_rna = mpra_data %>% select(matches('RNA')) %>% ncol
@@ -311,6 +311,7 @@ fit_mpra_model = function(mpra_data,
                                           plot_rep_cutoff = FALSE, # this will have been plotted in the prior fitting already if necessary
                                           verbose = FALSE)
 
+  # TODO, make the user aware that this step is happening
   biallelic_wr = mpra_data %>%
     filter(.data$barcode %in% well_represented$barcode) %>%
     select(.data$variant_id, .data$allele, .data$barcode) %>%
@@ -335,6 +336,7 @@ fit_mpra_model = function(mpra_data,
                   vb_pass = vb_pass,
                   vb_prob = vb_prob)
 
+  #### Run samplers ----
   if (annotations_given) {
 
     # attach the conditional priors in the form expected by run_mpra_sampler
