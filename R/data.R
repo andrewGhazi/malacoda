@@ -66,7 +66,7 @@
 
 #' Example CRISPR dropout screen counts
 #'
-#' Example dropout screen counts for 50 randomly selected genes from "Optimized
+#' Example dropout screen counts for 10 randomly selected genes from "Optimized
 #' libraries for CRISPR-Cas9 genetic screens with multiple modalities", Doench
 #' et al., Nature Communications, 2018
 "dropout_example"

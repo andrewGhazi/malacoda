@@ -4,12 +4,12 @@
 \name{dropout_example}
 \alias{dropout_example}
 \title{Example CRISPR dropout screen counts}
-\format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 200 rows and 5 columns.}
+\format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 40 rows and 5 columns.}
 \usage{
 dropout_example
 }
 \description{
-Example dropout screen counts for 50 randomly selected genes from "Optimized
+Example dropout screen counts for 10 randomly selected genes from "Optimized
 libraries for CRISPR-Cas9 genetic screens with multiple modalities", Doench
 et al., Nature Communications, 2018
 }
