@@ -129,7 +129,7 @@ examples_to_evaluate = umpra_example[umpra_example$variant_id \%in\% example_var
 example_result = fit_mpra_model(mpra_data = examples_to_evaluate,
  priors = marg_prior_example,
  vb_pass = FALSE,
- tot_samp = 50,
+ tot_samp = 20,
  n_warmup = 10) # Likewise, n_warmup should be >500
 
 print(example_result)

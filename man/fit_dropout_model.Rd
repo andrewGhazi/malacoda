@@ -62,6 +62,6 @@ Currently this function only supports marginal priors. If you want to
 
 fit_dropout_model(dropout_data = dropout_example,
 n_cores = 1,
-tot_samp = 50,
+tot_samp = 20,
 n_warmup = 5)
 }
