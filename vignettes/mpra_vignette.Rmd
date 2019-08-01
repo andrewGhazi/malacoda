@@ -19,10 +19,8 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r, message = FALSE}
+```{r echo = FALSE, message = FALSE}
 library(dplyr)
-library(purrr)
-library(tidyr)
 ```
 
 
@@ -42,11 +40,10 @@ It's best to have the most up-to-date version of R (3.6.0 as of May 2 2019).
 The first step is to install `rstan` and `Rcpp`. The following command will usually suffice to do this, if not you can find more in-depth installation instructions [on the rstan documentation](https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started). You should have root access. 
 
 ```{r gh-installation, eval=FALSE, purl=FALSE}
-# Need to have root access
 install.packages(c('Rcpp', 'rstan'), dependencies = TRUE, type = 'source')
 ```
 
-Once malacoda is accepted up on CRAN it will be installable with:
+Once malacoda is accepted by CRAN it will be installable with:
 
 ```{r, eval = FALSE, purl=FALSE}
 # install.packages('malacoda')
@@ -103,9 +100,9 @@ The data outputs from a MPRA can be laid out simply in a data frame as shown bel
 load('../data/umpra_example.RData') 
 
 umpra_example %>% 
-  select_all(~gsub('K562_|CTRL_', '', .)) %>% 
-  group_by(variant_id, allele) %>% 
-  do(head(., 3)) %>% 
+  dplyr::select_all(~gsub('K562_|CTRL_', '', .)) %>% 
+  dplyr::group_by(variant_id, allele) %>% 
+  dplyr::do(head(., 3)) %>% 
   .[1:12,1:8] %>% 
   knitr::kable()
 ```
@@ -158,9 +155,7 @@ This example (included with the package as `u_deepsea` shows [DeepSea's](http://
 ```{r}
 load('../data/u_deepsea.RData')
 
-u_deepsea %>% 
-  head %>% 
-  knitr::kable()
+knitr::kable(head(u_deepsea))
 ```
 
 While this example shows only a single annotation, the methods included with this package can utilize an arbitrary number of annotations. A user could also include ENCODE transcription factor binding profiles, additional DeepSea predictions, etc. Whatever set of continuous annotations they think can provide information about their MPRA assay's results. 
