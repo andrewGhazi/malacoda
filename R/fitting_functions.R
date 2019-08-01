@@ -313,7 +313,7 @@ fit_mpra_model = function(mpra_data,
     select(.data$variant_id, .data$allele, .data$barcode) %>%
     group_by(.data$variant_id) %>%
     mutate(n_alleles = n_distinct(.data$allele)) %>%
-    filter(n_alleles == 2) %>%
+    filter(.data$n_alleles == 2) %>%
     ungroup
 
   well_represented = well_represented %>%
