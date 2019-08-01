@@ -20,11 +20,7 @@
 #'
 #'   The current maximum likelihood estimates are sub-par and will be improved. Interpret with caution.
 #' @examples
-#' marg_prior = fit_marg_prior(umpra_example)
-#' cond_prior = fit_cond_prior(mpra_data = umpra_example,
-#'                             annotations = u_deepsea,
-#'                             min_neighbors = 10)
-#' get_prior_ratios(umpra_example, marg_prior, cond_prior)
+#' get_prior_ratios(umpra_example, marg_prior_example, cond_prior_example)
 #' @export
 get_prior_ratios = function(mpra_data,
                             marg_prior,

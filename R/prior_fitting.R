@@ -505,7 +505,7 @@ fit_grouped_prior = function(mpra_data,
 #'                             n_cores = 1,
 #'                             rep_cutoff = .15,
 #'                             plot_rep_cutoff = TRUE,
-#'                             min_neighbors = 10)
+#'                             min_neighbors = 5)
 fit_cond_prior = function(mpra_data,
                           annotations,
                           n_cores = 1,

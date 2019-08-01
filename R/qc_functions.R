@@ -221,7 +221,7 @@ trim_and_filter = function(fastq,
 #'   barcode sets in the first place, which is easily possible through the
 #'   \href{https://github.com/andrewGhazi/mpradesigntools}{mpradesigntools}
 #'   package.
-#' @examples \dontrun{
+#' @examples \donttest{\dontrun{
 #' fastq_dir_example = tempdir()
 #'
 #' # V This writes out an example directory of fastqs to a temporary directory
@@ -241,7 +241,7 @@ trim_and_filter = function(fastq,
 #' bc_end = 10, # and ends at the 14th
 #' quality_cutoff = 30,
 #' n_cores = 1,
-#' keep_temp = FALSE)}
+#' keep_temp = FALSE)}}
 #' @export
 count_barcodes = function(barcode_allele_df,
                           fastq_dir,

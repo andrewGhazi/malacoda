@@ -144,11 +144,7 @@ fit_gamma = function(input_vec,
 #' @note Sampler results for individual variants will be saved to the specified
 #'   out_dir as they can be several megabytes each
 #' @examples
-#' # This example fits a prior on 25 variants and too-short MCMC chains on 3 variants
-#'
-#' marg_prior = fit_marg_prior(mpra_data = umpra_example,
-#'  n_cores = 1,
-#'  rep_cutoff = .05) # rep_cutoff should be tuned with the representation plot
+#' # This example fits the malacoda model on 3 variants with too-short MCMC chains
 #'
 #' example_variants = c("11_8839229_1-2", "15_75303554_2-3", "1_203652141_2-3")
 #'
@@ -156,9 +152,9 @@ fit_gamma = function(input_vec,
 #'
 #' # tot_samp should be set to >50,000 to ensure the posterior chains converge
 #' example_result = fit_mpra_model(mpra_data = examples_to_evaluate,
-#'  priors = marg_prior,
+#'  priors = marg_prior_example,
 #'  vb_pass = FALSE,
-#'  tot_samp = 100,
+#'  tot_samp = 50,
 #'  n_warmup = 10) # Likewise, n_warmup should be >500
 #'
 #' print(example_result)
@@ -448,8 +444,8 @@ fit_mpra_model = function(mpra_data,
 #'
 #' fit_dropout_model(dropout_data = dropout_example,
 #' n_cores = 1,
-#' tot_samp = 100,
-#' n_warmup = 10)
+#' tot_samp = 50,
+#' n_warmup = 5)
 #' @export
 fit_dropout_model = function(dropout_data,
                              out_dir = NULL,

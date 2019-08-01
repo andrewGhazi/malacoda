@@ -94,7 +94,7 @@ This function requires an installation of
   package.
 }
 \examples{
-\dontrun{
+\donttest{\dontrun{
 fastq_dir_example = tempdir()
 
 # V This writes out an example directory of fastqs to a temporary directory
@@ -114,5 +114,5 @@ bc_start = 1, # The barcode starts at the first base read
 bc_end = 10, # and ends at the 14th
 quality_cutoff = 30,
 n_cores = 1,
-keep_temp = FALSE)}
+keep_temp = FALSE)}}
 }
