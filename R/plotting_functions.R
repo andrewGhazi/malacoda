@@ -84,12 +84,6 @@ get_label_y = function(ratio_values){
 #' @param x_limits a length two vector for the x-limits of the histograms
 #' @param n_bins number of bins in the histogram
 #' @examples
-#' # marg_prior = fit_marg_prior(umpra_example)
-#' # cond_prior = fit_cond_prior(mpra_data = umpra_example,
-#' #                             annotations = u_deepsea,
-#' #                             min_neighbors = 10)
-#' # ratios_example = get_prior_ratios(umpra_example, marg_prior, cond_prior)
-#' # ratios_example is included as a data object in malacoda to make this example run quickly.
 #' plot_prior_ratios(ratios_example, n_bins = 30)
 #' @export
 plot_prior_ratios = function(prior_ratios,
@@ -142,21 +136,8 @@ plot_prior_ratios = function(prior_ratios,
 #' @note The default y_limits cut off a small fraction of points where one prior
 #'   or the other does vastly better. It can be set to larger values to avoid
 #'   this behavior.
-#' marg_prior = fit_marg_prior(umpra_example)
-#' cond_prior = fit_cond_prior(mpra_data = umpra_example,
-#'                             annotations = u_deepsea,
-#'                             min_neighbors = 10)
-#' ratio_df = get_prior_ratios(umpra_example, marg_prior, cond_prior)
-#' example_variants = c("11_8839229_1-2", "15_75303554_2-3", "1_203652141_2-3")
-#'
-#' examples_to_evaluate = umpra_example[umpra_example$variant_id %in% example_variants,]
-#' example_result = fit_mpra_model(mpra_data = examples_to_evaluate,
-#'  priors = marg_prior,
-#' vb_pass = FALSE,
-#' tot_samp = 100,
-#' n_warmup = 10) # Likewise, n_warmup should be >500
-#'
-#' plot_ratio_hexs(ratio_df, example_result)
+#' @examples
+#' plot_ratio_hexs(ratios_example, example_result)
 #' @export
 plot_ratio_hexs = function(prior_ratios,
                            model_result,
