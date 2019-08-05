@@ -10,3 +10,6 @@ R/crispr_model_testing.R
 data/41467_2018_7901_MOESM4_ESM.xlsx
 doc
 Meta
+src/stan_files/*.o
+src/stan_files/*.cc
+src/stan_files/*.hpp
