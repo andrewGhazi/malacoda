@@ -9,7 +9,7 @@
 #' @param rep_cutoff a DNA representation cutoff
 #' @param plot_rep_cutoff a logical indicating whether or not to plot the DNA
 #'   barcode abundance and the applied representation cutoff
-#'
+#' @param verbose logical indicating whether to print messages
 #' @return a data frame of activities
 #' @note the output is returned in a "tall" format, with sample_id's gathered
 #'   into one column
@@ -17,11 +17,15 @@
 #' @export
 compute_activities = function(mpra_data,
                               rep_cutoff = .15,
-                              plot_rep_cutoff = TRUE){
+                              plot_rep_cutoff = TRUE,
+                              verbose = TRUE){
 
   sample_depths = get_sample_depths(mpra_data)
 
-  message('Determining well-represented variants, see plot...')
+  if (verbose) {
+    message('Determining well-represented variants, see plot...')
+  }
+
   well_represented = get_well_represented(mpra_data,
                                           sample_depths,
                                           rep_cutoff = rep_cutoff,
@@ -46,10 +50,13 @@ compute_activities = function(mpra_data,
            activity = log(.data$depth_adj_count / .data$mean_depth_adj_dna))
 
   if (any(is.infinite(activities_raw$activity))) {
-    message(paste0('Removing ', sum(is.infinite(activities_raw$activity)),
-                 ' infinite activity measurements (i.e. 0 RNA counts) out of ',
-                 nrow(activities_raw),
-                 ' (', round(100*sum(is.infinite(activities_raw$activity)) / nrow(activities_raw), digits = 2), '%)'))
+    if (verbose) {
+      message(paste0('Removing ', sum(is.infinite(activities_raw$activity)),
+                     ' infinite activity measurements (i.e. 0 RNA counts) out of ',
+                     nrow(activities_raw),
+                     ' (', round(100*sum(is.infinite(activities_raw$activity)) / nrow(activities_raw), digits = 2), '%)'))
+    }
+
 
     activities = activities_raw %>%
       filter(is.finite(.data$activity))

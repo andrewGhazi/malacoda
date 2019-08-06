@@ -5,7 +5,7 @@
 \title{Compute MPRA activities}
 \usage{
 compute_activities(mpra_data, rep_cutoff = 0.15,
-  plot_rep_cutoff = TRUE)
+  plot_rep_cutoff = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{mpra_data}{a data frame of MPRA data}
@@ -14,6 +14,8 @@ compute_activities(mpra_data, rep_cutoff = 0.15,
 
 \item{plot_rep_cutoff}{a logical indicating whether or not to plot the DNA
 barcode abundance and the applied representation cutoff}
+
+\item{verbose}{logical indicating whether to print messages}
 }
 \value{
 a data frame of activities
