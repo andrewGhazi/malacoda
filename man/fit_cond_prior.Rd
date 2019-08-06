@@ -6,7 +6,7 @@
 \usage{
 fit_cond_prior(mpra_data, annotations, n_cores = 1,
   plot_rep_cutoff = TRUE, rep_cutoff = 0.15, min_neighbors = 100,
-  kernel_fold_increase = 1.4142)
+  kernel_fold_increase = 1.4142, verbose = TRUE)
 }
 \arguments{
 \item{mpra_data}{a data frame of mpra data}
@@ -28,6 +28,8 @@ must contribute to prior estimation}
 \item{kernel_fold_increase}{The amount to iteratively increase kernel width
 by when estimating conditional priors. Smaller values (closer to 1) will
 yield more refined priors but take longer.}
+
+\item{verbose}{logical indicating whether to print messages}
 }
 \value{
 A list of two data frames. The first is for the DNA and the second is

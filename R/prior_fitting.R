@@ -240,6 +240,7 @@ get_well_represented = function(mpra_data,
 #'   well_represented objects
 #' @param well_represented optional inputs to allow passing in sample_depths and
 #'   well_represented objects
+#' @param verbose logical indicating whether to print messages
 #' @examples marg_prior = fit_marg_prior(umpra_example,
 #'  rep_cutoff = .15,
 #'  plot_rep_cutoff = TRUE,
@@ -512,6 +513,7 @@ fit_grouped_prior = function(mpra_data,
 #' @param kernel_fold_increase The amount to iteratively increase kernel width
 #'   by when estimating conditional priors. Smaller values (closer to 1) will
 #'   yield more refined priors but take longer.
+#' @param verbose logical indicating whether to print messages
 #' @export
 #' @examples
 #' cond_prior = fit_cond_prior(mpra_data = umpra_example,
