@@ -89,7 +89,7 @@ fit_gamma = function(input_vec,
 #'   transcription shift region of practical equivalence (ROPE), defaulting to
 #'   +/- log(3/2)
 #' @param rep_cutoff a representation cutoff quantile (0 to 1)
-#'
+#' @param verbose logical indicating whether to print messages
 #' @details \code{mpra_data} must contain the following groups of columns:
 #'   \itemize{ \item{variant_id} \item{allele - either 'ref' or 'alt'}
 #'   \item{barcode - a unique index sequence for that row (ideally the same
@@ -173,7 +173,8 @@ fit_mpra_model = function(mpra_data,
                           vb_prob = .8,
                           ts_hdi_prob = .95,
                           ts_rope = c(-.405, .405),
-                          rep_cutoff = .15) {
+                          rep_cutoff = .15,
+                          verbose = TRUE) {
 
   start_time = Sys.time()
 
@@ -249,15 +250,24 @@ fit_mpra_model = function(mpra_data,
   if (missing(priors)) {
     annotations_given = !is.null(annotations)
     # Fit priors
-    message('No annotations provided, fitting marginal priors...')
+    if (verbose) {
+      message('No annotations provided, fitting marginal priors...')
+    }
+
     if (!annotations_given) {
-      message('Fitting MARGINAL priors...')
+      if (verbose) {
+        message('Fitting MARGINAL priors...')
+      }
+
       priors = fit_marg_prior(mpra_data,
                               n_cores = n_cores,
                               rep_cutoff = .15,
                               plot_rep_cutoff = TRUE)
     } else if (!is.null(group_df)) {
-      message('Fitting group-wise priors...')
+      if (verbose) {
+        message('Fitting group-wise priors...')
+      }
+
       priors = fit_grouped_prior(mpra_data,
                                  group_df = group_df,
                                  n_cores = n_cores,
@@ -265,7 +275,10 @@ fit_mpra_model = function(mpra_data,
                                  rep_cutoff = .15)
 
     } else {
-      message('Fitting annotation-based conditional priors...')
+      if (verbose) {
+        message('Fitting annotation-based conditional priors...')
+      }
+
       priors = fit_cond_prior(mpra_data,
                               annotations,
                               n_cores = n_cores,
@@ -274,7 +287,10 @@ fit_mpra_model = function(mpra_data,
                               min_neighbors = 30,
                               kernel_fold_increase = 1.3)
 
-      message('Conditional prior fitting done...')
+      if (verbose) {
+        message('Conditional prior fitting done...')
+      }
+
       if(!is.null(out_dir)){
         save(priors,
              file = paste0(out_dir, 'conditional_prior.RData'))
@@ -282,20 +298,32 @@ fit_mpra_model = function(mpra_data,
     }
   } else {
     if (all(class(priors) == 'list')){
-      message('Input prior class is list, interpreting as conditional priors.')
+      if (verbose) {
+        message('Input prior class is list, interpreting as conditional priors.')
+      }
+
       annotations_given = TRUE
     } else if ('group_prior' %in% names(priors)) {
-      message('Interpreting input prior as a grouped prior.')
+      if (verbose) {
+        message('Interpreting input prior as a grouped prior.')
+      }
+
       annotations_given = FALSE
     } else {
-      message('Input prior class is not list, interpreting as marginal priors.')
+      if (verbose) {
+        message('Input prior class is not list, interpreting as marginal priors.')
+      }
+
       annotations_given = FALSE
     }
   }
 
 
   #### Prepare to run samplers ----
-  message('Running model samplers...')
+  if (verbose) {
+    message('Running model samplers...')
+  }
+
 
   n_rna = mpra_data %>% select(matches('RNA')) %>% ncol
   n_dna = mpra_data %>% select(matches('DNA')) %>% ncol
@@ -403,8 +431,10 @@ fit_mpra_model = function(mpra_data,
   end_time = Sys.time()
   time_diff = end_time - start_time
 
-  message(paste0('MPRA data for ', n_distinct(mpra_data$variant_id), ' variants analyzed in ',
-                 round(digits = 3, end_time - start_time), ' ', attr(time_diff, 'units')))
+  if (verbose) {
+    message(paste0('MPRA data for ', n_distinct(mpra_data$variant_id), ' variants analyzed in ',
+                   round(digits = 3, end_time - start_time), ' ', attr(time_diff, 'units')))
+  }
 
   return(analysis_res)
 }
