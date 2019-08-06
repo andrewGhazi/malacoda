@@ -388,7 +388,8 @@ count_barcodes = function(barcode_allele_df,
                        count_barcodes_in_fastq,
                        mc.cores = n_cores,
                        barcode_allele_df = barcode_allele_df,
-                       temp_dir = temp_dir) %>%
+                       temp_dir = temp_dir,
+                       verbose = verbose) %>%
     purrr::reduce(.f = dplyr::inner_join, by = c('bc_id', 'barcode'))
 
   if (verbose) {message('Counting done. If no/few barcodes are found, check if the barcodes in your reads are the reverse complement of how you ordered them. If so, you may need to use DNAString(), reverseComplement(), and toString() from the Biostrings package on your input')}

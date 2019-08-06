@@ -182,7 +182,8 @@ find_prior_weights = function(given_id,
 #' get_well_represented(umpra_example,
 #'     sample_depths = example_depths,
 #'     rep_cutoff = .15,
-#'     plot_rep_cutoff = TRUE)
+#'     plot_rep_cutoff = TRUE,
+#'     verbose = TRUE)
 #' # The final depth adjusted cutoff value will be lower for non-subsampled
 #' # datasets that have higher total sequencing depth.
 #' @export
@@ -275,7 +276,8 @@ fit_marg_prior = function(mpra_data,
     well_represented = get_well_represented(mpra_data,
                                             sample_depths,
                                             rep_cutoff = rep_cutoff,
-                                            plot_rep_cutoff = plot_rep_cutoff)
+                                            plot_rep_cutoff = plot_rep_cutoff,
+                                            verbose = verbose)
   }
 
   if (verbose) {
@@ -463,7 +465,8 @@ fit_grouped_prior = function(mpra_data,
   well_represented = get_well_represented(mpra_data,
                                           sample_depths,
                                           rep_cutoff = rep_cutoff,
-                                          plot_rep_cutoff = plot_rep_cutoff)
+                                          plot_rep_cutoff = plot_rep_cutoff,
+                                          verbose = verbose)
 
   #### Fit grouped prior ----
   grouped_prior = mpra_data %>%
@@ -473,6 +476,7 @@ fit_grouped_prior = function(mpra_data,
     dplyr::mutate(group_prior = purrr::map(group_data, fit_marg_prior,
                                            sample_depths = sample_depths,
                                            well_represented = well_represented,
+                                           verbose = verbose,
                                            n_cores = n_cores, plot_rep_cutoff = FALSE, rep_cutoff = .15)) %>%
     dplyr::select(-'group_data')
 
@@ -572,7 +576,8 @@ fit_cond_prior = function(mpra_data,
   well_represented = get_well_represented(mpra_data,
                                           sample_depths,
                                           rep_cutoff = rep_cutoff,
-                                          plot_rep_cutoff = plot_rep_cutoff)
+                                          plot_rep_cutoff = plot_rep_cutoff,
+                                          verbose = verbose)
 
   if (verbose) {
     message('Fitting marginal DNA prior...')
@@ -626,7 +631,8 @@ fit_cond_prior = function(mpra_data,
     summarise(mean_depth_adj_count = mean(.data$depth_adj_count))
 
   # generate annotation distance matrix
-  dist_mat = generate_distance_matrix(annotations = annotations)
+  dist_mat = generate_distance_matrix(annotations = annotations,
+                                      verbose = verbose)
 
   scaled_annotations = annotations %>%
     mutate_at(.vars = vars(-.data$variant_id),
@@ -665,6 +671,7 @@ fit_cond_prior = function(mpra_data,
                                                    min_dist_kernel = min_dist_kernel,
                                                    min_num_neighbors = min_neighbors,
                                                    kernel_fold_change = kernel_fold_increase,
+                                                   verbose = verbose,
                                                    mc.cores = n_cores))
 
 

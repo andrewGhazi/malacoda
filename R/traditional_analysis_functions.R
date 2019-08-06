@@ -30,7 +30,7 @@ compute_activities = function(mpra_data,
                                           sample_depths,
                                           rep_cutoff = rep_cutoff,
                                           plot_rep_cutoff = plot_rep_cutoff,
-                                          verbose = TRUE)
+                                          verbose = verbose)
 
   mean_dna_abundance = mpra_data %>%
     filter(.data$barcode %in% well_represented$barcode) %>%

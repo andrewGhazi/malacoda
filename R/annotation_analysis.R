@@ -38,7 +38,8 @@ get_prior_ratios = function(mpra_data,
   well_represented = get_well_represented(mpra_data,
                                           sample_depths,
                                           rep_cutoff = .15,
-                                          plot_rep_cutoff = FALSE)
+                                          plot_rep_cutoff = FALSE,
+                                          verbose = verbose)
 
 
   #### First get the ratios for the mean parameters ----
@@ -185,7 +186,8 @@ get_kl_divergences = function(mpra_data,
   well_represented = get_well_represented(mpra_data,
                                           sample_depths,
                                           rep_cutoff = .15,
-                                          plot_rep_cutoff = FALSE)
+                                          plot_rep_cutoff = FALSE,
+                                          verbose = verbose)
 
 
   #### First get the ratios for the mean parameters ----
