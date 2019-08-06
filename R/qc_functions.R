@@ -268,7 +268,10 @@ count_barcodes = function(barcode_allele_df,
   }
 
   if (!dir.exists(temp_dir)){
-    message('The temporary directory specified doesn\'t exist! Creating with dir.create()')
+    if (verbose) {
+      message('The temporary directory specified doesn\'t exist! Creating with dir.create()')
+    }
+
     dir.create(temp_dir)
   }
 
