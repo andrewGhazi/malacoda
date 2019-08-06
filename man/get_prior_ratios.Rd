@@ -4,7 +4,8 @@
 \alias{get_prior_ratios}
 \title{Evaluate prior ratios of MLE estimates}
 \usage{
-get_prior_ratios(mpra_data, marg_prior, cond_prior, n_cores = 1)
+get_prior_ratios(mpra_data, marg_prior, cond_prior, n_cores = 1,
+  verbose = TRUE)
 }
 \arguments{
 \item{mpra_data}{a data frame of MPRA data}
@@ -14,6 +15,8 @@ get_prior_ratios(mpra_data, marg_prior, cond_prior, n_cores = 1)
 \item{cond_prior}{a conditional prior}
 
 \item{n_cores}{number of cores to use in parallel}
+
+\item{verbose}{logical indicating whether to print messages}
 }
 \value{
 a data frame of MLE mean and dispersion parameters by variant_id,

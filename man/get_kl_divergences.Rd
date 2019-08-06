@@ -15,6 +15,8 @@ get_kl_divergences(mpra_data, cond_prior, marg_prior, n_cores,
 \item{marg_prior}{a marginal prior (see fit_marg_prior())}
 
 \item{n_cores}{number of cores for parallelization}
+
+\item{verbose}{logical indicating whether to print messages}
 }
 \value{
 a data frame giving the KL between the observed normalized counts and

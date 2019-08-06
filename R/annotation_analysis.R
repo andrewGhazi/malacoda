@@ -9,6 +9,7 @@
 #' @param marg_prior a marginal prior
 #' @param cond_prior a conditional prior
 #' @param n_cores number of cores to use in parallel
+#' @param verbose logical indicating whether to print messages
 #' @details the inputs \code{marg_prior} and \code{cond_prior} can be taken
 #'   directly as the outputs of fit_marg_prior and fit_cond_prior.
 #'
@@ -25,11 +26,15 @@
 get_prior_ratios = function(mpra_data,
                             marg_prior,
                             cond_prior,
-                            n_cores = 1) {
+                            n_cores = 1,
+                            verbose = TRUE) {
 
   sample_depths = get_sample_depths(mpra_data)
 
-  message('Determining well-represented variants, see plot...')
+  if (verbose) {
+    message('Determining well-represented variants, see plot...')
+  }
+
   well_represented = get_well_represented(mpra_data,
                                           sample_depths,
                                           rep_cutoff = .15,
@@ -159,6 +164,7 @@ get_prior_ratios = function(mpra_data,
 #' @param cond_prior a conditional prior (see fit_cond_prior())
 #' @param marg_prior a marginal prior (see fit_marg_prior())
 #' @param n_cores number of cores for parallelization
+#' @param verbose logical indicating whether to print messages
 #' @return a data frame giving the KL between the observed normalized counts and
 #'   the two priors for each allele of each variant_id
 #' @note The KL divergences are approximations because gamma kernel density
@@ -167,11 +173,15 @@ get_prior_ratios = function(mpra_data,
 get_kl_divergences = function(mpra_data,
                               cond_prior,
                               marg_prior,
-                              n_cores) {
+                              n_cores,
+                              verbose = TRUE) {
 
   sample_depths = get_sample_depths(mpra_data)
 
-  message('Determining well-represented variants, see plot...')
+  if (verbose) {
+    message('Determining well-represented variants, see plot...')
+  }
+
   well_represented = get_well_represented(mpra_data,
                                           sample_depths,
                                           rep_cutoff = .15,
@@ -196,7 +206,10 @@ get_kl_divergences = function(mpra_data,
     left_join(mean_dna_abundance, by = 'barcode') %>%
     mutate(count_remnant = .1 + .data$counts / .data$depth_factor / .data$mean_depth_adj_count)
 
-  message('Computing conditional prior KL divergences...')
+  if (verbose){
+    message('Computing conditional prior KL divergences...')
+  }
+
   cond_kl = cond_prior$rna_priors %>%
     select(.data$variant_id, .data$variant_m_prior) %>% # Only implementing for mu_prior for now # TODO reapply to dispersions
     unnest %>%
@@ -210,7 +223,10 @@ get_kl_divergences = function(mpra_data,
                                      mc.cores = n_cores))) %>%
     select(-.data$remnants)
 
-  message('Computing marginal prior KL divergences...')
+  if (verbose) {
+    message('Computing marginal prior KL divergences...')
+  }
+
   marg_kl = marg_prior %>%
     filter(.data$prior_type == 'mu_prior', .data$acid_type == 'RNA') %>%
     right_join(count_remnants,
