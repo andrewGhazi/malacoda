@@ -250,15 +250,20 @@ fit_marg_prior = function(mpra_data,
                           plot_rep_cutoff = TRUE,
                           rep_cutoff = .15,
                           sample_depths,
-                          well_represented){
+                          well_represented,
+                          verbose = TRUE){
 
   if (missing(sample_depths) | missing(well_represented)){
     sample_depths = get_sample_depths(mpra_data)
 
     if (plot_rep_cutoff) {
-      message('Determining well-represented variants, see plot...')
+      if (verbose) {
+        message('Determining well-represented variants, see plot...')
+      }
     } else {
-      message('Determining well-represented variants...')
+      if (verbose) {
+        message('Determining well-represented variants...')
+      }
     }
     well_represented = get_well_represented(mpra_data,
                                             sample_depths,
@@ -266,8 +271,9 @@ fit_marg_prior = function(mpra_data,
                                             plot_rep_cutoff = plot_rep_cutoff)
   }
 
-
-  message('Fitting marginal DNA prior...')
+  if (verbose) {
+    message('Fitting marginal DNA prior...')
+  }
 
   dna_nb_fits = mpra_data %>%
     filter(.data$barcode %in% well_represented$barcode) %>%
@@ -279,7 +285,7 @@ fit_marg_prior = function(mpra_data,
     mutate(nb_fit = parallel::mclapply(.data$count_dat, fit_nb, mc.cores = n_cores),
            converged = map_lgl(.data$nb_fit, ~.x$convergence == 0))
 
-  if (!all(dna_nb_fits$converged)) {
+  if (!all(dna_nb_fits$converged) & verbose) {
     message(paste0(sum(!dna_nb_fits$converged),
                    ' out of ',
                    nrow(dna_nb_fits),
@@ -314,7 +320,10 @@ fit_marg_prior = function(mpra_data,
     group_by(.data$barcode) %>%
     summarise(mean_depth_adj_count = mean(.data$depth_adj_count))
 
-  message('Fitting marginal RNA mean priors...')
+  if (verbose) {
+    message('Fitting marginal RNA mean priors...')
+  }
+
   rna_m_prior = mpra_data %>%
     select(.data$variant_id, .data$allele, .data$barcode, matches('RNA')) %>%
     filter(.data$barcode %in% well_represented$barcode) %>%
@@ -331,7 +340,10 @@ fit_marg_prior = function(mpra_data,
 
   # the +.1 is to give some non-infinite log-density to 0's. See plot below. It seems to work well.
 
-  message('Fitting marginal RNA dispersion priors...')
+  if (verbose) {
+    message('Fitting marginal RNA dispersion priors...')
+  }
+
   rna_p_prior = mpra_data %>%
     select(.data$variant_id, .data$allele, .data$barcode, matches('RNA')) %>%
     filter(.data$barcode %in% well_represented$barcode) %>%
@@ -397,7 +409,8 @@ fit_grouped_prior = function(mpra_data,
                              group_df,
                              n_cores,
                              plot_rep_cutoff = TRUE,
-                             rep_cutoff = .15) {
+                             rep_cutoff = .15,
+                             verbose = TRUE) {
 
 
 
@@ -434,11 +447,12 @@ fit_grouped_prior = function(mpra_data,
 
   sample_depths = get_sample_depths(mpra_data)
 
-  if (plot_rep_cutoff) {
+  if (plot_rep_cutoff & verbose) {
     message('Determining well-represented variants, see plot...')
-  } else {
+  } else if (verbose) {
     message('Determining well-represented variants...')
   }
+
   well_represented = get_well_represented(mpra_data,
                                           sample_depths,
                                           rep_cutoff = rep_cutoff,
@@ -512,7 +526,8 @@ fit_cond_prior = function(mpra_data,
                           plot_rep_cutoff = TRUE,
                           rep_cutoff = .15,
                           min_neighbors = 100,
-                          kernel_fold_increase = 1.4142){
+                          kernel_fold_increase = 1.4142,
+                          verbose = TRUE){
 
   # Input checks ----
   if(!all(mpra_data$variant_id %in% annotations$variant_id)){
@@ -525,7 +540,10 @@ fit_cond_prior = function(mpra_data,
 
   if (n_distinct(annotations$variant_id) > n_distinct(mpra_data$variant_id)){
     n_extra = n_distinct(annotations$variant_id) - n_distinct(mpra_data$variant_id)
-    message(paste0('Annotations provided for variants not included in mpra_data. Removing ', n_extra, ' unneeded annotations.'))
+
+    if (verbose) {
+      message(paste0('Annotations provided for variants not included in mpra_data. Removing ', n_extra, ' unneeded annotations.'))
+    }
 
     annotations = dplyr::filter(annotations,
                                 .data$variant_id %in% mpra_data$variant_id)
@@ -533,17 +551,24 @@ fit_cond_prior = function(mpra_data,
 
   #### DNA prior fitting ----
 
-  message('Evaluating data depth/DNA representation properties...')
+  if (verbose) {
+    message('Evaluating data depth/DNA representation properties...')
+  }
+
   sample_depths = get_sample_depths(mpra_data)
 
-  message('Determining well-represented variants, see plot...')
+  if (verbose) {
+    message('Determining well-represented variants, see plot...')
+  }
+
   well_represented = get_well_represented(mpra_data,
                                           sample_depths,
                                           rep_cutoff = rep_cutoff,
                                           plot_rep_cutoff = plot_rep_cutoff)
 
-
-  message('Fitting marginal DNA prior...')
+  if (verbose) {
+    message('Fitting marginal DNA prior...')
+  }
 
   dna_nb_fits = mpra_data %>%
     filter(.data$barcode %in% well_represented$barcode) %>%
@@ -555,7 +580,7 @@ fit_cond_prior = function(mpra_data,
     mutate(nb_fit = parallel::mclapply(.data$count_dat, fit_nb, mc.cores = n_cores),
            converged = map_lgl(.data$nb_fit, ~.x$convergence == 0))
 
-  if (!all(dna_nb_fits$converged)) {
+  if (!all(dna_nb_fits$converged) & verbose) {
     message(paste0(sum(!dna_nb_fits$converged),
                    ' out of ',
                    nrow(dna_nb_fits),
@@ -611,7 +636,9 @@ fit_cond_prior = function(mpra_data,
     {. ^ (1 / n_annotations)} # adjustment for the number of annotations provided
 
   # For each variant, get a vector of weights for all other variants in the assay
-  message('Weighting variants in annotation space')
+  if (verbose) {
+    message('Weighting variants in annotation space')
+  }
 
   annotation_vectors = annotations %>%
     gather('anno_id', 'anno_value', -.data$variant_id) %>%
@@ -634,7 +661,10 @@ fit_cond_prior = function(mpra_data,
 
 
   # Perform weighted density estimation for each variant
-  message('Fitting annotation-weighted distributions...')
+  if (verbose) {
+    message('Fitting annotation-weighted distributions...')
+  }
+
   if (n_cores == 1) {
     rna_m_priors = prior_weights %>%
       mutate(variant_m_prior = map2(.data$variant_id, .data$annotation_weights,
