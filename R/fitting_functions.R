@@ -262,7 +262,8 @@ fit_mpra_model = function(mpra_data,
       priors = fit_marg_prior(mpra_data,
                               n_cores = n_cores,
                               rep_cutoff = .15,
-                              plot_rep_cutoff = TRUE)
+                              plot_rep_cutoff = TRUE,
+                              verbose = verbose)
     } else if (!is.null(group_df)) {
       if (verbose) {
         message('Fitting group-wise priors...')
@@ -272,7 +273,8 @@ fit_mpra_model = function(mpra_data,
                                  group_df = group_df,
                                  n_cores = n_cores,
                                  plot_rep_cutoff = TRUE,
-                                 rep_cutoff = .15)
+                                 rep_cutoff = .15,
+                                 verbose = verbose)
 
     } else {
       if (verbose) {
@@ -285,7 +287,8 @@ fit_mpra_model = function(mpra_data,
                               plot_rep_cutoff = TRUE,
                               rep_cutoff = .15,
                               min_neighbors = 30,
-                              kernel_fold_increase = 1.3)
+                              kernel_fold_increase = 1.3,
+                              verbose = verbose)
 
       if (verbose) {
         message('Conditional prior fitting done...')
@@ -320,11 +323,6 @@ fit_mpra_model = function(mpra_data,
 
 
   #### Prepare to run samplers ----
-  if (verbose) {
-    message('Running model samplers...')
-  }
-
-
   n_rna = mpra_data %>% select(matches('RNA')) %>% ncol
   n_dna = mpra_data %>% select(matches('DNA')) %>% ncol
   sample_depths = get_sample_depths(mpra_data)
@@ -333,7 +331,7 @@ fit_mpra_model = function(mpra_data,
                                           sample_depths,
                                           rep_cutoff = rep_cutoff,
                                           plot_rep_cutoff = FALSE, # this will have been plotted in the prior fitting already if necessary
-                                          verbose = FALSE)
+                                          verbose = verbose)
 
   # TODO, make the user aware that this step is happening
   biallelic_wr = mpra_data %>%
@@ -361,6 +359,11 @@ fit_mpra_model = function(mpra_data,
                   vb_prob = vb_prob)
 
   #### Run samplers ----
+
+  if (verbose) {
+    message('Running model samplers...')
+  }
+
   if (annotations_given) {
 
     # attach the conditional priors in the form expected by run_mpra_sampler
