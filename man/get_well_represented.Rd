@@ -43,7 +43,8 @@ example_depths = get_sample_depths(umpra_example)
 get_well_represented(umpra_example,
     sample_depths = example_depths,
     rep_cutoff = .15,
-    plot_rep_cutoff = TRUE)
+    plot_rep_cutoff = TRUE,
+    verbose = TRUE)
 # The final depth adjusted cutoff value will be lower for non-subsampled
 # datasets that have higher total sequencing depth.
 }
