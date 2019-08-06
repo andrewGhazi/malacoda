@@ -5,7 +5,7 @@
 \title{Find prior weights}
 \usage{
 find_prior_weights(given_id, scaled_annotations, dist_mat, min_dist_kernel,
-  kernel_fold_change = 1.3, min_num_neighbors = 100)
+  kernel_fold_change = 1.3, min_num_neighbors = 100, verbose = TRUE)
 }
 \arguments{
 \item{given_id}{a variant_id to get weights for}
@@ -24,6 +24,8 @@ distance kernel}
 
 \item{min_num_neighbors}{the minimum number of neighbors which must make a
 meaningful contribution to the weights before stopping}
+
+\item{verbose}{logical indicating whether to print messages}
 }
 \description{
 For a given variant and annotation set (scaled) and distance

@@ -6,14 +6,14 @@
 #' @param annotations an n x d data frame of annotations
 #' @param log_distance a logical indicating to use the log1p of the distances (TRUE) or the raw euclidean distances (FALSE)
 #' @param scale_annotations logical indicating whether to base::scale to center and scale annotations
-#'
-#'
+#' @param verbose logical indicating whether to print messages
 #' @importFrom magrittr %>%
 generate_distance_matrix = function(annotations,
                                     log_distance = FALSE,
-                                    scale_annotations = TRUE){
+                                    scale_annotations = TRUE,
+                                    verbose = TRUE){
 
-  if(nrow(annotations) > 10000){
+  if(nrow(annotations) > 10000 & verbose){
     message('Computing distance matrix for more than 10000 variants, I hope you have enough memory!')
   }
 
@@ -73,6 +73,7 @@ generate_distance_matrix = function(annotations,
 #'   distance kernel
 #' @param min_num_neighbors the minimum number of neighbors which must make a
 #'   meaningful contribution to the weights before stopping
+#' @param verbose logical indicating whether to print messages
 #' @details The "meaningful contribution" is defined in this way: The variants
 #'   are sorted by weight. The min_num_neighbors-th variant will be weighted to
 #'   at least 1% of the highest most strongly weighted variant. This prevents
@@ -83,7 +84,8 @@ find_prior_weights = function(given_id,
                               dist_mat,
                               min_dist_kernel,
                               kernel_fold_change = 1.3,
-                              min_num_neighbors = 100){
+                              min_num_neighbors = 100,
+                              verbose = TRUE){
 
   n_annotations = dplyr::n_distinct(scaled_annotations$annotation)
 
@@ -99,7 +101,9 @@ find_prior_weights = function(given_id,
     filter(.data$same_pos)
 
   if(nrow(same_annotation_pos) >= min_num_neighbors){
-    message('>= min_num_neighbors at the exact same annotation position. Using these evenly for prior estimation while not using others.')
+    if (verbose) {
+      message('>= min_num_neighbors at the exact same annotation position. Using these evenly for prior estimation while not using others.')
+    }
 
     weight_res = scaled_annotations %>%
       filter(.data$variant_id != given_id) %>%
@@ -203,7 +207,9 @@ get_well_represented = function(mpra_data,
 
   zero_pct = round(zero_num / nrow(all_dna) * 100, digits = 3)
 
-  message(paste0('* ', zero_pct, '% of all barcodes have exactly 0 representation in all samples.'))
+  if (verbose){
+    message(paste0('* ', zero_pct, '% of all barcodes have exactly 0 representation in all samples.'))
+  }
 
   if (plot_rep_cutoff) {
      rep_cutoff_plot = all_dna %>%

@@ -5,7 +5,7 @@
 \title{Generate a distance matrix from a matrix of annotations}
 \usage{
 generate_distance_matrix(annotations, log_distance = FALSE,
-  scale_annotations = TRUE)
+  scale_annotations = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{annotations}{an n x d data frame of annotations}
@@ -13,6 +13,8 @@ generate_distance_matrix(annotations, log_distance = FALSE,
 \item{log_distance}{a logical indicating to use the log1p of the distances (TRUE) or the raw euclidean distances (FALSE)}
 
 \item{scale_annotations}{logical indicating whether to base::scale to center and scale annotations}
+
+\item{verbose}{logical indicating whether to print messages}
 }
 \description{
 Given an nxd matrix of variant annotations, produce an nxn distance matrix
