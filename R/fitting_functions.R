@@ -484,7 +484,8 @@ fit_dropout_model = function(dropout_data,
                              n_warmup = 500,
                              n_chains = 4,
                              rep_cutoff = .1,
-                             plot_rep_cutoff = TRUE) {
+                             plot_rep_cutoff = TRUE,
+                             verbose = TRUE) {
 
   #### input checks ----
 
@@ -515,7 +516,9 @@ fit_dropout_model = function(dropout_data,
   }
 
   #### Clean up input ----
-  message('Determining input gRNA representation parameters...')
+  if (verbose) {
+    message('Determining input gRNA representation parameters...')
+  }
 
   sample_depths = dropout_data %>%
     gather('sample_id', 'gRNA_count', matches('input|output')) %>%
@@ -542,7 +545,10 @@ fit_dropout_model = function(dropout_data,
 
   if (plot_rep_cutoff) {
 
-    message('Plotting representation cutoff. Stop and adjust rep_cutoff if necessary.')
+    if (verbose) {
+      message('Plotting representation cutoff. Stop and adjust rep_cutoff if necessary.')
+    }
+
     depth_adj_input %>%
       ggplot(mapping = aes(x = .data$depth_adj_count)) +
       geom_histogram(aes(y = .data$..density..),
@@ -563,7 +569,10 @@ fit_dropout_model = function(dropout_data,
   #### Estimate prior ----
   # This should go into its own function eventually... TODO
 
-  message('Estimating marginal prior...')
+  if (verbose) {
+    message('Estimating marginal prior...')
+  }
+
   multiple_gRNA =  dropout_data %>%
     filter(.data$gRNA %in% well_rep$gRNA) %>%
     dplyr::count(.data$gene_id) %>%
@@ -594,7 +603,9 @@ fit_dropout_model = function(dropout_data,
 
   #### Evaluate models ----
 
-  message('Running model samplers...')
+  if (verbose) {
+    message('Running model samplers...')
+  }
 
   start_time = Sys.time()
 

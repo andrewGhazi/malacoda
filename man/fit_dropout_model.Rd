@@ -6,7 +6,7 @@
 \usage{
 fit_dropout_model(dropout_data, out_dir = NULL, n_cores = 1,
   tot_samp = 10000, n_warmup = 500, n_chains = 4, rep_cutoff = 0.1,
-  plot_rep_cutoff = TRUE)
+  plot_rep_cutoff = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{dropout_data}{a data frame of dropout data. See details for column
@@ -27,6 +27,8 @@ chains}
 
 \item{plot_rep_cutoff}{logical indicating whether to plot the representation
 cutoff histogram}
+
+\item{verbose}{logical indicating whether to print messages}
 }
 \value{
 a data frame of input counts, fit and model statistics for the
