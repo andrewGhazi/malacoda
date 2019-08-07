@@ -11,12 +11,11 @@ data {
   int<lower=0> ref_rna_counts[n_ref, n_rna_samples];
   int<lower=0> alt_rna_counts[n_alt, n_rna_samples];
 
-  real<lower=0> rna_depths[n_rna_samples]; 
-  real<lower=0> dna_depths[n_dna_samples]; 
-} 
+  real<lower=0> rna_depths[n_rna_samples];
+  real<lower=0> dna_depths[n_dna_samples];
+}
 parameters {
-  real<lower=0> dna_m_ref;
-  real<lower=0> dna_m_alt;
+  real<lower=0> dna_m;
   real<lower=0> dna_p;
 
   vector<lower=0>[2] rna_m; // rna mean
@@ -24,26 +23,26 @@ parameters {
 }
 model {
 
-  // so here the individual counts come from a barcode-specific distribution, 
-  // so the gamma prior on dna_m_a/b above needs to be fit on the 
+  // so here the individual counts come from a barcode-specific distribution,
+  // so the gamma prior on dna_m_a/b above needs to be fit on the
   // depth adjusted counts themselves, not the mean
   for (s in 1:n_dna_samples) {
     for (bc in 1:n_ref) {
-      ref_dna_counts[bc,s] ~ neg_binomial_2(dna_m_ref * dna_depths[s], dna_p);
-    }
-    
-    for (bc in 1:n_alt) {
-      alt_dna_counts[bc,s] ~ neg_binomial_2(dna_m_alt * dna_depths[s], dna_p);
-    }
-  }
-  
-  for (s in 1:n_rna_samples) {
-    for (bc in 1:n_ref) {
-      ref_rna_counts[bc, s] ~ neg_binomial_2(rna_m[1] * rna_depths[s] * dna_m_ref, rna_p[1]);
+      ref_dna_counts[bc,s] ~ neg_binomial_2(dna_m * dna_depths[s], dna_p);
     }
 
     for (bc in 1:n_alt) {
-      alt_rna_counts[bc, s] ~ neg_binomial_2(rna_m[2] * rna_depths[s] * dna_m_alt, rna_p[2]);
+      alt_dna_counts[bc,s] ~ neg_binomial_2(dna_m * dna_depths[s], dna_p);
+    }
+  }
+
+  for (s in 1:n_rna_samples) {
+    for (bc in 1:n_ref) {
+      ref_rna_counts[bc, s] ~ neg_binomial_2(rna_m[1] * rna_depths[s] * dna_m, rna_p[1]);
+    }
+
+    for (bc in 1:n_alt) {
+      alt_rna_counts[bc, s] ~ neg_binomial_2(rna_m[2] * rna_depths[s] * dna_m, rna_p[2]);
     }
   }
 
