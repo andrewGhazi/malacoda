@@ -649,6 +649,46 @@ fit_dropout_model = function(dropout_data,
 
 }
 
+fit_mpra_mle = function(variant_data,
+                        n_dna,
+                        n_rna,
+                        n_ref,
+                        n_alt,
+                        depth_factors){
+
+  data_list = list(n_rna_samples = n_rna,
+                   n_dna_samples = n_dna,
+                   n_ref = n_ref,
+                   n_alt = n_alt,
+                   ref_dna_counts = variant_data %>% filter(tolower(.data$allele) == 'ref') %>% select(matches('DNA')) %>% as.matrix,
+                   alt_dna_counts = variant_data %>% filter(tolower(.data$allele) != 'ref') %>%  select(matches('DNA')) %>% as.matrix,
+                   ref_rna_counts = variant_data %>% filter(tolower(.data$allele) == 'ref') %>%  select(matches('RNA')) %>% as.matrix,
+                   alt_rna_counts = variant_data %>% filter(tolower(.data$allele) != 'ref') %>%  select(matches('RNA')) %>% as.matrix,
+                   rna_depths = depth_factors %>% filter(grepl('RNA', .data$sample_id)) %>% pull(.data$depth_factor),
+                   dna_depths = depth_factors %>% filter(grepl('DNA', .data$sample_id)) %>% pull(.data$depth_factor))
+
+  # TODO - make the initializations more user-accessible
+  variant_mle_fit = rstan::optimizing(object = stanmodels$bc_mpra_model_mle,
+                                      data = data_list,
+                                      init = list(dna_m = 100,
+                                                  dna_p = 1,
+                                                  rna_m = c(1,1),
+                                                  rna_p = c(1,1)),
+                                      hessian = TRUE)
+
+  return(variant_mle_fit)
+
+}
+
+fit_gamma_stan = fit_gamma = function(mles){
+
+  data_list = list(N = length(mles),
+                   mles = mles)
+
+  rstan::optimizing(object = stanmodels$bc_mpra_fit_gamma,
+                    data = data_list)
+}
+
 fit_dropout_gamma = function(values){
   # This should be deprecated in favor of fit_gamma eventually... TODO
 

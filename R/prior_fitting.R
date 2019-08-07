@@ -281,104 +281,55 @@ fit_marg_prior = function(mpra_data,
   }
 
   if (verbose) {
-    message('Fitting marginal DNA prior...')
+    message('Fitting negative binomial MLEs...')
   }
 
-  dna_nb_fits = mpra_data %>%
+  n_dna = sum(grepl('DNA', names(mpra_data)))
+  n_rna = sum(grepl('RNA', names(mpra_data)))
+
+  # All Negative Binomial Maximum Likelihood Estimates
+  all_nb_mle = mpra_data %>%
     filter(.data$barcode %in% well_represented$barcode) %>%
-    select(.data$variant_id, .data$allele, matches('DNA')) %>%
-    gather('sample_id', 'counts', matches('DNA|RNA')) %>%
-    group_by(.data$variant_id, .data$allele, .data$sample_id) %>%
-    nest(.key = 'count_dat') %>%
-    filter(map_lgl(.data$count_dat, ~!all(.x$counts == 0))) %>% # some borderline barcodes are 0 in some samples
-    mutate(nb_fit = parallel::mclapply(.data$count_dat, fit_nb, mc.cores = n_cores),
-           converged = map_lgl(.data$nb_fit, ~.x$convergence == 0))
+    group_by(.data$variant_id) %>%
+    nest(.key = 'variant_data') %>%
+    mutate(n_ref = map_dbl(.data$variant_data, ~sum(tolower(.x$allele) == 'ref')),
+           n_alt = map_dbl(.data$variant_data, ~sum(tolower(.x$allele) != 'ref'))) %>%
+    filter(n_ref > 2 & n_alt > 2) %>%
+    mutate(mle_fit = parallel::mcmapply(fit_mpra_mle,
+                                        .data$variant_data, .data$n_ref, .data$n_alt,
+                                        MoreArgs = list(n_dna = n_dna,
+                                                        n_rna = n_rna,
+                                                        depth_factors = sample_depths),
+                                        SIMPLIFY = FALSE,
+                                        mc.cores = n_cores)) %>%
+    mutate(converged = map_lgl(.data$mle_fit,
+                               ~.x$return_code == 0),
+           ml_estimates = map(.data$mle_fit,
+                              ~spread(tibble(par = names(.x$par),
+                                             val = .x$par),
+                                      par, val))) %>%
+    unnest(... = .data$ml_estimates)
 
-  if (!all(dna_nb_fits$converged) & verbose) {
-    message(paste0(sum(!dna_nb_fits$converged),
-                   ' out of ',
-                   nrow(dna_nb_fits),
-                   ' (', round(sum(!dna_nb_fits$converged) / nrow(dna_nb_fits) * 100, digits = 3), '%)',
-                   ' DNA-allele-samples failed to converge when fitting negative binomial parameters. A small fraction (<5%) failing is acceptable.'))
-  }
+  estimates_for_priors = all_nb_mle %>%
+    filter(.data$dna_p < quantile(.data$dna_p, probs = .95) &
+             .data$`rna_p[1]` < quantile(.data$`rna_p[1]`, probs = .95) &
+             .data$`rna_p[2]` < quantile(.data$`rna_p[2]`, probs = .95)) %>%
+    select(matches('_p|_m')) %>%
+    gather('par', 'value')
 
-  dna_nb_fits %<>%
-    filter(.data$converged) %>%
-    left_join(sample_depths, by = 'sample_id') %>%
-    mutate(depth_adj_mu_est = map2_dbl(.data$nb_fit, .data$depth_factor, ~.x$par[1] / .y),
-           phi_est = map_dbl(.data$nb_fit, ~.x$par[2]),
-           acid_type = factor(stringr::str_extract(.data$sample_id, 'DNA|RNA'))) %>%
-    filter(.data$phi_est < quantile(.data$phi_est, probs = .95)) # cut out severely underdispersed alleles
-
-  dna_gamma_prior = dna_nb_fits %>%
-    summarise(mu_prior = list(fit_gamma(.data$depth_adj_mu_est)),
-              phi_prior = list(fit_gamma(.data$phi_est))) %>%
-    ungroup %>%
-    gather('prior_type', 'prior', matches('prior')) %>%
-    mutate(alpha_est = map_dbl(.data$prior, ~.x$par[1]),
-           beta_est = map_dbl(.data$prior, ~.x$par[2]),
-           acid_type = 'DNA') # doesn't line up :(
-
-  #### Fit RNA prior ----
-  mean_dna_abundance = mpra_data %>%
-    select(.data$variant_id, .data$allele, .data$barcode, matches('DNA')) %>%
-    gather('sample_id', 'counts', matches('DNA|RNA')) %>%
-    left_join(sample_depths,
-              by = 'sample_id') %>%
-    mutate(depth_adj_count = .data$counts / .data$depth_factor) %>%
-    group_by(.data$barcode) %>%
-    summarise(mean_depth_adj_count = mean(.data$depth_adj_count))
-
-  if (verbose) {
-    message('Fitting marginal RNA mean priors...')
-  }
-
-  rna_m_prior = mpra_data %>%
-    select(.data$variant_id, .data$allele, .data$barcode, matches('RNA')) %>%
-    filter(.data$barcode %in% well_represented$barcode) %>%
-    gather('sample_id', 'counts', matches('DNA|RNA')) %>%
-    left_join(sample_depths , by = 'sample_id') %>%
-    left_join(mean_dna_abundance, by = 'barcode') %>%
-    mutate(count_remnant = .1 + .data$counts / .data$depth_factor / .data$mean_depth_adj_count) %>% # the variability of the count after accounting for depth and DNA input
-    group_by(.data$allele) %>%
-    summarise(mu_prior = list(fit_gamma(.data$count_remnant))) %>%
-    gather('prior_type', 'prior', matches('prior')) %>%
-    mutate(alpha_est = map_dbl(.data$prior, ~.x$par[1]),
-           beta_est = map_dbl(.data$prior, ~.x$par[2])) %>%
-    mutate(acid_type = 'RNA')
-
-  # the +.1 is to give some non-infinite log-density to 0's. See plot below. It seems to work well.
-
-  if (verbose) {
-    message('Fitting marginal RNA dispersion priors...')
-  }
-
-  rna_p_prior = mpra_data %>%
-    select(.data$variant_id, .data$allele, .data$barcode, matches('RNA')) %>%
-    filter(.data$barcode %in% well_represented$barcode) %>%
-    gather('sample_id', 'counts', matches('DNA|RNA')) %>%
-    group_by(.data$allele, .data$barcode) %>%
-    summarise(mean_est = mean(.data$counts),
-              var_est = var(.data$counts),
-              size_guess = .data$mean_est^2 / (.data$var_est - .data$mean_est)) %>%
-    filter(.data$size_guess > 0 & is.finite(.data$size_guess)) %>% # negative size guess = var < mean = underdispersed
-    filter(.data$size_guess < quantile(.data$size_guess,
-                                       probs = .95)) %>% # HUGE size guess = underdispersed, cut out barcodes that are TOO consistent i.e. underdispersed
-    summarise(phi_prior = list(fit_gamma(.data$size_guess))) %>%
-    gather('prior_type', 'prior', matches('prior')) %>%
-    mutate(alpha_est = map_dbl(.data$prior, ~.x$par[1]),
-           beta_est = map_dbl(.data$prior, ~.x$par[2])) %>%
-    mutate(acid_type = 'RNA')
+  gamma_estimates = estimates_for_priors %>%
+    group_by(.data$par) %>%
+    summarise(prior = list(fit_gamma_stan(.data$value))) %>%
+    mutate(alpha_est = map_dbl(.data$prior, ~.x$par[['alpha']]),
+           beta_est = map_dbl(.data$prior, ~.x$par[['beta']]),
+           acid_type = toupper(str_extract(string = .data$par, pattern = '[dr]na')),
+           allele = c('[1]' = 'ref', '[2]' = 'alt')[str_extract(pattern = '\\[[12]\\]', string = .data$par)]) # kill me
 
   # There is room for improvement with this phi prior estimation. It disregards
   # sequencing sample depth V and cuts out observed larged phi values.
-  # It still covers the vast majority of alleles (98%)
 
-  tot_prior = bind_rows(dna_gamma_prior,
-                        rna_m_prior,
-                        rna_p_prior)
+  return(gamma_estimates)
 
-  return(tot_prior)
 
   # mpra_data %>%
   #   select(variant_id, allele, barcode, matches('RNA')) %>%
