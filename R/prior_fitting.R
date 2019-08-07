@@ -310,12 +310,18 @@ fit_marg_prior = function(mpra_data,
                                       par, val))) %>%
     unnest(... = .data$ml_estimates)
 
+
+  # MLEs of dispersion parameters are known to be biased to be too large. The
+  # exact amount of bias depends on number of data points and the true, values,
+  # but as a heuristic we simply remove the top 5% of largest dispersion values.
   estimates_for_priors = all_nb_mle %>%
-    filter(.data$dna_p < quantile(.data$dna_p, probs = .95) &
-             .data$`rna_p[1]` < quantile(.data$`rna_p[1]`, probs = .95) &
-             .data$`rna_p[2]` < quantile(.data$`rna_p[2]`, probs = .95)) %>%
     select(matches('_p|_m')) %>%
-    gather('par', 'value')
+    gather('par', 'value') %>%
+    group_by(.data$par) %>%
+    mutate(to_keep = grepl('_m', .data$par) | .data$value < quantile(.data$value, .95)) %>%
+    ungroup %>%
+    filter(.data$to_keep) %>%
+    select(-.data$to_keep)
 
   gamma_estimates = estimates_for_priors %>%
     group_by(.data$par) %>%
