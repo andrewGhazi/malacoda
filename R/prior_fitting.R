@@ -557,7 +557,7 @@ fit_cond_prior = function(mpra_data,
     ungroup %>%
     filter(.data$to_keep) %>%
     select(-.data$to_keep) %>%
-    filter(grepl('dna', par))
+    filter(grepl('dna', .data$par))
 
   dna_gamma_prior = estimates_for_marg %>%
     group_by(.data$par) %>%

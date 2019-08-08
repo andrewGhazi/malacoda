@@ -694,7 +694,7 @@ fit_all_nb_mle = function(mpra_data,
     nest(.key = 'variant_data') %>%
     mutate(n_ref = map_dbl(.data$variant_data, ~sum(tolower(.x$allele) == 'ref')),
            n_alt = map_dbl(.data$variant_data, ~sum(tolower(.x$allele) != 'ref'))) %>%
-    filter(n_ref > 2 & n_alt > 2) %>%
+    filter(.data$n_ref > 2 & .data$n_alt > 2) %>%
     mutate(mle_fit = parallel::mcmapply(fit_mpra_mle,
                                         .data$variant_data, .data$n_ref, .data$n_alt,
                                         MoreArgs = list(n_dna = n_dna,
@@ -709,6 +709,8 @@ fit_all_nb_mle = function(mpra_data,
                                              val = .x$par),
                                       par, val))) %>%
     unnest(... = .data$ml_estimates)
+
+  return(all_nb_mle)
 }
 
 fit_gamma_stan = function(mles){
@@ -729,7 +731,7 @@ fit_weighted_gammas_stan = function(anno_weight_df,
   # converged = map_lgl(gamma_fit, ~.x$return_code == 0)
   # ^ you can add this to the first mutate to check for convergence
   g_priors = anno_weight_df %>%
-    group_by(par) %>%
+    group_by(.data$par) %>%
     summarise(gamma_fit = list(fit_weighted_gamma_stan(.data$value, .data$weight))) %>%
     mutate(alpha_est = map_dbl(.data$gamma_fit, ~.x$par[1]),
            beta_est = map_dbl(.data$gamma_fit, ~.x$par[2])) %>% #

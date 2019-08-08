@@ -8,6 +8,7 @@
 #' @importFrom rlang .data
 #' @importFrom grDevices rgb
 #' @import ggplot2
+#' @importFrom stringr str_extract str_replace_all
 #' @importFrom stats density dgamma dist p.adjust quantile t.test ts var wilcox.test cor sd
 NULL
 
