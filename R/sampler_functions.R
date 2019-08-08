@@ -34,10 +34,10 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
                    dna_m_b = priors %>% filter(.data$acid_type == 'DNA', grepl('mu', .data$prior_type)) %>% pull(.data$beta_est),
                    dna_p_a = priors %>% filter(.data$acid_type == 'DNA', !grepl('mu', .data$prior_type)) %>% pull(.data$alpha_est),
                    dna_p_b = priors %>% filter(.data$acid_type == 'DNA', !grepl('mu', .data$prior_type)) %>% pull(.data$beta_est),
-                   rna_m_a = priors %>% arrange(desc(.data$allele)) %>% filter(.data$acid_type == 'RNA', grepl('mu', .data$prior_type)) %>% pull(.data$alpha_est),
-                   rna_m_b = priors %>% arrange(desc(.data$allele)) %>% filter(.data$acid_type == 'RNA', grepl('mu', .data$prior_type)) %>% pull(.data$beta_est),
-                   rna_p_a = priors %>% arrange(desc(.data$allele)) %>% filter(.data$acid_type == 'RNA', !grepl('mu', .data$prior_type)) %>% pull(.data$alpha_est),
-                   rna_p_b = priors %>% arrange(desc(.data$allele)) %>% filter(.data$acid_type == 'RNA', !grepl('mu', .data$prior_type)) %>% pull(.data$beta_est))
+                   rna_m_a = priors %>% arrange(tolower(.data$allele) != 'ref') %>% filter(.data$acid_type == 'RNA', grepl('mu', .data$prior_type)) %>% pull(.data$alpha_est),
+                   rna_m_b = priors %>% arrange(tolower(.data$allele) != 'ref') %>% filter(.data$acid_type == 'RNA', grepl('mu', .data$prior_type)) %>% pull(.data$beta_est),
+                   rna_p_a = priors %>% arrange(tolower(.data$allele) != 'ref') %>% filter(.data$acid_type == 'RNA', !grepl('mu', .data$prior_type)) %>% pull(.data$alpha_est),
+                   rna_p_b = priors %>% arrange(tolower(.data$allele) != 'ref') %>% filter(.data$acid_type == 'RNA', !grepl('mu', .data$prior_type)) %>% pull(.data$beta_est))
 
   if (vb_pass) {
     # If vb_pass is TRUE, run a variational first pass for the sake of a quick
@@ -96,6 +96,8 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
   excludes_zero = !between(0, ts_hdi_obj[1], ts_hdi_obj[2])
 
   is_functional = excludes_zero # & (ts_rope_mass < rope_alpha)
+  # ^ Whether or not to include the rope mass cutoff part could be made into a
+  # user-accessible argument.
 
   #### Save the output ----
   if(!is.null(out_dir)){
