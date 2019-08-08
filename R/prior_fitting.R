@@ -329,7 +329,12 @@ fit_marg_prior = function(mpra_data,
     mutate(alpha_est = map_dbl(.data$prior, ~.x$par[['alpha']]),
            beta_est = map_dbl(.data$prior, ~.x$par[['beta']]),
            acid_type = toupper(str_extract(string = .data$par, pattern = '[dr]na')),
-           allele = c('[1]' = 'ref', '[2]' = 'alt')[str_extract(pattern = '\\[[12]\\]', string = .data$par)]) # kill me
+           allele = c('[1]' = 'ref', '[2]' = 'alt')[str_extract(pattern = '\\[[12]\\]', string = .data$par)]) %>%  # kill me
+    dplyr::rename('prior_type' = 'par') %>%
+    mutate(prior_type = str_replace_all(str_extract(.data$prior_type,
+                                                    'm|p'),
+                                        c('p' = 'phi_prior',
+                                          'm' = 'mu_prior')))
 
   # There is room for improvement with this phi prior estimation. It disregards
   # sequencing sample depth V and cuts out observed larged phi values.
