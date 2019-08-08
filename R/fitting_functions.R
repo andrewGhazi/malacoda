@@ -711,12 +711,53 @@ fit_all_nb_mle = function(mpra_data,
     unnest(... = .data$ml_estimates)
 }
 
-fit_gamma_stan = fit_gamma = function(mles){
+fit_gamma_stan = function(mles){
 
   data_list = list(N = length(mles),
                    mles = mles)
 
   rstan::optimizing(object = stanmodels$bc_mpra_fit_gamma,
+                    data = data_list)
+}
+
+fit_weighted_gammas_stan = function(anno_weight_df,
+                                    estimates_to_weight) {
+
+  anno_weight_df %<>% inner_join(estimates_to_weight, by = 'variant_id')
+
+
+  # converged = map_lgl(gamma_fit, ~.x$return_code == 0)
+  # ^ you can add this to the first mutate to check for convergence
+  g_priors = anno_weight_df %>%
+    group_by(par) %>%
+    summarise(gamma_fit = list(fit_weighted_gamma_stan(.data$value, .data$weight))) %>%
+    mutate(alpha_est = map_dbl(.data$gamma_fit, ~.x$par[1]),
+           beta_est = map_dbl(.data$gamma_fit, ~.x$par[2])) %>% #
+    separate(col = 'par',
+             into = c('acid_type', 'prior_type', 'allele'),
+             sep = '_|\\[') %>%
+    mutate(acid_type = toupper(.data$acid_type),
+           prior_type = str_replace_all(.data$prior_type,
+                                        c('p' = 'phi_prior',
+                                          'm' = 'mu_prior')),
+           allele = str_replace_all(.data$allele,
+                                    c('1\\]' = 'ref',
+                                      '2\\]' = 'alt'))) %>%
+    select(.data$allele, .data$prior_type, 'prior' = .data$gamma_fit, .data$alpha_est, .data$beta_est, .data$acid_type)
+
+  split_priors = split(g_priors, # this is purely to make it work with the old, pre-Stan code
+                       f = g_priors$prior_type)
+
+  return(split_priors)
+}
+
+fit_weighted_gamma_stan = function(mles, weights){
+
+  data_list = list(N = length(mles),
+                   mles = mles,
+                   weights = weights)
+
+  rstan::optimizing(object = stanmodels$weighted_gamma,
                     data = data_list)
 }
 

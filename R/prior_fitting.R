@@ -506,6 +506,10 @@ fit_cond_prior = function(mpra_data,
                                 .data$variant_id %in% mpra_data$variant_id)
   }
 
+  if (nrow(unique(select(annotations, -.data$variant_id))) < 10) {
+    warning('Found fewer than 10 unique annotations values. Were you looking for fit_grouped_prior()?')
+  }
+
   #### DNA prior fitting ----
 
   if (verbose) {
@@ -525,55 +529,51 @@ fit_cond_prior = function(mpra_data,
                                           verbose = verbose)
 
   if (verbose) {
-    message('Fitting marginal DNA prior...')
+    message('Fitting negative binomial maximum likelihood estimates...')
   }
 
-  dna_nb_fits = mpra_data %>%
-    filter(.data$barcode %in% well_represented$barcode) %>%
-    select(.data$variant_id, .data$allele, matches('DNA')) %>%
-    gather('sample_id', 'counts', matches('DNA|RNA')) %>%
-    group_by(.data$variant_id, .data$allele, .data$sample_id) %>%
-    nest(.key = 'count_dat') %>%
-    filter(map_lgl(.data$count_dat, ~!all(.x$counts == 0))) %>% # some borderline barcodes are 0 in some samples
-    mutate(nb_fit = parallel::mclapply(.data$count_dat, fit_nb, mc.cores = n_cores),
-           converged = map_lgl(.data$nb_fit, ~.x$convergence == 0))
+  all_nb_mle = fit_all_nb_mle(mpra_data,
+                              well_represented = well_represented,
+                              sample_depths = sample_depths,
+                              n_cores = n_cores)
 
-  if (!all(dna_nb_fits$converged) & verbose) {
-    message(paste0(sum(!dna_nb_fits$converged),
+  if (!all(all_nb_mle$converged) & verbose) {
+    message(paste0(sum(!all_nb_mle$converged),
                    ' out of ',
-                   nrow(dna_nb_fits),
-                   ' (', round(sum(!dna_nb_fits$converged) / nrow(dna_nb_fits) * 100, digits = 3), '%)',
-                   ' DNA-allele-samples failed to converge when fitting negative binomial parameters. A small fraction (<5%) failing is acceptable.'))
+                   nrow(all_nb_mle),
+                   ' (', round(sum(!all_nb_mle$converged) / nrow(all_nb_mle) * 100, digits = 3), '%)',
+                   ' negative binomial maximum likelihood estimates failed to converge. A small fraction (<1%) failing is acceptable.'))
   }
 
-  dna_nb_fits %<>%
-    filter(.data$converged) %>%
-    left_join(sample_depths, by = 'sample_id') %>%
-    mutate(depth_adj_mu_est = map2_dbl(.data$nb_fit, .data$depth_factor, ~.x$par[1] / .y),
-           phi_est = map_dbl(.data$nb_fit, ~.x$par[2]),
-           acid_type = factor(stringr::str_extract(.data$sample_id, 'DNA|RNA'))) %>%
-    filter(.data$phi_est < quantile(.data$phi_est,
-                                    probs = .995)) # cut out severely underdispersed alleles
 
-  dna_gamma_prior = dna_nb_fits %>%
-    summarise(mu_prior = list(fit_gamma(.data$depth_adj_mu_est)),
-              phi_prior = list(fit_gamma(.data$phi_est))) %>%
+  # MLEs of dispersion parameters are known to be biased to be too large. The
+  # exact amount of bias depends on number of data points and the true, values,
+  # but as a heuristic we simply remove the top 5% of largest dispersion values.
+  estimates_for_marg = all_nb_mle %>%
+    select(matches('_p|_m')) %>%
+    gather('par', 'value') %>%
+    group_by(.data$par) %>%
+    mutate(to_keep = grepl('_m', .data$par) | .data$value < quantile(.data$value, .95)) %>%
     ungroup %>%
-    gather('prior_type', 'prior', matches('prior')) %>%
-    mutate(alpha_est = map_dbl(.data$prior, ~.x$par[1]),
-           beta_est = map_dbl(.data$prior, ~.x$par[2]),
-           acid_type = 'DNA') # doesn't line up :(
+    filter(.data$to_keep) %>%
+    select(-.data$to_keep) %>%
+    filter(grepl('dna', par))
+
+  dna_gamma_prior = estimates_for_marg %>%
+    group_by(.data$par) %>%
+    summarise(prior = list(fit_gamma_stan(.data$value))) %>%
+    mutate(alpha_est = map_dbl(.data$prior, ~.x$par[['alpha']]),
+           beta_est = map_dbl(.data$prior, ~.x$par[['beta']]),
+           acid_type = toupper(str_extract(string = .data$par, pattern = '[dr]na')),
+           allele = c('[1]' = 'ref', '[2]' = 'alt')[str_extract(pattern = '\\[[12]\\]',
+                                                                string = .data$par)]) %>%  # kill me
+    dplyr::rename('prior_type' = 'par') %>%
+    mutate(prior_type = str_replace_all(str_extract(.data$prior_type,
+                                                    'm|p'),
+                                        c('p' = 'phi_prior',
+                                          'm' = 'mu_prior')))
 
   #### Fit conditional RNA prior ----
-
-  mean_dna_abundance = mpra_data %>%
-    select(.data$variant_id, .data$allele, .data$barcode, matches('DNA')) %>%
-    gather('sample_id', 'counts', matches('DNA|RNA')) %>%
-    left_join(sample_depths,
-              by = 'sample_id') %>%
-    mutate(depth_adj_count = .data$counts / .data$depth_factor) %>%
-    group_by(.data$barcode) %>%
-    summarise(mean_depth_adj_count = mean(.data$depth_adj_count))
 
   # generate annotation distance matrix
   dist_mat = generate_distance_matrix(annotations = annotations,
@@ -625,41 +625,36 @@ fit_cond_prior = function(mpra_data,
     message('Fitting annotation-weighted distributions...')
   }
 
-  if (n_cores == 1) {
-    rna_m_priors = prior_weights %>%
-      mutate(variant_m_prior = map2(.data$variant_id, .data$annotation_weights,
-                                    fit_one_m_prior,
-                                    mpra_data = mpra_data,
-                                    sample_depths = sample_depths,
-                                    well_represented = well_represented,
-                                    mean_dna_abundance = mean_dna_abundance))
+  estimates_for_weighted = all_nb_mle %>%
+    select(.data$variant_id, matches('rna_p|rna_m')) %>%
+    gather('par', 'value', -.data$variant_id) %>%
+    group_by(.data$par) %>%
+    mutate(to_keep = grepl('_m', .data$par) | .data$value < quantile(.data$value, .95)) %>%
+    ungroup %>%
+    filter(.data$to_keep) %>%
+    select(-.data$to_keep)
 
-    rna_p_priors = prior_weights %>%
-      mutate(variant_p_prior = map2(.data$variant_id, .data$annotation_weights,
-                                    fit_one_p_prior,
-                                    mpra_data = mpra_data,
-                                    sample_depths = sample_depths,
-                                    well_represented = well_represented,
-                                    mean_dna_abundance = mean_dna_abundance))
+  if (n_cores == 1) {
+
+    rna_priors = prior_weights %>%
+      mutate(gamma_priors = map(.data$annotation_weights,
+                                fit_weighted_gammas_stan,
+                                estimates_to_weight = estimates_for_weighted)) %>%
+      mutate(variant_m_prior = map(.data$gamma_priors, 1), # This part is necessary to make it work with the existing code
+             variant_p_prior = map(.data$gamma_priors, 2)) %>%
+      select(-.data$gamma_priors)
+
   } else if (n_cores > 1) {
-    rna_m_priors = prior_weights %>%
-      mutate(variant_m_prior = parallel::mcmapply(fit_one_m_prior,
-                                                  .data$variant_id, .data$annotation_weights,
-                                                  MoreArgs = list(mpra_data = mpra_data,
-                                                                  sample_depths = sample_depths,
-                                                                  well_represented = well_represented,
-                                                                  mean_dna_abundance = mean_dna_abundance),
-                                                  mc.cores = n_cores,
-                                                  SIMPLIFY = FALSE))
-    rna_p_priors = prior_weights %>%
-      mutate(variant_p_prior = parallel::mcmapply(fit_one_p_prior,
-                                                  .data$variant_id, .data$annotation_weights,
-                                                  MoreArgs = list(mpra_data = mpra_data,
-                                                                  sample_depths = sample_depths,
-                                                                  well_represented = well_represented,
-                                                                  mean_dna_abundance = mean_dna_abundance),
-                                                  mc.cores = n_cores,
-                                                  SIMPLIFY = FALSE))
+
+    rna_priors = prior_weights %>%
+      mutate(gamma_priors = parallel::mclapply(.data$annotation_weights,
+                                               fit_weighted_gammas_stan,
+                                               estimates_to_weight = estimates_for_weighted,
+                                               mc.cores = n_cores,
+                                               mc.preschedule = FALSE)) %>%
+      mutate(variant_m_prior = map(.data$gamma_priors, 1), # This part is necessary to make it work with the existing code
+             variant_p_prior = map(.data$gamma_priors, 2)) %>%
+      select(-.data$gamma_priors)
   }
 
   #TODO tack the appropriate priors onto annotation_vectors according to the value of anno_vec
@@ -669,8 +664,8 @@ fit_cond_prior = function(mpra_data,
                                           ~which(sapply(prior_weights$anno_vec, function(x){all(.x == x)}))) # later
 
   annotation_vectors$annotation_weights = prior_weights$annotation_weights[annotation_vectors$weight_row]
-  annotation_vectors$variant_m_prior = rna_m_priors$variant_m_prior[annotation_vectors$weight_row]
-  annotation_vectors$variant_p_prior = rna_p_priors$variant_p_prior[annotation_vectors$weight_row]
+  annotation_vectors$variant_m_prior = rna_priors$variant_m_prior[annotation_vectors$weight_row]
+  annotation_vectors$variant_p_prior = rna_priors$variant_p_prior[annotation_vectors$weight_row]
 
   both_rna = annotation_vectors %>%
     dplyr::select(.data$variant_id,
@@ -683,6 +678,7 @@ fit_cond_prior = function(mpra_data,
 
   return(res_list)
 }
+
 
 fit_one_m_prior = function(given_id,
                            annotation_weights,
