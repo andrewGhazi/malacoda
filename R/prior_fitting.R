@@ -284,31 +284,13 @@ fit_marg_prior = function(mpra_data,
     message('Fitting negative binomial MLEs...')
   }
 
-  n_dna = sum(grepl('DNA', names(mpra_data)))
-  n_rna = sum(grepl('RNA', names(mpra_data)))
+
 
   # All Negative Binomial Maximum Likelihood Estimates
-  all_nb_mle = mpra_data %>%
-    filter(.data$barcode %in% well_represented$barcode) %>%
-    group_by(.data$variant_id) %>%
-    nest(.key = 'variant_data') %>%
-    mutate(n_ref = map_dbl(.data$variant_data, ~sum(tolower(.x$allele) == 'ref')),
-           n_alt = map_dbl(.data$variant_data, ~sum(tolower(.x$allele) != 'ref'))) %>%
-    filter(n_ref > 2 & n_alt > 2) %>%
-    mutate(mle_fit = parallel::mcmapply(fit_mpra_mle,
-                                        .data$variant_data, .data$n_ref, .data$n_alt,
-                                        MoreArgs = list(n_dna = n_dna,
-                                                        n_rna = n_rna,
-                                                        depth_factors = sample_depths),
-                                        SIMPLIFY = FALSE,
-                                        mc.cores = n_cores)) %>%
-    mutate(converged = map_lgl(.data$mle_fit,
-                               ~.x$return_code == 0),
-           ml_estimates = map(.data$mle_fit,
-                              ~spread(tibble(par = names(.x$par),
-                                             val = .x$par),
-                                      par, val))) %>%
-    unnest(... = .data$ml_estimates)
+  all_nb_mle = fit_all_nb_mle(mpra_data,
+                              well_represented = well_represented,
+                              sample_depths = sample_depths,
+                              n_cores = n_cores)
 
 
   # MLEs of dispersion parameters are known to be biased to be too large. The
@@ -329,7 +311,8 @@ fit_marg_prior = function(mpra_data,
     mutate(alpha_est = map_dbl(.data$prior, ~.x$par[['alpha']]),
            beta_est = map_dbl(.data$prior, ~.x$par[['beta']]),
            acid_type = toupper(str_extract(string = .data$par, pattern = '[dr]na')),
-           allele = c('[1]' = 'ref', '[2]' = 'alt')[str_extract(pattern = '\\[[12]\\]', string = .data$par)]) %>%  # kill me
+           allele = c('[1]' = 'ref', '[2]' = 'alt')[str_extract(pattern = '\\[[12]\\]',
+                                                                string = .data$par)]) %>%  # kill me
     dplyr::rename('prior_type' = 'par') %>%
     mutate(prior_type = str_replace_all(str_extract(.data$prior_type,
                                                     'm|p'),

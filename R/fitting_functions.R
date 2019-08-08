@@ -680,6 +680,37 @@ fit_mpra_mle = function(variant_data,
 
 }
 
+fit_all_nb_mle = function(mpra_data,
+                          well_represented,
+                          sample_depths,
+                          n_cores){
+
+  n_dna = sum(grepl('DNA', names(mpra_data)))
+  n_rna = sum(grepl('RNA', names(mpra_data)))
+
+  all_nb_mle = mpra_data %>%
+    filter(.data$barcode %in% well_represented$barcode) %>%
+    group_by(.data$variant_id) %>%
+    nest(.key = 'variant_data') %>%
+    mutate(n_ref = map_dbl(.data$variant_data, ~sum(tolower(.x$allele) == 'ref')),
+           n_alt = map_dbl(.data$variant_data, ~sum(tolower(.x$allele) != 'ref'))) %>%
+    filter(n_ref > 2 & n_alt > 2) %>%
+    mutate(mle_fit = parallel::mcmapply(fit_mpra_mle,
+                                        .data$variant_data, .data$n_ref, .data$n_alt,
+                                        MoreArgs = list(n_dna = n_dna,
+                                                        n_rna = n_rna,
+                                                        depth_factors = sample_depths),
+                                        SIMPLIFY = FALSE,
+                                        mc.cores = n_cores)) %>%
+    mutate(converged = map_lgl(.data$mle_fit,
+                               ~.x$return_code == 0),
+           ml_estimates = map(.data$mle_fit,
+                              ~spread(tibble(par = names(.x$par),
+                                             val = .x$par),
+                                      par, val))) %>%
+    unnest(... = .data$ml_estimates)
+}
+
 fit_gamma_stan = fit_gamma = function(mles){
 
   data_list = list(N = length(mles),
