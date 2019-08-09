@@ -345,7 +345,7 @@ fit_mpra_model = function(mpra_data,
   well_represented = well_represented %>%
     filter(.data$barcode %in% biallelic_wr$barcode)
 
-  arg_list = list(n_chains = n_chains,
+  arg_list = list(n_chains = n_chains, # To pass to run_mpra_sampler()
                   n_warmup = n_warmup,
                   tot_samp = tot_samp,
                   n_rna = n_rna,
@@ -356,7 +356,8 @@ fit_mpra_model = function(mpra_data,
                   ts_hdi_prob = ts_hdi_prob,
                   ts_rope = ts_rope,
                   vb_pass = vb_pass,
-                  vb_prob = vb_prob)
+                  vb_prob = vb_prob,
+                  verbose = verbose)
 
   #### Run samplers ----
 
