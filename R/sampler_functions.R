@@ -10,12 +10,20 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
                             ts_hdi_prob,
                             vb_pass = TRUE,
                             vb_prob = .8,
-                            ts_rope = NULL) {
+                            ts_rope = NULL,
+                            verbose = TRUE) {
 
   # This fits the malacoda biallelic MPRA model (i.e. the main one) for ONE variant.
 
+
   priors = variant_prior
   n_per_chain = ceiling((tot_samp + n_chains * n_warmup) / n_chains)
+
+  if (verbose){
+    refresh_setting = max(n_per_chain / 10, 1)
+  } else {
+    refresh_setting = 0
+  }
 
   ref_data = variant_data %>% filter(tolower(.data$allele) == 'ref')
   alt_data = variant_data %>% filter(tolower(.data$allele) != 'ref')
@@ -62,7 +70,9 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
                                     chains = n_chains,
                                     warmup = n_warmup,
                                     iter = n_per_chain,
-                                    cores = 1)
+                                    cores = 1,
+                                    verbose = verbose,
+                                    refresh = refresh_setting)
       note = 'mcmc used for posterior evaluation'
     } else{
       sampler_res = vb_res
@@ -75,7 +85,9 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
                                   chains = n_chains,
                                   warmup = n_warmup,
                                   iter = n_per_chain,
-                                  cores = 1)
+                                  cores = 1,
+                                  verbose = verbose,
+                                  refresh = refresh_setting)
     note = 'mcmc used for posterior evaluation'
   }
 
