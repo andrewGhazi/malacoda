@@ -56,8 +56,7 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
     vb_res = rstan::vb(stanmodels$bc_mpra_model,
                        data = data_list)
 
-    vb_hdi = rstan::extract(vb_res,
-                            pars = 'transcription_shift')$transcription_shift %>%
+    vb_hdi = (vb_res@sim$samples[[1]][['ref_act']] - vb_res@sim$samples[[1]][['alt_act']]) %>%
       as.matrix %>%
       coda::mcmc() %>%
       coda::HPDinterval(prob = vb_prob)
