@@ -35,7 +35,7 @@ compute_activities = function(mpra_data,
   mean_dna_abundance = mpra_data %>%
     filter(.data$barcode %in% well_represented$barcode) %>%
     select(.data$barcode, matches('DNA')) %>%
-    gather("sample_id", count, -.data$barcode) %>%
+    gather("sample_id", "count", -.data$barcode) %>%
     left_join(sample_depths, by = 'sample_id') %>%
     mutate(depth_adj_count = .data$count / .data$depth_factor) %>%
     group_by(.data$barcode) %>%
@@ -43,7 +43,7 @@ compute_activities = function(mpra_data,
 
   activities_raw = mpra_data %>%
     select(-matches('DNA')) %>%
-    gather("sample_id", count, matches('RNA')) %>%
+    gather("sample_id", "count", matches('RNA')) %>%
     left_join(sample_depths, by = 'sample_id') %>%
     left_join(mean_dna_abundance, by = 'barcode') %>%
     mutate(depth_adj_count = .data$count / .data$depth_factor,
