@@ -231,7 +231,10 @@ format_parameter_name = function(par_name){
 #' Plot a variant's posterior intervals
 #'
 #' @description Given a result object from the malacoda model, this function
-#'   plots the posterior intervals for all the modeled parameters.
+#'   plots the posterior intervals for all the modeled parameters. The outer
+#'   black bars represent the limits of the 95% interval, while the inner blue
+#'   bar represents the 80% interval (by default). The black dots are the
+#'   posterior means.
 #'
 #' @param sampler_res A stanfit object for one variant
 #' @param inner_probs quantiles of the posterior for the inner bar

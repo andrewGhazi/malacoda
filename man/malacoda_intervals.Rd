@@ -16,7 +16,10 @@ malacoda_intervals(sampler_res, inner_probs = c(0.1, 0.9),
 }
 \description{
 Given a result object from the malacoda model, this function
-  plots the posterior intervals for all the modeled parameters.
+  plots the posterior intervals for all the modeled parameters. The outer
+  black bars represent the limits of the 95% interval, while the inner blue
+  bar represents the 80% interval (by default). The black dots are the
+  posterior means.
 }
 \details{
 The sampler_res object for a given variant is saved into the out_dir
