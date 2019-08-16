@@ -1,9 +1,13 @@
 ## Resubmission
 This is a resubmission of malacoda, which was previously released May 31 2019. In this submission:
 
-* We have added runnable examples for all exported functions with one exception, count_barcodes(). count_barcodes() calls external bioinformatics software (the FAST-X toolkit mentioned in the SystemRequirements field) and hence we have still left it wrapped in \dontrun{}. However the example there will run if that software is installed. count_barcodes() is a convenient utility function but not essential to the core purpose of this package. count_barcodes() immediately checks if the FASTX-Toolkit is installed with Sys.which() and stops and gives an installation URL if it's not.
+* We have explained the acronyms in the description field. 
+* We have changed the not-easily-suppressed print() statements to use message() instead. We have also enclosed messages in if blocks with a "verbose"" condition that can be turned off by the user.
+* We have removed the examples with commented out code, leaving just the parts necessary to run the example. 
+* We have tried to speed up the examples in order to reduce the check time. 
 
 ### Previous submission comments
+* We have added runnable examples for all exported functions with one exception, count_barcodes(). count_barcodes() calls external bioinformatics software (the FAST-X toolkit mentioned in the SystemRequirements field) and hence we have still left it wrapped in \dontrun{}. However the example there will run if that software is installed. count_barcodes() is a convenient utility function but not essential to the core purpose of this package. count_barcodes() immediately checks if the FASTX-Toolkit is installed with Sys.which() and stops and gives an installation URL if it's not.
 * We have corrected the URL in the documentation for u_deepsea 
 * There was a question with our previous submission if there was a method reference/citation we could put in the Description. We have not published this method yet but we were hoping to have it on CRAN before doing so. We have a manuscript in preparation that we aim to submit in the next few months.
 

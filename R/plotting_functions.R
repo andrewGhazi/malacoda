@@ -219,3 +219,90 @@ plot_dna_representation = function(dna_df, rep_cutoff){
     geom_rug(alpha = .01)
 
 }
+
+format_parameter_name = function(par_name){
+  if(grepl('[0-9]+', par_name)){
+    return(str_extract(par_name, '[0-9]+'))
+  } else{
+    return(par_name)
+  }
+}
+
+#' Plot a variant's posterior intervals
+#'
+#' @description Given a result object from the malacoda model, this function
+#'   plots the posterior intervals for all the modeled parameters.
+#'
+#' @param sampler_res A stanfit object for one variant
+#' @param inner_probs quantiles of the posterior for the inner bar
+#' @param outer_probs quantiles of the posterior for the outer bar
+#' @details The sampler_res object for a given variant is saved into the out_dir
+#'   argument of fit_mpra_model. The barcode concentrations (i.e. DNA means) are
+#'   numbered in the same order in which they are given to fit_mpra_model, with
+#'   poorly represented barcodes removed entirely.
+#' @seealso fit_mpra_model get_well_represented
+#' @examples malacoda_intervals(example_posterior)
+#' @export
+malacoda_intervals = function(sampler_res,
+                              inner_probs = c(.1, .9),
+                              outer_probs = c(.025, .975)){
+
+summary_df =   summary(sampler_res,
+                       probs = c(outer_probs[1],
+                                 inner_probs[1],
+                                 inner_probs[2],
+                                 outer_probs[2])) %>%
+  .$summary %>%
+  as.data.frame %>%
+  rownames_to_column('parameter') %>%
+  as_tibble
+
+new_names = names(summary_df)
+new_names[5:8] = c('outer_left', 'inner_left', 'inner_right', 'outer_right')
+
+summary_df %<>%
+    set_names(new_names) %>%
+    filter(.data$parameter != 'lp__') %>%
+    mutate(par_type = str_remove(.data$parameter, pattern = '\\[[0-9]+\\]|ref_|alt_'),
+           parameter = map_chr(.data$parameter, format_parameter_name)) %>%
+    mutate(parameter = case_when(grepl('rna_m|rna_p', .data$par_type) & .data$parameter == '1' ~ 'ref',
+                                 grepl('rna_m|rna_p', .data$par_type) & .data$parameter == '2' ~ 'alt',
+                                 .data$parameter == 'ref_act' ~ 'ref',
+                                 .data$parameter == 'alt_act' ~ 'alt',
+                                 .data$par_type == 'transcription_shift' ~ 'shift',
+                                 .data$par_type == 'dna_p' ~ 'phi',
+                                 TRUE ~ as.character(.data$parameter))) %>%
+    mutate(parameter = factor(.data$parameter,
+                              levels = rev(unique(.data$parameter))),
+           par_type = factor(case_when(.data$par_type == 'act' ~ 'Activities',
+                                       .data$par_type == 'dna_m_alt' ~ 'Alternate Allele DNA means',
+                                       .data$par_type == 'dna_m_ref' ~ 'Reference Allele DNA means',
+                                       .data$par_type == 'dna_p' ~ 'DNA dispersion',
+                                       .data$par_type == 'rna_m' ~ 'RNA means',
+                                       .data$par_type == 'rna_p' ~ 'RNA dispersions',
+                                       .data$par_type == 'transcription_shift' ~ 'Transcription Shift'),
+                             levels = c('Reference Allele DNA means',
+                                        'Alternate Allele DNA means',
+                                        'DNA dispersion',
+                                        'RNA means',
+                                        'RNA dispersions',
+                                        'Activities',
+                                        'Transcription Shift')))
+
+summary_df %>%
+    ggplot(aes(.data$mean, .data$parameter)) +
+    geom_segment(aes(x = .data$outer_left, xend = .data$outer_right, yend = .data$parameter),
+                 color = 'black',
+                 size = 0.5, lineend = 'butt') +
+    geom_segment(aes(x = .data$inner_left, xend = .data$inner_right, yend = .data$parameter),
+                 color = 'skyblue',
+                 size = 1.5, lineend = 'butt') +
+    geom_point(size = 1) +
+    facet_wrap('par_type', scales = 'free') +
+    theme_light() +
+    labs(x = 'parameter value',
+         y = NULL)  +
+    geom_vline(xintercept = 0,
+               lty = 2) +
+    theme(strip.text = element_text(color = 'grey10', size = 9))
+}

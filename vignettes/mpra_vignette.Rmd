@@ -258,6 +258,15 @@ The stanfit objects output by the MCMC sampler in `fit_mpra_model` are written t
 
 malacoda also provides a number of plotting functions for visualizing the outputs.
 
+## malacoda intervals
+
+The function `malacoda_intervals()` can be used to easily visualize the posterior intervals for all model parameters for the fit of a given variant. It also includes the posteriors on the derived quantities activity and transcription shift. 
+
+```{r out.width = "700px"}
+knitr::include_graphics('../man/figures/mi_example.png')
+```
+
+
 ## Posterior beeswarms
 
 Posterior beeswarms via `posterior_beeswarm` overlay the activity point estimates (log(RNA/DNA) by barcode and sequencing sample from `compute_activities`) with the posteriors on mean activity (from `fit_mpra_model`). Setting `color_by_sample = TRUE` results in a very colorful plot that makes it easy to see if the posterior aligns with the point estimates and to ensure that none of the samples vary systematically.
