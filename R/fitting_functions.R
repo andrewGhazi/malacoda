@@ -142,7 +142,9 @@ fit_gamma = function(input_vec,
 #'   or non-functional, and other appropriate outputs. The output column
 #'   \code{is_functional} is defined by the TS HDI excluding 0.
 #' @note Sampler results for individual variants will be saved to the specified
-#'   out_dir as they can be several megabytes each
+#'   out_dir as they can be several megabytes each. The table of summary
+#'   statistics that this function returns will also be saved into this
+#'   directory into an object called "analysis_res.RData".
 #' @examples
 #' # This example fits the malacoda model on 3 variants with too-short MCMC chains
 #'
