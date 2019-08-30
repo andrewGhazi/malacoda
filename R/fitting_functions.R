@@ -190,8 +190,8 @@ fit_mpra_model = function(mpra_data,
     stop('mpra_data is missing: You must provide MPRA data to fit a MPRA model!')
   }
 
-  if (is.null(out_dir)) {
-    warning('out_dir is missing: Results will not be saved')
+  if (is.null(out_dir) & verbose) {
+    message('out_dir is missing: Results will not be saved')
   }
 
   if (!is.null(out_dir) && !dir.exists(out_dir)) {
@@ -231,12 +231,12 @@ fit_mpra_model = function(mpra_data,
     stop('Non-biallelic variants detected. The variant_id column should be the same for both alleles of a given variant.')
   }
 
-  if (vb_pass) {
-    warning('Using variantional approximation first pass. Set vb_pass = FALSE for publication quality analyses.')
+  if (vb_pass & verbose) {
+    message('Using variantional approximation first pass. Set vb_pass = FALSE for publication quality analyses.')
   }
 
-  if (tot_samp < 5e4){
-    warning('Using less than 50,000 MCMC samples is not recommended for publication quality analyses. Inspect convergence metrics in any case.')
+  if (tot_samp < 5e4 & verbose){
+    message('Using less than 50,000 MCMC samples is not recommended for publication quality analyses. Inspect convergence metrics in any case.')
   }
 
   #### Initial cleanup ----
