@@ -228,7 +228,7 @@ fit_mpra_model = function(mpra_data,
     dplyr::count(.data$variant_id)
 
   if (!all(variant_allele_counts$n == 2)){
-    stop('Non-biallelic variants detected. The variant_id column should be the same for both alleles of a given variant.')
+    stop('Non-biallelic variants detected. This may be due to an ill-formatted variant_id column. Note that the variant_id column should be the same for both alleles of a given variant.')
   }
 
   if (vb_pass & verbose) {
