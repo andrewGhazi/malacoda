@@ -54,7 +54,8 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
     # supplement to the manuscript.
 
     vb_res = rstan::vb(stanmodels$bc_mpra_model,
-                       data = data_list)
+                       data = data_list,
+                       tol_rel_obj = .005)
 
     vb_hdi = (vb_res@sim$samples[[1]][['alt_act']] - vb_res@sim$samples[[1]][['ref_act']]) %>%
       as.matrix %>%
