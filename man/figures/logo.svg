@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="43.994091mm"
+   height="50.799999mm"
+   viewBox="0 0 43.994091 50.799999"
+   version="1.1"
+   id="svg4420"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   sodipodi:docname="logo.svg">
+  <defs
+     id="defs4414">
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Mend"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path914"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(-0.4,0,0,-0.4,-4,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="marker4401"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path4399"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(-0.4,0,0,-0.4,-4,0)" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="3.959798"
+     inkscape:cx="166.07707"
+     inkscape:cy="99.270681"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1021"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:pagecheckerboard="true"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <metadata
+     id="metadata4417">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-39.613074,-133.6387)">
+    <path
+       sodipodi:type="star"
+       style="fill:#000000;stroke-width:0.59546441"
+       id="path1595"
+       sodipodi:sides="6"
+       sodipodi:cx="61.610119"
+       sodipodi:cy="159.0387"
+       sodipodi:r1="25.4"
+       sodipodi:r2="21.997046"
+       sodipodi:arg1="0.52359878"
+       sodipodi:arg2="1.0471976"
+       inkscape:flatsided="true"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="m 83.607164,171.7387 -21.997045,12.7 -21.997045,-12.7 0,-25.4 21.997045,-12.7 21.997045,12.7 z"
+       inkscape:transform-center-x="-7.7413061e-06"
+       inkscape:export-filename="/home/ghazi/malacoda/man/figures/logo.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       sodipodi:type="star"
+       style="fill:#aa0000;stroke-width:0.25317803"
+       id="path1597"
+       sodipodi:sides="6"
+       sodipodi:cx="61.610119"
+       sodipodi:cy="159.0387"
+       sodipodi:r1="23.5"
+       sodipodi:r2="20.351599"
+       sodipodi:arg1="0.52359878"
+       sodipodi:arg2="1.0471976"
+       inkscape:flatsided="true"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="m 81.961716,170.7887 -20.351597,11.75 -20.351597,-11.75 0,-23.5 20.351597,-11.75 20.351597,11.75 z"
+       inkscape:transform-center-x="9.4678682e-06"
+       inkscape:transform-center-y="1.7929076e-06"
+       inkscape:export-filename="/home/ghazi/malacoda/man/figures/logo.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:#000000;stroke-width:0.24668682"
+       id="rect1607"
+       width="42.805798"
+       height="0.57499999"
+       x="40.081394"
+       y="166.9341"
+       inkscape:export-filename="/home/ghazi/malacoda/man/figures/logo.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <circle
+       style="fill:none;stroke:#000000;stroke-width:0.25935584;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="circle1609"
+       cx="78.539955"
+       cy="165.51511"
+       r="0.60328698"
+       inkscape:export-filename="/home/ghazi/malacoda/man/figures/logo.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <circle
+       style="fill:none;stroke:#000000;stroke-width:0.25040364;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="circle1611"
+       cx="79.257149"
+       cy="163.29643"
+       r="0.80050689"
+       inkscape:export-filename="/home/ghazi/malacoda/man/figures/logo.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.57499999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-mid:url(#Arrow1Mend);marker-end:url(#Arrow1Mend)"
+       d="m 51.190134,140.88657 c 4.430563,11.90171 7.81864,1.82435 17.809126,14.94229"
+       id="path1613"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/ghazi/malacoda/man/figures/logo.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:6.61100292px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.27545846"
+       x="42.845406"
+       y="165.43239"
+       id="text4533"><tspan
+         sodipodi:role="line"
+         x="42.845406"
+         y="165.43239"
+         id="tspan4531"
+         style="stroke-width:0.27545846"><tspan
+           x="42.845406"
+           y="165.43239"
+           style="font-size:6.61100292px;fill:#ffffff;stroke-width:0.27545846"
+           id="tspan4529">malacoda</tspan></tspan></text>
+  </g>
+</svg>
