@@ -336,13 +336,21 @@ fit_mpra_model = function(mpra_data,
                                           verbose = verbose)
 
   # TODO, make the user aware that this step is happening
-  biallelic_wr = mpra_data %>%
+  wr_counts = mpra_data %>%
     filter(.data$barcode %in% well_represented$barcode) %>%
     select(.data$variant_id, .data$allele, .data$barcode) %>%
     group_by(.data$variant_id) %>%
-    mutate(n_alleles = n_distinct(.data$allele)) %>%
-    filter(.data$n_alleles == 2) %>%
-    ungroup
+    mutate(n_alleles = n_distinct(.data$allele))
+  if (any(wr_counts$n_alleles != 2)) {
+    biallelic_wr = wr_counts %>%
+      filter(.data$n_alleles == 2) %>%
+      ungroup
+
+    message('Non-biallelic variants detected after filtering to well-represented barcodes. See mono-allelic MPRA model: malacoda/src/stan_files/monoallelic_model.stan')
+  } else {
+    biallelic_wr = wr_counts
+  }
+
 
   well_represented = well_represented %>%
     filter(.data$barcode %in% biallelic_wr$barcode)
