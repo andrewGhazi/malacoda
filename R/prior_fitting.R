@@ -417,7 +417,8 @@ fit_grouped_prior = function(mpra_data,
   grouped_prior = mpra_data %>%
     left_join(group_df, by = 'variant_id') %>%
     dplyr::group_by(.data$group_id) %>%
-    tidyr::nest(.key = 'group_data') %>%
+    nest() %>%
+    dplyr::rename('group_data' = 'data') %>%
     dplyr::mutate(group_prior = purrr::map(group_data, fit_marg_prior,
                                            sample_depths = sample_depths,
                                            well_represented = well_represented,
@@ -739,7 +740,7 @@ format_conditional_prior = function(given_id, cond_priors){
     filter(.data$variant_id == given_id) %>%
     select(-.data$annotation_weights) %>%
     gather('prior_name', 'prior', matches('prior')) %>%
-    unnest() %>%
+    unnest(c(.data$prior)) %>%
     select(-.data$variant_id, -.data$prior_name)
 
   return(bind_rows(dna_prior, rna_prior))

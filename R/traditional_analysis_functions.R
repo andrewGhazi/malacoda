@@ -83,7 +83,7 @@ test_one_variant = function(variant_activities,
     variant_activities %>%
       summarise(test_res = list(broom::tidy(t.test(x = .data$activity[tolower(.data$allele) == 'ref'],
                                                    y = .data$activity[tolower(.data$allele) != 'ref'])))) %>%
-      unnest %>%
+      unnest(c(.data$test_res)) %>%
       mutate(estimate = -.data$estimate) %>%
       dplyr::rename(ts_estimate = .data$estimate,
                     ref_mean_estimate = .data$estimate1,
@@ -92,7 +92,7 @@ test_one_variant = function(variant_activities,
     variant_activities %>%
       summarise(test_res = list(broom::tidy(wilcox.test(x = .data$activity[tolower(.data$allele) == 'ref'],
                                                         y = .data$activity[tolower(.data$allele) != 'ref'])))) %>%
-      unnest
+      unnest(c(.data$test_res))
   } else {
     stop('test_type input given not supported')
   }
@@ -148,7 +148,8 @@ run_activity_tests = function(mpra_activities,
 
   activity_tests = mpra_activities %>%
     group_by(.data$variant_id) %>%
-    nest(.key = 'act_dat') %>%
+    nest() %>%
+    dplyr::rename('act_dat' = 'data') %>%
     mutate(test_result = map(.data$act_dat, test_one_variant, test_type = test_type),
            note = map_chr(.data$test_result, ~ifelse(all(is.na(.x)),
                                                      'Not enough activity measurements present for both alleles, returning NA',
@@ -161,7 +162,7 @@ run_activity_tests = function(mpra_activities,
   activity_tests = activity_tests %>%
     filter(map_lgl(.data$test_result, ~!all(is.na(.x)))) %>%
     select(-.data$act_dat) %>%
-    unnest() %>%
+    unnest(c(.data$test_result)) %>%
     full_join(na_variants,
               by = c('variant_id', 'note')) %>%
     select(.data$variant_id, .data$ts_estimate:.data$alternative, .data$note)

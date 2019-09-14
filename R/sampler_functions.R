@@ -159,7 +159,7 @@ sample_from_prior = function(prior_df, n_samp){
            draws = map2(.data$alpha_est, .data$beta_est,
                         ~rgamma(n_samp, shape = .x, rate = .y))) %>%
     select(.data$allele, .data$draws) %>%
-    unnest %>%
+    unnest(c(.data$draws)) %>%
     filter(!is.na(.data$allele)) %>%
     mutate(iter = rep(1:n_samp, times = 2)) %>%
     spread(.data$allele, .data$draws) %>%
@@ -248,8 +248,7 @@ summarise_cond_prior = function(cond_prior,
                                               summarise_one_prior,
                                               mc.cores = n_cores,
                                               n_samp = n_samp)) %>%
-    unnest(... = .data$prior_sim_res) %>%
-    select(-.data$prior_sim_res) %>%
+    unnest(cols = .data$prior_sim_res) %>%
     arrange(desc(abs(.data$mean_prior_ts)))
 }
 

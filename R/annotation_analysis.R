@@ -54,7 +54,7 @@ get_prior_ratios = function(mpra_data,
 
   rna_cond_mu_prior = cond_prior$rna_priors %>%
     select(-.data$annotation_weights, -.data$variant_p_prior) %>%
-    unnest %>% # this leaves a bunch of messy column names
+    unnest(c(.data$variant_m_prior)) %>% # this leaves a bunch of messy column names
     select(-.data$prior, -matches('acid_type')) %>%
     select(-.data$prior_type)
 
@@ -110,7 +110,7 @@ get_prior_ratios = function(mpra_data,
 
   rna_cond_phi_prior =  cond_prior$rna_priors %>%
     select(-.data$annotation_weights, -.data$variant_m_prior) %>%
-    unnest %>% # this leaves a bunch of messy column names
+    unnest(c(.data$variant_p_prior)) %>% # this leaves a bunch of messy column names
     select(-.data$prior, -matches('acid_type')) %>%
     select(-.data$prior_type)
 
@@ -148,9 +148,9 @@ get_prior_ratios = function(mpra_data,
            .data$log_prior_ratio, .data$cond_dens,
            .data$marg_dens, .data$marg_alpha:.data$beta_est)
 
-  size_ratios = data_frame(sample_id = unique(mu_ratios$sample_id),
-                           size_guesses = list(across_samples_size_ratios)) %>%
-    unnest
+  size_ratios = tibble(sample_id = unique(mu_ratios$sample_id),
+                       size_guesses = list(across_samples_size_ratios)) %>%
+    unnest(c(.data$size_guesses))
 
 
 
@@ -214,12 +214,13 @@ get_kl_divergences = function(mpra_data,
 
   cond_kl = cond_prior$rna_priors %>%
     select(.data$variant_id, .data$variant_m_prior) %>% # Only implementing for mu_prior for now # TODO reapply to dispersions
-    unnest %>%
+    unnest(c(.data$variant_m_prior)) %>%
     right_join(count_remnants,
                by = c('variant_id', 'allele')) %>%
     group_by(.data$variant_id,
              .data$allele) %>%
-    nest(.key = 'remnants') %>%
+    nest() %>%
+    dplyr::rename('remnants' = 'data') %>%
     mutate(cond_kl = unlist(parallel::mclapply(.data$remnants,
                                      compute_kl_est,
                                      mc.cores = n_cores))) %>%
@@ -235,7 +236,8 @@ get_kl_divergences = function(mpra_data,
                by = c('allele')) %>%
     group_by(.data$variant_id,
              .data$allele) %>%
-    nest(.key = 'remnants') %>%
+    nest() %>%
+    dplyr::rename('remnants' = 'data') %>%
     mutate(marg_kl = unlist(parallel::mclapply(.data$remnants,
                                      compute_kl_est,
                                      mc.cores = n_cores))) %>%

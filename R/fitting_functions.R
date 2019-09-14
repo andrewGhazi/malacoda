@@ -381,7 +381,8 @@ fit_mpra_model = function(mpra_data,
     sampler_input = mpra_data %>%
       filter(.data$barcode %in% well_represented$barcode) %>%
       group_by(.data$variant_id) %>%
-      nest(.key = 'variant_data') %>%
+      nest() %>%
+      dplyr::rename('variant_data' = 'data') %>%
       mutate(variant_prior = map(.data$variant_id,
                                  format_conditional_prior,
                                  cond_priors = priors))
@@ -402,7 +403,8 @@ fit_mpra_model = function(mpra_data,
     analysis_res = mpra_data %>%
       filter(.data$barcode %in% well_represented$barcode) %>%
       group_by(.data$variant_id) %>%
-      nest(.key = 'variant_data') %>%
+      nest() %>%
+      dplyr::rename('variant_data' = 'data') %>%
       left_join(group_df, by = 'variant_id') %>%
       left_join(priors, by = 'group_id') %>% # give the grouped_prior by variant_id
       dplyr::rename('variant_prior' = 'group_prior') %>%
@@ -423,7 +425,8 @@ fit_mpra_model = function(mpra_data,
     analysis_res = mpra_data %>%
       filter(.data$barcode %in% well_represented$barcode) %>%
       group_by(.data$variant_id) %>%
-      nest(.key = 'variant_data') %>%
+      nest() %>%
+      dplyr::rename('variant_data' = 'data') %>%
       mutate(variant_prior = list(priors)) %>% # give the same marg prior to every variant
       mutate(sampler_stats = parallel::mcmapply(run_mpra_sampler,
                                                 .data$variant_id, .data$variant_data, .data$variant_prior,
@@ -626,7 +629,8 @@ fit_dropout_model = function(dropout_data,
   fit_summary = dropout_data %>%
     filter(.data$gRNA %in% well_rep$gRNA) %>%
     group_by(.data$gene_id) %>%
-    tidyr::nest(.key = 'gene_data') %>%
+    nest() %>%
+    dplyr::rename('gene_data' = 'data') %>%
     dplyr::mutate(fit_statistics = parallel::mcmapply(run_dropout_sampler,
                                                       .data$gene_id, .data$gene_data,
                                                       mc.cores = n_cores,
@@ -702,7 +706,8 @@ fit_all_nb_mle = function(mpra_data,
   all_nb_mle = mpra_data %>%
     filter(.data$barcode %in% well_represented$barcode) %>%
     group_by(.data$variant_id) %>%
-    nest(.key = 'variant_data') %>%
+    nest() %>%
+    dplyr::rename('variant_data' = 'data') %>%
     mutate(n_ref = map_dbl(.data$variant_data, ~sum(tolower(.x$allele) == 'ref')),
            n_alt = map_dbl(.data$variant_data, ~sum(tolower(.x$allele) != 'ref'))) %>%
     filter(.data$n_ref > 2 & .data$n_alt > 2) %>%
@@ -719,7 +724,8 @@ fit_all_nb_mle = function(mpra_data,
                               ~spread(tibble(par = names(.x$par),
                                              val = .x$par),
                                       par, val))) %>%
-    unnest(... = .data$ml_estimates)
+    unnest(cols = .data$ml_estimates) %>%
+    ungroup
 
   return(all_nb_mle)
 }
