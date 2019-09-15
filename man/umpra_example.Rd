@@ -11,6 +11,7 @@ umpra_example
 }
 \description{
 MPRA counts for 25 randomly chosen variants from Ulirsch et al., Cell, 2016.
-Original URL from the manuscript seems to be down as of 10/2/2018.
+Original URL from the manuscript seems to be down as of 10/2/2018. The
+barcodes have been randomly reassigned to new twelvemers.
 }
 \keyword{datasets}
