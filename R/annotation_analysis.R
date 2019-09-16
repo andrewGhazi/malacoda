@@ -221,6 +221,7 @@ get_kl_divergences = function(mpra_data,
              .data$allele) %>%
     nest() %>%
     dplyr::rename('remnants' = 'data') %>%
+    ungroup() %>%
     mutate(cond_kl = unlist(parallel::mclapply(.data$remnants,
                                      compute_kl_est,
                                      mc.cores = n_cores))) %>%
@@ -238,6 +239,7 @@ get_kl_divergences = function(mpra_data,
              .data$allele) %>%
     nest() %>%
     dplyr::rename('remnants' = 'data') %>%
+    ungroup %>%
     mutate(marg_kl = unlist(parallel::mclapply(.data$remnants,
                                      compute_kl_est,
                                      mc.cores = n_cores))) %>%

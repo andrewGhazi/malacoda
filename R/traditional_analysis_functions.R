@@ -150,6 +150,7 @@ run_activity_tests = function(mpra_activities,
     group_by(.data$variant_id) %>%
     nest() %>%
     dplyr::rename('act_dat' = 'data') %>%
+    ungroup() %>%
     mutate(test_result = map(.data$act_dat, test_one_variant, test_type = test_type),
            note = map_chr(.data$test_result, ~ifelse(all(is.na(.x)),
                                                      'Not enough activity measurements present for both alleles, returning NA',

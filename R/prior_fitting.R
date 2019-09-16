@@ -419,6 +419,7 @@ fit_grouped_prior = function(mpra_data,
     dplyr::group_by(.data$group_id) %>%
     nest() %>%
     dplyr::rename('group_data' = 'data') %>%
+    ungroup %>%
     dplyr::mutate(group_prior = purrr::map(group_data, fit_marg_prior,
                                            sample_depths = sample_depths,
                                            well_represented = well_represented,

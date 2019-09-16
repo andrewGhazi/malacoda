@@ -383,6 +383,7 @@ fit_mpra_model = function(mpra_data,
       group_by(.data$variant_id) %>%
       nest() %>%
       dplyr::rename('variant_data' = 'data') %>%
+      ungroup %>%
       mutate(variant_prior = map(.data$variant_id,
                                  format_conditional_prior,
                                  cond_priors = priors))
@@ -405,6 +406,7 @@ fit_mpra_model = function(mpra_data,
       group_by(.data$variant_id) %>%
       nest() %>%
       dplyr::rename('variant_data' = 'data') %>%
+      ungroup %>%
       left_join(group_df, by = 'variant_id') %>%
       left_join(priors, by = 'group_id') %>% # give the grouped_prior by variant_id
       dplyr::rename('variant_prior' = 'group_prior') %>%
@@ -427,6 +429,7 @@ fit_mpra_model = function(mpra_data,
       group_by(.data$variant_id) %>%
       nest() %>%
       dplyr::rename('variant_data' = 'data') %>%
+      ungroup %>%
       mutate(variant_prior = list(priors)) %>% # give the same marg prior to every variant
       mutate(sampler_stats = parallel::mcmapply(run_mpra_sampler,
                                                 .data$variant_id, .data$variant_data, .data$variant_prior,
@@ -631,6 +634,7 @@ fit_dropout_model = function(dropout_data,
     group_by(.data$gene_id) %>%
     nest() %>%
     dplyr::rename('gene_data' = 'data') %>%
+    ungroup %>%
     dplyr::mutate(fit_statistics = parallel::mcmapply(run_dropout_sampler,
                                                       .data$gene_id, .data$gene_data,
                                                       mc.cores = n_cores,
@@ -708,6 +712,7 @@ fit_all_nb_mle = function(mpra_data,
     group_by(.data$variant_id) %>%
     nest() %>%
     dplyr::rename('variant_data' = 'data') %>%
+    ungroup %>%
     mutate(n_ref = map_dbl(.data$variant_data, ~sum(tolower(.x$allele) == 'ref')),
            n_alt = map_dbl(.data$variant_data, ~sum(tolower(.x$allele) != 'ref'))) %>%
     filter(.data$n_ref > 2 & .data$n_alt > 2) %>%
