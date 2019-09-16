@@ -165,7 +165,8 @@ run_activity_tests = function(mpra_activities,
     unnest(c(.data$test_result)) %>%
     full_join(na_variants,
               by = c('variant_id', 'note')) %>%
-    select(.data$variant_id, .data$ts_estimate:.data$alternative, .data$note)
+    select(.data$variant_id, .data$ts_estimate:.data$alternative, .data$note) %>%
+    ungroup
 
   if(compute_FDR){
     activity_tests = activity_tests %>%
