@@ -95,7 +95,8 @@ documentation](https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started).
 You should have root access.
 
 ``` r
-# Need to have root access
+# Sys.setenv(MAKEFLAGS = "-j4") # This compilation flag can help speed up
+# installation on multi-threaded machines. This command uses 4 threads.
 install.packages(c('Rcpp', 'rstan'), dependencies = TRUE, type = 'source')
 ```
 
@@ -152,6 +153,12 @@ conditional priors.
   - ~~Categorical conditional priors~~ ✓
   - additional Quality Control functionality
   - monoallelic variant analysis
+      - ~~model code~~ ✓
+      - model interface
+  - multi-tissue / multi-allelic variant analysis
+      - ~~model code~~ ✓
+      - model interface
+      - tissue level informative prior estimation
 
 ## Contact
 
