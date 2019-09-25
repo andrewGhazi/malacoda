@@ -193,6 +193,12 @@ get_well_represented = function(mpra_data,
                                 plot_rep_cutoff = FALSE,
                                 verbose = TRUE){
 
+  if (verbose & plot_rep_cutoff) {
+    message('Determining well-represented variants, see plot...')
+  } else if (verbose) {
+    message('Determining well-represented variants ...')
+  }
+
   all_dna = mpra_data %>%
     select(.data$variant_id, .data$allele, .data$barcode, matches('DNA')) %>%
     gather('sample_id', 'counts', matches('DNA|RNA')) %>%
@@ -264,15 +270,6 @@ fit_marg_prior = function(mpra_data,
   if (missing(sample_depths) | missing(well_represented)){
     sample_depths = get_sample_depths(mpra_data)
 
-    if (plot_rep_cutoff) {
-      if (verbose) {
-        message('Determining well-represented variants, see plot...')
-      }
-    } else {
-      if (verbose) {
-        message('Determining well-represented variants...')
-      }
-    }
     well_represented = get_well_represented(mpra_data,
                                             sample_depths,
                                             rep_cutoff = rep_cutoff,
@@ -401,12 +398,6 @@ fit_grouped_prior = function(mpra_data,
 
   sample_depths = get_sample_depths(mpra_data)
 
-  if (plot_rep_cutoff & verbose) {
-    message('Determining well-represented variants, see plot...')
-  } else if (verbose) {
-    message('Determining well-represented variants...')
-  }
-
   well_represented = get_well_represented(mpra_data,
                                           sample_depths,
                                           rep_cutoff = rep_cutoff,
@@ -519,10 +510,6 @@ fit_cond_prior = function(mpra_data,
   }
 
   sample_depths = get_sample_depths(mpra_data)
-
-  if (verbose) {
-    message('Determining well-represented variants, see plot...')
-  }
 
   well_represented = get_well_represented(mpra_data,
                                           sample_depths,

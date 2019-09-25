@@ -31,10 +31,6 @@ get_prior_ratios = function(mpra_data,
 
   sample_depths = get_sample_depths(mpra_data)
 
-  if (verbose) {
-    message('Determining well-represented variants, see plot...')
-  }
-
   well_represented = get_well_represented(mpra_data,
                                           sample_depths,
                                           rep_cutoff = .15,
@@ -178,10 +174,6 @@ get_kl_divergences = function(mpra_data,
                               verbose = TRUE) {
 
   sample_depths = get_sample_depths(mpra_data)
-
-  if (verbose) {
-    message('Determining well-represented variants, see plot...')
-  }
 
   well_represented = get_well_represented(mpra_data,
                                           sample_depths,
