@@ -6,6 +6,7 @@
 #' @param variant_activities a dataframe of activities (only for the same variant as sampler_result)
 #' @param color_by_sample optional logical indicating whether to color dots by
 #'   sample
+#' @param verbose logical indicating whether to print messages
 #' @return a posterior beeswarm ggplot object
 #' @note sampler_result objects are written by fit_mpra_model to the out_dir argument for each variant_id
 #' @examples
@@ -15,7 +16,8 @@
 #' @export
 posterior_beeswarm = function(sampler_result,
                               variant_activities,
-                              color_by_sample = FALSE) {
+                              color_by_sample = FALSE,
+                              verbose = TRUE) {
 
   n_samples = dplyr::n_distinct(variant_activities$sample_id)
   n_bc = dplyr::n_distinct(variant_activities$barcode)
@@ -39,7 +41,8 @@ posterior_beeswarm = function(sampler_result,
 
 
   if (color_by_sample){
-    message('Coloring dots by sample. Colors should be mixed i.e. identically distributed!')
+    if (verbose) {message('Coloring dots by sample. Colors should be mixed i.e. identically distributed!')}
+
     bee_plot = ggplot(aes(x = .data$allele,
                           y = .data$activity),
                       data = variant_activities) +

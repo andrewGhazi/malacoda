@@ -5,7 +5,7 @@
 \title{Create a posterior beeswarm plot}
 \usage{
 posterior_beeswarm(sampler_result, variant_activities,
-  color_by_sample = FALSE)
+  color_by_sample = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{sampler_result}{a stanfit object}
@@ -14,6 +14,8 @@ posterior_beeswarm(sampler_result, variant_activities,
 
 \item{color_by_sample}{optional logical indicating whether to color dots by
 sample}
+
+\item{verbose}{logical indicating whether to print messages}
 }
 \value{
 a posterior beeswarm ggplot object
