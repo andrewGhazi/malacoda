@@ -120,7 +120,7 @@ Other visualization functions are available for annotation checking. These help 
 * multi-tissue / multi-allelic variant analysis 
   + ~~model code~~ ✓ 
   + model interface
-  + tissue level informative prior estimationf
+  + tissue level informative prior estimation
 
 ## Contact
 
