@@ -15,3 +15,4 @@
 ^doc$
 ^Meta$
 ^README\.md$
+^data/filtered_example_data\.RData$
