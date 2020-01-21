@@ -249,7 +249,8 @@ fit_mpra_model = function(mpra_data,
       arrange(.data$variant_id)
   }
 
-  if (missing(priors)) {
+  #### Establish priors ----
+  if (missing(priors)) { # No prior given --> Auto-priors
     annotations_given = !is.null(annotations)
     # Fit priors
     if (verbose) {
@@ -303,6 +304,7 @@ fit_mpra_model = function(mpra_data,
       }
     }
   } else {
+    # Prior given --> use that
     if (all(class(priors) == 'list')){
       if (verbose) {
         message('Input prior class is list, interpreting as conditional priors.')
