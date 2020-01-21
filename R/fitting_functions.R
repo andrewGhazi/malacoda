@@ -263,7 +263,7 @@ fit_mpra_model = function(mpra_data,
 
       priors = fit_marg_prior(mpra_data,
                               n_cores = n_cores,
-                              rep_cutoff = .15,
+                              rep_cutoff = rep_cutoff,
                               plot_rep_cutoff = TRUE,
                               verbose = verbose)
     } else if (!is.null(group_df)) {
@@ -275,20 +275,21 @@ fit_mpra_model = function(mpra_data,
                                  group_df = group_df,
                                  n_cores = n_cores,
                                  plot_rep_cutoff = TRUE,
-                                 rep_cutoff = .15,
+                                 rep_cutoff = rep_cutoff,
                                  verbose = verbose)
 
     } else {
       if (verbose) {
         message('Fitting annotation-based conditional priors...')
+        message('Defaulting to min_neighbors = 50 and kernel_fold_increase = 1.3 . See ?fit_cond_prior for alternatives.')
       }
 
       priors = fit_cond_prior(mpra_data,
                               annotations,
                               n_cores = n_cores,
                               plot_rep_cutoff = TRUE,
-                              rep_cutoff = .15,
-                              min_neighbors = 30,
+                              rep_cutoff = rep_cutoff,
+                              min_neighbors = 50,
                               kernel_fold_increase = 1.3,
                               verbose = verbose)
 
