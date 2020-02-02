@@ -734,3 +734,31 @@ format_conditional_prior = function(given_id, cond_priors){
   return(bind_rows(dna_prior, rna_prior))
 
 }
+
+#' Increase a malacoda prior object's regularization
+#'
+#' @description This function takes a malacoda prior object and increases the
+#'   regularization on transcription shift by a set factor.
+#' @details This function multiplies the alpha and beta parameters of the gamma
+#'   priors on the mean for the RNA counts in order to keep the mean the same
+#'   while ascribing less prior density to extreme values, thus effectively
+#'   increasing the shrinkage applied to transcription shift while evaluating
+#'   the posterior.
+#' @param prior_object a marginal prior object returned by fit_marg_prior()
+#' @param increase_factor a number indicating the factor by which to increase
+#' @return A malacoda prior object with increase
+#' @examples increase_regularization(marg_prior_example)
+#' @seealso \code{\link{fit_marg_prior}} \code{\link{sample_from_prior}}
+#'   \code{\link{summarise_prior_samples}}
+increase_regularization = function(prior_object,
+                                   increase_factor = 2){
+  if (class(prior_object)[1] == 'list'){
+    stop('This function currently only works for marginal priors')
+  }
+
+  row_id = prior_object$prior_type == 'mu_prior' & prior_object$acid_type == 'RNA'
+  prior_object$alpha_est[row_id] = increase_factor * prior_object$alpha_est[row_id]
+  prior_object$beta_est[row_id] = increase_factor * prior_object$beta_est[row_id]
+
+  return(prior_object)
+}
