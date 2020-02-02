@@ -11,6 +11,9 @@ summarise_prior_samples(sim_df, ts_hdi_prob = 0.95, plot_prior = TRUE)
 
 \item{ts_hdi_prob}{probability mass to include in the highest density
 interval on transcription shift to call MPRA-functional variants}
+
+\item{plot_prior}{a logical value indicating whether to plot the prior
+samples on TS}
 }
 \value{
 a row data frame with columns of summary statistics

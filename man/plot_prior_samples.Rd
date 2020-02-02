@@ -6,6 +6,9 @@
 \usage{
 plot_prior_samples(prior_draws)
 }
+\arguments{
+\item{prior_draws}{a data frame of prior samples}
+}
 \value{
 a ggplot visualizing the prior density on TS
 }

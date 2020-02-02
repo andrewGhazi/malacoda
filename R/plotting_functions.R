@@ -320,6 +320,7 @@ summary_df %>%
 #' prior_draws = sample_from_prior(marg_prior_example, n_samp = 2000)
 #' plot_prior_samples(prior_draws)
 #' @return a ggplot visualizing the prior density on TS
+#' @param prior_draws a data frame of prior samples
 #' @seealso \code{\link{sample_from_prior}}
 #' @export
 plot_prior_samples = function(prior_draws){

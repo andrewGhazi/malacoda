@@ -176,6 +176,8 @@ sample_from_prior = function(prior_df, n_samp = 5000){
 #' @param sim_df a data frame of simulation draws
 #' @param ts_hdi_prob probability mass to include in the highest density
 #'   interval on transcription shift to call MPRA-functional variants
+#' @param plot_prior a logical value indicating whether to plot the prior
+#'   samples on TS
 #' @details You can get simulated prior draws using \code{sample_from_prior()}
 #' @return a row data frame with columns of summary statistics
 #' @examples
