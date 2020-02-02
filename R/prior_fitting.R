@@ -750,6 +750,7 @@ format_conditional_prior = function(given_id, cond_priors){
 #' @examples increase_regularization(marg_prior_example)
 #' @seealso \code{\link{fit_marg_prior}} \code{\link{sample_from_prior}}
 #'   \code{\link{summarise_prior_samples}}
+#' @export
 increase_regularization = function(prior_object,
                                    increase_factor = 2){
   if (class(prior_object)[1] == 'list'){
