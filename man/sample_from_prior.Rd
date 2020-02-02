@@ -4,7 +4,7 @@
 \alias{sample_from_prior}
 \title{Sample from prior}
 \usage{
-sample_from_prior(prior_df, n_samp)
+sample_from_prior(prior_df, n_samp = 5000)
 }
 \arguments{
 \item{prior_df}{a data frame of the prior for one variant}
@@ -24,5 +24,5 @@ This function draws \code{n_samp} draws from the prior for one
   variant.
 }
 \examples{
-sample_from_prior(marg_prior_example, n_samp = 1000)
+sample_from_prior(marg_prior_example, n_samp = 2000)
 }

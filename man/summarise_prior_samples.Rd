@@ -4,7 +4,7 @@
 \alias{summarise_prior_samples}
 \title{Summarise prior samples}
 \usage{
-summarise_prior_samples(sim_df, ts_hdi_prob = 0.95)
+summarise_prior_samples(sim_df, ts_hdi_prob = 0.95, plot_prior = TRUE)
 }
 \arguments{
 \item{sim_df}{a data frame of simulation draws}
