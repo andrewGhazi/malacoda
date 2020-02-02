@@ -195,7 +195,7 @@ summarise_prior_samples = function(sim_df,
               prior_is_func = !between(0, .data$prior_lower_ts, .data$prior_upper_ts))
 
   if (plot_prior){
-    plot_prior_samples(sim_summary)
+    plot_prior_samples(sim_df)
   }
 
   return(sim_summary)
