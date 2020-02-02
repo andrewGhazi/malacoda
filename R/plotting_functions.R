@@ -312,3 +312,21 @@ summary_df %>%
                lty = 2) +
     theme(strip.text = element_text(color = 'grey10', size = 9))
 }
+
+
+#' Plot prior samples
+#' @description Visualize a malacoda prior on transcription shift
+#' @examples
+#' prior_draws = sample_from_prior(marg_prior_example, n_samp = 2000)
+#' plot_prior_samples(prior_draws)
+#' @return a ggplot visualizing the prior density on TS
+#' @seealso \code{\link{sample_from_prior}}
+#' @export
+plot_prior_samples = function(prior_draws){
+  ggplot(prior_draws,
+         aes(.data$sim_ts)) +
+    geom_histogram(aes(y = .data$..density..)) +
+    labs(x = 'Transcription Shift',
+         y = 'Prior density')
+
+}
