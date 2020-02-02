@@ -4,8 +4,13 @@
 \alias{get_well_represented}
 \title{Get well represented barcodes}
 \usage{
-get_well_represented(mpra_data, sample_depths, rep_cutoff,
-  plot_rep_cutoff = FALSE, verbose = TRUE)
+get_well_represented(
+  mpra_data,
+  sample_depths,
+  rep_cutoff,
+  plot_rep_cutoff = FALSE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{mpra_data}{a data frame of MPRA data}

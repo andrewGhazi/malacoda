@@ -4,8 +4,14 @@
 \alias{fit_grouped_prior}
 \title{Fit priors by group}
 \usage{
-fit_grouped_prior(mpra_data, group_df, n_cores, plot_rep_cutoff = TRUE,
-  rep_cutoff = 0.15, verbose = TRUE)
+fit_grouped_prior(
+  mpra_data,
+  group_df,
+  n_cores,
+  plot_rep_cutoff = TRUE,
+  rep_cutoff = 0.15,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{mpra_data}{a data frame of mpra data}

@@ -4,11 +4,24 @@
 \alias{fit_mpra_model}
 \title{Fit a Bayesian MPRA model}
 \usage{
-fit_mpra_model(mpra_data, annotations = NULL, group_df = NULL,
-  out_dir = NULL, save_nonfunctional = FALSE, priors = NULL,
-  n_cores = 1, n_chains = 4, tot_samp = 10000, n_warmup = 500,
-  vb_pass = TRUE, vb_prob = 0.8, ts_hdi_prob = 0.95,
-  ts_rope = c(-0.405, 0.405), rep_cutoff = 0.15, verbose = TRUE)
+fit_mpra_model(
+  mpra_data,
+  annotations = NULL,
+  group_df = NULL,
+  out_dir = NULL,
+  save_nonfunctional = FALSE,
+  priors = NULL,
+  n_cores = 1,
+  n_chains = 4,
+  tot_samp = 10000,
+  n_warmup = 500,
+  vb_pass = TRUE,
+  vb_prob = 0.8,
+  ts_hdi_prob = 0.95,
+  ts_rope = c(-0.405, 0.405),
+  rep_cutoff = 0.15,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{mpra_data}{a data frame of MPRA data with 1 column called variant_id,

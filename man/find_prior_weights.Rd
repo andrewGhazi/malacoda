@@ -4,8 +4,15 @@
 \alias{find_prior_weights}
 \title{Find prior weights}
 \usage{
-find_prior_weights(given_id, scaled_annotations, dist_mat, min_dist_kernel,
-  kernel_fold_change = 1.3, min_num_neighbors = 100, verbose = TRUE)
+find_prior_weights(
+  given_id,
+  scaled_annotations,
+  dist_mat,
+  min_dist_kernel,
+  kernel_fold_change = 1.3,
+  min_num_neighbors = 100,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{given_id}{a variant_id to get weights for}

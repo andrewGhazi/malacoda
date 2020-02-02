@@ -4,8 +4,12 @@
 \alias{run_activity_tests}
 \title{Run MPRA activity tests}
 \usage{
-run_activity_tests(mpra_activities, test_type = "t",
-  compute_FDR = TRUE, plot_p_hist = TRUE)
+run_activity_tests(
+  mpra_activities,
+  test_type = "t",
+  compute_FDR = TRUE,
+  plot_p_hist = TRUE
+)
 }
 \arguments{
 \item{mpra_activities}{a "tall" data frame of MPRA activities}

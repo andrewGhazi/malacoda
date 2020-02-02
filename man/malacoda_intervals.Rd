@@ -4,8 +4,11 @@
 \alias{malacoda_intervals}
 \title{Plot a variant's posterior intervals}
 \usage{
-malacoda_intervals(sampler_res, inner_probs = c(0.1, 0.9),
-  outer_probs = c(0.025, 0.975))
+malacoda_intervals(
+  sampler_res,
+  inner_probs = c(0.1, 0.9),
+  outer_probs = c(0.025, 0.975)
+)
 }
 \arguments{
 \item{sampler_res}{A stanfit object for one variant}

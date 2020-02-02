@@ -4,8 +4,12 @@
 \alias{compute_activities}
 \title{Compute MPRA activities}
 \usage{
-compute_activities(mpra_data, rep_cutoff = 0.15,
-  plot_rep_cutoff = TRUE, verbose = TRUE)
+compute_activities(
+  mpra_data,
+  rep_cutoff = 0.15,
+  plot_rep_cutoff = TRUE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{mpra_data}{a data frame of MPRA data}

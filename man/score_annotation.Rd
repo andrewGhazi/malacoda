@@ -4,8 +4,13 @@
 \alias{score_annotation}
 \title{Score an annotation source}
 \usage{
-score_annotation(mpra_data, annotations, nb_params = NULL,
-  conditional_prior = NULL, marginal_prior = NULL)
+score_annotation(
+  mpra_data,
+  annotations,
+  nb_params = NULL,
+  conditional_prior = NULL,
+  marginal_prior = NULL
+)
 }
 \arguments{
 \item{mpra_data}{a data frame of MPRA data}

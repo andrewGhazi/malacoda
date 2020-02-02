@@ -4,9 +4,16 @@
 \alias{fit_cond_prior}
 \title{Fit a informative conditional prior}
 \usage{
-fit_cond_prior(mpra_data, annotations, n_cores = 1,
-  plot_rep_cutoff = TRUE, rep_cutoff = 0.15, min_neighbors = 100,
-  kernel_fold_increase = 1.4142, verbose = TRUE)
+fit_cond_prior(
+  mpra_data,
+  annotations,
+  n_cores = 1,
+  plot_rep_cutoff = TRUE,
+  rep_cutoff = 0.15,
+  min_neighbors = 100,
+  kernel_fold_increase = 1.4142,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{mpra_data}{a data frame of mpra data}

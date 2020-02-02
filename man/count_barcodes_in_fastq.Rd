@@ -4,8 +4,12 @@
 \alias{count_barcodes_in_fastq}
 \title{Match barcodes for a single fastq}
 \usage{
-count_barcodes_in_fastq(trimmed_fastq, barcode_allele_df, temp_dir,
-  verbose = TRUE)
+count_barcodes_in_fastq(
+  trimmed_fastq,
+  barcode_allele_df,
+  temp_dir,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{trimmed_fastq}{path to a trimmed fastq}

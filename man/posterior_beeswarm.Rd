@@ -4,8 +4,12 @@
 \alias{posterior_beeswarm}
 \title{Create a posterior beeswarm plot}
 \usage{
-posterior_beeswarm(sampler_result, variant_activities,
-  color_by_sample = FALSE, verbose = TRUE)
+posterior_beeswarm(
+  sampler_result,
+  variant_activities,
+  color_by_sample = FALSE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{sampler_result}{a stanfit object}

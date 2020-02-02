@@ -4,8 +4,15 @@
 \alias{fit_marg_prior}
 \title{Fit a marginal prior}
 \usage{
-fit_marg_prior(mpra_data, n_cores = 1, plot_rep_cutoff = TRUE,
-  rep_cutoff = 0.15, sample_depths, well_represented, verbose = TRUE)
+fit_marg_prior(
+  mpra_data,
+  n_cores = 1,
+  plot_rep_cutoff = TRUE,
+  rep_cutoff = 0.15,
+  sample_depths,
+  well_represented,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{mpra_data}{a data frame of mpra data}

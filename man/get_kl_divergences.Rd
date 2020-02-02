@@ -4,8 +4,7 @@
 \alias{get_kl_divergences}
 \title{Get Kullback-Leibler Divergences}
 \usage{
-get_kl_divergences(mpra_data, cond_prior, marg_prior, n_cores,
-  verbose = TRUE)
+get_kl_divergences(mpra_data, cond_prior, marg_prior, n_cores, verbose = TRUE)
 }
 \arguments{
 \item{mpra_data}{a data frame of mpra data}
