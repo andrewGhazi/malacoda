@@ -150,9 +150,9 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
 #' @return a data data frame of activity draws and the simulated transcription
 #'   shift at each draw
 #' @examples
-#' sample_from_prior(marg_prior_example, n_samp = 1000)
+#' sample_from_prior(marg_prior_example, n_samp = 2000)
 #' @export
-sample_from_prior = function(prior_df, n_samp){
+sample_from_prior = function(prior_df, n_samp = 5000){
   sim_df = prior_df %>% filter(.data$prior_type == 'mu_prior') %>%
     mutate(allele = case_when(tolower(.data$allele) == 'ref' ~ 'ref',
                               tolower(.data$allele) != 'ref' ~ 'alt'),
@@ -183,7 +183,8 @@ sample_from_prior = function(prior_df, n_samp){
 #' summarise_prior_samples(prior_draws)
 #' @export
 summarise_prior_samples = function(sim_df,
-                                   ts_hdi_prob = .95){
+                                   ts_hdi_prob = .95,
+                                   plot_prior = TRUE){
 
   sim_summary = sim_df %>%
     summarise(mean_prior_ts = mean(.data$sim_ts),
@@ -192,6 +193,10 @@ summarise_prior_samples = function(sim_df,
               prior_lower_ts = .data$prior_ts_hdi[[1]][1],
               prior_upper_ts = .data$prior_ts_hdi[[1]][2],
               prior_is_func = !between(0, .data$prior_lower_ts, .data$prior_upper_ts))
+
+  if (plot_prior){
+    plot_prior_samples(sim_summary)
+  }
 
   return(sim_summary)
 }
