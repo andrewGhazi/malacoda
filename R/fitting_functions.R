@@ -398,9 +398,7 @@ fit_mpra_model = function(mpra_data,
                                                 mc.cores = n_cores,
                                                 mc.preschedule = FALSE,
                                                 SIMPLIFY = FALSE)) %>%
-      unnest(.data$sampler_stats,
-             .drop = TRUE,
-             .preserve = c(.data$variant_data, .data$variant_prior)) %>%
+      unnest(.data$sampler_stats) %>%
       arrange(desc(abs(.data$ts_post_mean)))
   } else if ('group_prior' %in% names(priors)) {
     # This block uses a grouped prior.
@@ -419,9 +417,7 @@ fit_mpra_model = function(mpra_data,
                                                 mc.cores = n_cores,
                                                 mc.preschedule = FALSE,
                                                 SIMPLIFY = FALSE)) %>%
-      unnest(.data$sampler_stats,
-             .drop = TRUE,
-             .preserve = c(.data$variant_data, .data$variant_prior)) %>%
+      unnest(.data$sampler_stats) %>%
       arrange(desc(abs(.data$ts_post_mean)))
 
   } else {
@@ -440,9 +436,7 @@ fit_mpra_model = function(mpra_data,
                                                 mc.cores = n_cores,
                                                 mc.preschedule = FALSE,
                                                 SIMPLIFY = FALSE)) %>%
-      unnest(.data$sampler_stats,
-             .drop = TRUE,
-             .preserve = c(.data$variant_data, .data$variant_prior)) %>%
+      unnest(.data$sampler_stats) %>%
       arrange(desc(abs(.data$ts_post_mean)))
   }
 
