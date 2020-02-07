@@ -140,12 +140,13 @@ fit_gamma = function(input_vec,
 #'   pools are discarded.
 #'
 #'   \code{adaptive_precision} indicates whether to adaptively increase the
-#'   length of the MCMC chains for borderline functional variants. If one edge
-#'   of a variant's HDI interval is close to 0, the sampler will adaptively
-#'   increase the length of the MCMC chain until it is clearly resolved. Using
-#'   the default 95% HDI, this means that if a 92.5% HDI excludes 0, and a 97.5%
-#'   HDI includes 0, the sampler will double the length of the MCMC chain. This
-#'   argument should be turned off if tot_samp is already set to a high value.
+#'   length of the MCMC chains for borderline functional variants. The edges of
+#'   a 95% HDI have high variance with a small number of posterior samples. If
+#'   one edge of a variant's HDI interval is close to 0, this setting will tell
+#'   the sampler to double the length of the MCMC chain. Using the default 95%
+#'   HDI, this means that if a 92.5% HDI excludes 0, and a 97.5% HDI includes 0,
+#'   the sampler will double the length of the MCMC chain. This argument should
+#'   be turned off if tot_samp is already set to a high value.
 #'
 #' @return a data frame with a row for each variant_id that specifies the
 #'   posterior mean TS, upper and lower HDI bounds, a binary call of functional
