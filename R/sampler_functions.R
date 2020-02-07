@@ -11,6 +11,7 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
                             vb_pass = TRUE,
                             vb_prob = .8,
                             ts_rope = NULL,
+                            adaptive_precision = TRUE,
                             verbose = TRUE) {
 
   # This fits the malacoda biallelic MPRA model (i.e. the main one) for ONE variant.
@@ -64,7 +65,7 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
 
     if(!between(0, vb_hdi[1], vb_hdi[2])){
       # Check if the VB result indicates the variant is "worthy" of MCMC
-
+      note = 'mcmc used for posterior evaluation'
       sampler_res = rstan::sampling(stanmodels$bc_mpra_model,
                                     data = data_list,
                                     chains = n_chains,
@@ -73,13 +74,32 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
                                     cores = 1,
                                     verbose = verbose,
                                     refresh = refresh_setting)
-      note = 'mcmc used for posterior evaluation'
+
+      ts_precision_check = check_ts_precision(sampler_res,
+                                              ts_hdi_prob)
+
+      if (ts_precision_check){
+        # if necessary, add more samples, and tack on a note
+        bonus_fit = rstan::stan(fit = sampler_res,
+                                data = data_list,
+                                chains = n_chains,
+                                warmup = n_warmup,
+                                iter = n_per_chain,
+                                cores = 1,
+                                verbose = verbose,
+                                refresh = refresh_setting)
+
+        sampler_res = rstan::sflist2stanfit(list(sampler_res, bonus_fit))
+
+        note = paste0(note, '; mcmc chain length doubled due to borderline functional TS HDI and adaptive_precision setting.')
+      }
     } else{
       sampler_res = vb_res
       note = 'VB used for posterior evaluation'
     }
 
   } else {
+    note = 'mcmc used for posterior evaluation'
     sampler_res = rstan::sampling(stanmodels$bc_mpra_model,
                                   data = data_list,
                                   chains = n_chains,
@@ -88,7 +108,25 @@ run_mpra_sampler = function(variant_id, variant_data, variant_prior,
                                   cores = 1,
                                   verbose = verbose,
                                   refresh = refresh_setting)
-    note = 'mcmc used for posterior evaluation'
+
+    ts_precision_check = check_ts_precision(sampler_res,
+                                            ts_hdi_prob)
+
+    if (ts_precision_check){
+      # if necessary, add more samples, and tack on a note
+      bonus_fit = rstan::stan(fit = sampler_res,
+                              data = data_list,
+                              chains = n_chains,
+                              warmup = n_warmup,
+                              iter = n_per_chain,
+                              cores = 1,
+                              verbose = verbose,
+                              refresh = refresh_setting)
+
+      sampler_res = rstan::sflist2stanfit(list(sampler_res, bonus_fit))
+
+      note = paste0(note, '; mcmc chain length doubled due to borderline functional TS HDI and adaptive_precision setting.')
+    }
   }
 
   #### Compute some output quantities ----
@@ -328,4 +366,25 @@ run_dropout_sampler = function(gene_id, gene_data, gene_prior,
   # return summary ----
 
   return(summary_df)
+}
+
+check_ts_precision = function(sampler_result,
+                              ts_hdi_prob){
+
+  # This function returns TRUE if the posterior on transcription shift excludes
+  # 0 for a relatively narrow HDI, but includes 0 for a relatively wider HDI
+
+  # figure out the wider/narrower HDIs to check based on the second input
+  wider_prob = ts_hdi_prob + (1-ts_hdi_prob) / 2
+  narrow_prob = ts_hdi_prob - (1-ts_hdi_prob) / 2
+
+  # Check the  wider/narrower HDIs
+  wider_hdi = coda::HPDinterval(coda::mcmc(as.matrix(sampler_result)[,'transcription_shift']),
+                                prob = wider_prob)
+  narrow_hdi = coda::HPDinterval(coda::mcmc(as.matrix(sampler_result)[,'transcription_shift']),
+                                prob = narrow_prob)
+
+  !dplyr::between(0, narrow_hdi[1], narrow_hdi[2]) && # if the narrow HDI EXCLUDES AND
+    dplyr::between(0, wider_hdi[1], wider_hdi[2]) # the wide HDI INCLUDES, return TRUE
+
 }

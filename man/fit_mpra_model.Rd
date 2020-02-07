@@ -13,13 +13,14 @@ fit_mpra_model(
   priors = NULL,
   n_cores = 1,
   n_chains = 4,
-  tot_samp = 10000,
-  n_warmup = 500,
+  tot_samp = 2000,
+  n_warmup = 200,
   vb_pass = TRUE,
   vb_prob = 0.8,
   ts_hdi_prob = 0.95,
   ts_rope = c(-0.405, 0.405),
   rep_cutoff = 0.15,
+  adaptive_precision = TRUE,
   verbose = TRUE
 )
 }
@@ -67,6 +68,9 @@ transcription shift region of practical equivalence (ROPE), defaulting to
 +/- log(3/2)}
 
 \item{rep_cutoff}{a representation cutoff quantile (0 to 1)}
+
+\item{adaptive_precision}{logical indicating whether to adaptively adjust the
+length of the posterior MCMC chain for borderline functional variants}
 
 \item{verbose}{logical indicating whether to print messages}
 }
@@ -128,6 +132,14 @@ This function fits a negative-binomial based Bayesian model to
 
   Barcodes below the \code{rep_cutoff} quantile of representation in the DNA
   pools are discarded.
+
+  \code{adaptive_precision} indicates whether to adaptively increase the
+  length of the MCMC chains for borderline functional variants. If one edge
+  of a variant's HDI interval is close to 0, the sampler will adaptively
+  increase the length of the MCMC chain until it is clearly resolved. Using
+  the default 95% HDI, this means that if a 92.5% HDI excludes 0, and a 97.5%
+  HDI includes 0, the sampler will double the length of the MCMC chain. This
+  argument should be turned off if tot_samp is already set to a high value.
 }
 \note{
 Sampler results for individual variants will be saved to the specified
@@ -147,7 +159,8 @@ example_result = fit_mpra_model(mpra_data = examples_to_evaluate,
  priors = marg_prior_example,
  vb_pass = FALSE,
  tot_samp = 20,
- n_warmup = 10) # Likewise, n_warmup should be >500
+ n_warmup = 10,
+ adaptive_precision = FALSE)
 
 print(example_result)
 }
