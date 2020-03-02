@@ -8,7 +8,8 @@ posterior_beeswarm(
   sampler_result,
   variant_activities,
   color_by_sample = FALSE,
-  verbose = TRUE
+  verbose = TRUE,
+  adjust = 1.5
 )
 }
 \arguments{
@@ -20,6 +21,8 @@ posterior_beeswarm(
 sample}
 
 \item{verbose}{logical indicating whether to print messages}
+
+\item{adjust}{violin bandwidth adjustment. See ?ggplot2::geom_violin}
 }
 \value{
 a posterior beeswarm ggplot object

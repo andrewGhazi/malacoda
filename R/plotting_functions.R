@@ -6,6 +6,7 @@
 #' @param variant_activities a dataframe of activities (only for the same variant as sampler_result)
 #' @param color_by_sample optional logical indicating whether to color dots by
 #'   sample
+#' @param adjust violin bandwidth adjustment. See ?ggplot2::geom_violin
 #' @param verbose logical indicating whether to print messages
 #' @return a posterior beeswarm ggplot object
 #' @note sampler_result objects are written by fit_mpra_model to the out_dir argument for each variant_id
@@ -17,7 +18,8 @@
 posterior_beeswarm = function(sampler_result,
                               variant_activities,
                               color_by_sample = FALSE,
-                              verbose = TRUE) {
+                              verbose = TRUE,
+                              adjust = 1.5) {
 
   n_samples = dplyr::n_distinct(variant_activities$sample_id)
   n_bc = dplyr::n_distinct(variant_activities$barcode)
@@ -68,7 +70,8 @@ posterior_beeswarm = function(sampler_result,
     geom_violin(data = violin_dat,
                 aes(.data$allele, .data$post_sample),
                 fill = rgb(0,0,0,0),
-                width = .6)
+                width = .6,
+                adjust = adjust)
 
 }
 
