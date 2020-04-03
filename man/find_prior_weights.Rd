@@ -40,8 +40,8 @@ For a given variant and annotation set (scaled) and distance
 }
 \details{
 The "meaningful contribution" is defined in this way: The variants
-  are sorted by weight. The min_num_neighbors-th variant will be weighted to
-  at least 1% of the highest most strongly weighted variant. This prevents
-  some small number of extremely close neighbors from dominating the prior
-  estimation later on.
+  are sorted by weight. The min_num_neighbors-th (e.g. 100th) variant will be
+  weighted to at least 1% of the highest most strongly weighted variant. This
+  prevents some small number of extremely close neighbors from dominating the
+  prior estimation later on.
 }

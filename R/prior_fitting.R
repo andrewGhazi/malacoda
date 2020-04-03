@@ -75,10 +75,10 @@ generate_distance_matrix = function(annotations,
 #'   meaningful contribution to the weights before stopping
 #' @param verbose logical indicating whether to print messages
 #' @details The "meaningful contribution" is defined in this way: The variants
-#'   are sorted by weight. The min_num_neighbors-th variant will be weighted to
-#'   at least 1% of the highest most strongly weighted variant. This prevents
-#'   some small number of extremely close neighbors from dominating the prior
-#'   estimation later on.
+#'   are sorted by weight. The min_num_neighbors-th (e.g. 100th) variant will be
+#'   weighted to at least 1% of the highest most strongly weighted variant. This
+#'   prevents some small number of extremely close neighbors from dominating the
+#'   prior estimation later on.
 find_prior_weights = function(given_id,
                               scaled_annotations,
                               dist_mat,
@@ -120,32 +120,65 @@ find_prior_weights = function(given_id,
     group_by(.data$variant_id) %>%
     mutate(dist = .data$value - pos_vec)
 
-  weight_df = dist_to_others %>%
-    select(-.data$value) %>%
-    summarise(mv_dens = mvtnorm::dmvt(.data$dist,
-                                      sigma = diag(min_dist_kernel, n_annotations), log = FALSE)) %>% # Using a t kernel
-    mutate(frac_weight = .data$mv_dens / sum(.data$mv_dens)) %>%
-    arrange(desc(.data$frac_weight)) %>%
-    mutate(cs = cumsum(.data$frac_weight),
-           n = 1:dplyr::n())
+  if (n_annotations == 1){
+    weight_df = dist_to_others %>%
+      ungroup %>%
+      select(-.data$value) %>%
+      mutate(mv_dens = mvtnorm::dmvt(matrix(.data$dist),
+                                     sigma = diag(min_dist_kernel, n_annotations), log = FALSE)) %>% # Using a t kernel
+      mutate(frac_weight = .data$mv_dens / sum(.data$mv_dens)) %>%
+      arrange(desc(.data$frac_weight)) %>%
+      mutate(cs = cumsum(.data$frac_weight),
+             n = 1:dplyr::n())
+  } else if (n_annotations > 1){
+    dist_by_variant = dist_to_others %>%
+      ungroup %>%
+      select(-.data$value) %>%
+      spread(.data$annotation, .data$dist) %>%
+      select(-.data$variant_id) %>%
+      as.matrix()
+
+    variant_df = dist_to_others %>%
+      ungroup %>%
+      select(.data$variant_id) %>%
+      unique
+
+    weight_df = variant_df %>%
+      mutate(mv_dens = mvtnorm::dmvt(dist_by_variant,
+                                     sigma = diag(min_dist_kernel, n_annotations), log = FALSE)) %>% # Using a t kernel
+      mutate(frac_weight = .data$mv_dens / sum(.data$mv_dens)) %>%
+      arrange(desc(.data$frac_weight)) %>%
+      mutate(cs = cumsum(.data$frac_weight),
+             n = 1:dplyr::n())
+  }
 
   if (weight_df$frac_weight[min_num_neighbors] / weight_df$frac_weight[1] < .01){
-    # If the first 30 (min_num_neighbors) weights account for more than 99% of
-    # all weight, we need to increase the kernel and try again
-    dist_to_others %<>% dplyr::ungroup()
+    # If the 100th variant has less than 1% the weight of the top variant,
+    # expand the kernel width and re-weight.
 
     while (weight_df$frac_weight[min_num_neighbors] / weight_df$frac_weight[1] < .01) {
       min_dist_kernel = kernel_fold_change * min_dist_kernel
-      weight_df = dist_to_others %>%
-        select(-.data$value) %>%
-        mutate(mv_dens = mvtnorm::dmvt(as.matrix(.data$dist),
-                                          sigma = diag(min_dist_kernel, n_annotations),
-                                          df = 10,
-                                          log = FALSE)) %>% # Using a t kernel
-        mutate(frac_weight = .data$mv_dens / sum(.data$mv_dens)) %>%
-        arrange(desc(.data$frac_weight)) %>%
-        mutate(cs = cumsum(.data$frac_weight),
-               n = 1:dplyr::n())
+
+      if (n_annotations == 1){
+        weight_df = dist_to_others %>%
+          ungroup %>%
+          select(-.data$value) %>%
+          mutate(mv_dens = mvtnorm::dmvt(matrix(.data$dist),
+                                         sigma = diag(min_dist_kernel, n_annotations), log = FALSE)) %>% # Using a t kernel
+          mutate(frac_weight = .data$mv_dens / sum(.data$mv_dens)) %>%
+          arrange(desc(.data$frac_weight)) %>%
+          mutate(cs = cumsum(.data$frac_weight),
+                 n = 1:dplyr::n())
+      } else if (n_annotations > 1){
+
+        weight_df = variant_df %>%
+          mutate(mv_dens = mvtnorm::dmvt(dist_by_variant,
+                                         sigma = diag(min_dist_kernel, n_annotations), log = FALSE)) %>% # Using a t kernel
+          mutate(frac_weight = .data$mv_dens / sum(.data$mv_dens)) %>%
+          arrange(desc(.data$frac_weight)) %>%
+          mutate(cs = cumsum(.data$frac_weight),
+                 n = 1:dplyr::n())
+      }
     }
   }
 
@@ -518,7 +551,7 @@ fit_cond_prior = function(mpra_data,
                                           verbose = verbose)
 
   if (verbose) {
-    message('Fitting negative binomial maximum likelihood estimates...')
+    message('Fitting per-variant maximum likelihood estimates...')
   }
 
   all_nb_mle = fit_all_nb_mle(mpra_data,
