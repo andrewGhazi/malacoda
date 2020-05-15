@@ -42,7 +42,25 @@ Other features include:
 ## Example
 
 This is a basic example which shows you how to fit the simplest form of
-the model:
+the model. The input needs to provide the MPRA counts for each barcode
+of each allele of each variant with a column for each sequencing sample.
+This example only shows 8 rows, but realistic datasets will have
+thousands.
+
+| variant\_id       | allele | barcode      | DNA1 | DNA2 | RNA1 | RNA2 | RNA3 | RNA4 |
+| :---------------- | :----- | :----------- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1\_203652141\_2-3 | ref    | TTCGCGTCTCAG |   68 |   37 |  517 |  259 |  951 | 1525 |
+| 1\_203652141\_2-3 | ref    | ACTTTCGATTTG |   11 |    7 |   75 |   43 |  104 |   96 |
+| 1\_203652141\_2-3 | alt    | TCGCGCACGTAT |    6 |    2 |   49 |    9 |    7 |   29 |
+| 1\_203652141\_2-3 | alt    | GAACGATCTATT |    5 |    7 |    3 |    0 |   58 |   12 |
+| 1\_47682017\_1-3  | ref    | GCTGTTATCTTT |   29 |   22 |   23 |   11 |   35 |   20 |
+| 1\_47682017\_1-3  | ref    | TAGTTTATCGCT |   29 |   25 |   15 |    6 |   92 |   14 |
+| 1\_47682017\_1-3  | alt    | TGGTAGCATAAG |   50 |   34 |    8 |   27 |  185 |   38 |
+| 1\_47682017\_1-3  | alt    | CACCTTAGAATG |   48 |   28 |   22 |    8 |    2 |    6 |
+
+The specific format requirements for the input can be found on the help
+page for `?fit_mpra_model`. The code below will fit the basic malacoda
+model using a dataset that comes with the package:
 
 ``` r
 library(malacoda)
@@ -51,34 +69,37 @@ fit_mpra_model(mpra_data = umpra_example,
                out_dir = '/path/to/outputs/',
                priors = marg_prior,
                n_cores = getOption('mc.cores', 2L),
+               tot_samp = 1000,
+               n_chains = 3,
                vb_pass = TRUE,
                save_nonfunctional = TRUE)
 ```
 
 This will fit the model to each input in the assay (using some example
 variants from [Ulirsch et al.,
-Cell, 2016](https://www.ncbi.nlm.nih.gov/pubmed/27259154)) using a
-marginal prior, save the outputs for each variant at the specified
-directory, and return a data frame of summary statistics for each
-variant, including binary calls of functional/non-functional, posterior
-means on activity levels & transcription shift.
+Cell, 2016](https://www.ncbi.nlm.nih.gov/pubmed/27259154) in the
+built-in dataset `umpra_example`) using a marginal prior, save the
+outputs for each variant at the specified directory, and return a data
+frame of summary statistics for each variant, including binary calls of
+functional/non-functional, posterior means on activity levels &
+transcription shift.
 
-| variant\_id  | ts\_post\_mean | ref\_post\_mean | alt\_post\_mean | is\_functional | hdi\_lower | hdi\_upper |
-| :----------- | -------------: | --------------: | --------------: | :------------- | ---------: | ---------: |
-| 3\_141301451 |          1.482 |         \-0.516 |           0.966 | TRUE           |      1.180 |      1.761 |
-| 15\_65882173 |        \-1.133 |         \-2.489 |         \-3.623 | FALSE          |    \-2.434 |      0.119 |
-| X\_55054636  |        \-1.094 |           0.212 |         \-0.882 | TRUE           |    \-1.387 |    \-0.799 |
-| 1\_158620477 |          1.059 |         \-1.323 |         \-0.264 | TRUE           |      0.461 |      1.652 |
-| 10\_46003631 |        \-0.886 |         \-2.299 |         \-3.185 | FALSE          |    \-2.137 |      0.300 |
-| 1\_158497964 |        \-0.798 |         \-0.178 |         \-0.976 | TRUE           |    \-1.371 |    \-0.222 |
+| variant\_id       | ts\_post\_mean | ref\_post\_mean | alt\_post\_mean | is\_functional | hdi\_lower | hdi\_upper |
+| :---------------- | -------------: | --------------: | --------------: | :------------- | ---------: | ---------: |
+| 1\_203652141\_2-3 |         \-1.73 |            3.91 |            2.17 | TRUE           |     \-2.03 |     \-1.47 |
+| 4\_122791601\_2-3 |         \-1.70 |            4.04 |            2.34 | TRUE           |     \-2.00 |     \-1.45 |
+| 17\_76382791\_1-2 |         \-1.70 |            4.04 |            2.34 | TRUE           |     \-2.01 |     \-1.42 |
+| 11\_8923528\_1-2  |         \-1.59 |            3.79 |            2.20 | TRUE           |     \-1.88 |     \-1.31 |
+| 17\_42305699\_1-3 |         \-1.58 |            3.88 |            2.30 | TRUE           |     \-1.85 |     \-1.27 |
+| 15\_78536924\_1-2 |         \-1.58 |            3.81 |            2.23 | TRUE           |     \-1.88 |     \-1.32 |
 
 More sophisticated analyses that use annotations to create informative
 priors for higher sensitivity are described in the MPRA Analysis
 vignette accessible with `vignette('mpra_vignette', package =
 'malacoda')`. Other features like annotation checking and traditional
-NHST analysis are also explained in the vignette. Most major functions
-like `fit_cond_prior` have extensive help documentation that should help
-elucidate how to use them.
+NHST analysis are also explained in the vignette. Each function provided
+by the package have extensive help documentation that should help
+elucidate what they do and how to use them e.g. `?fit_mpra_model`.
 
 ## Installation
 
@@ -146,16 +167,43 @@ Other visualization functions are available for annotation checking.
 These help visualize the improvement induced by the use of informative
 conditional priors.
 
-## Upcoming Features
+## Help
+
+  - A full analysis walk-through is available through the mpra analysis
+    vignette, accessible with `vignette("mpra_vignette")` (You will need
+    to have built the vignette during package installation
+    e.g. `devtools::install_github('andrewGhazi/malacoda',
+    build_vignettes = TRUE)`)
+
+  - Each function in the package has an associated help page that can be
+    accessed from R, for example `?fit_mpra_model`. These are generally
+    quite detailed.
+
+  - You can see a list of the data objects included with the package
+    using the command `data(package = 'malacoda')`. You can then access
+    the description of each data object as you would the help
+    documentation e.g. `?umpra_example` .
+
+  - Don’t hesitate to open an issue on this Github repository or send me
+    a direct message if things don’t work how you expect. Even if the
+    package is working as intended, if users are having problems I want
+    to fix that. \#\# Upcoming Features
 
   - ~~Fleshed out CRISPR model support~~ ✓
+    
       - Informative prior estimation for CRISPR dropout screen models
+
   - ~~Categorical conditional priors~~ ✓
+
   - additional Quality Control functionality
+
   - monoallelic variant analysis
+    
       - ~~model code~~ ✓
       - model interface
+
   - multi-tissue / multi-allelic variant analysis
+    
       - ~~model code~~ ✓
       - model interface
       - tissue level informative prior estimation
