@@ -174,40 +174,31 @@ conditional priors.
     to have built the vignette during package installation
     e.g. `devtools::install_github('andrewGhazi/malacoda',
     build_vignettes = TRUE)`)
-
   - Each function in the package has an associated help page that can be
     accessed from R, for example `?fit_mpra_model` . These are generally
     quite detailed.
-
   - You can see a list of the data objects included with the package
     using the command `data(package = 'malacoda')`. You can then access
     the description of each data object as you would the help
     documentation e.g. `?umpra_example` .
-
   - A pdf manual containing all documentation for all exported functions
     can be built during package installation by setting `build_manual =
     TRUE` as an argument to `install_github`.
-
   - Don’t hesitate to open an issue on this Github repository or send me
     a direct message if things don’t work how you expect. Even if the
     package is working as intended, if users are having problems I want
-    to fix that. \#\# Upcoming Features
+    to fix that.
+
+## Upcoming Features
 
   - ~~Fleshed out CRISPR model support~~ ✓
-    
       - Informative prior estimation for CRISPR dropout screen models
-
   - ~~Categorical conditional priors~~ ✓
-
   - additional Quality Control functionality
-
   - monoallelic variant analysis
-    
       - ~~model code~~ ✓
       - model interface
-
   - multi-tissue / multi-allelic variant analysis
-    
       - ~~model code~~ ✓
       - model interface
       - tissue level informative prior estimation
