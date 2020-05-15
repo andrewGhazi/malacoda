@@ -43,16 +43,16 @@ knitr::include_graphics('man/figures/kruschke_latex.png')
 
 This is a basic example which shows you how to fit the simplest form of the model. The input needs to provide the MPRA counts for each barcode of each allele of each variant with a column for each sequencing sample. This example only shows 8 rows, but realistic datasets will have thousands.
 
-|variant_id      |allele |barcode      | DNA1| DNA2| RNA1| RNA2| RNA3| RNA4|
-|:---------------|:------|:------------|----:|----:|----:|----:|----:|----:|
-|1_203652141_2-3 |ref    |TTCGCGTCTCAG |   68|   37|  517|  259|  951| 1525|
-|1_203652141_2-3 |ref    |ACTTTCGATTTG |   11|    7|   75|   43|  104|   96|
-|1_203652141_2-3 |alt    |TCGCGCACGTAT |    6|    2|   49|    9|    7|   29|
-|1_203652141_2-3 |alt    |GAACGATCTATT |    5|    7|    3|    0|   58|   12|
-|1_47682017_1-3  |ref    |GCTGTTATCTTT |   29|   22|   23|   11|   35|   20|
-|1_47682017_1-3  |ref    |TAGTTTATCGCT |   29|   25|   15|    6|   92|   14|
-|1_47682017_1-3  |alt    |TGGTAGCATAAG |   50|   34|    8|   27|  185|   38|
-|1_47682017_1-3  |alt    |CACCTTAGAATG |   48|   28|   22|    8|    2|    6|
+|variant_id       |allele |barcode      | DNA1| DNA2| RNA1| RNA2| RNA3| RNA4|
+|:----------------|:------|:------------|----:|----:|----:|----:|----:|----:|
+|1_205247315_2-3  |ref    |CGATATAGTTAC |   19|   19|    3|    0|   39|    4|
+|1_205247315_2-3  |ref    |ACGCATTCACCT |   56|   51|   38|   19|   38|   46|
+|1_205247315_2-3  |alt    |TAGTATCAACTA |   76|   50|   14|   44|   11|   20|
+|1_205247315_2-3  |alt    |GTCGTCAGCGAT |  106|   69|   80|   32|  163|   57|
+|10_101274365_1-3 |ref    |ATAAGCCGTCCG |   54|   37|   43|    2|   12|   24|
+|10_101274365_1-3 |ref    |CCGACGGCGTTG |   61|   35|   18|    7|   19|   10|
+|10_101274365_1-3 |alt    |GATACGAACACA |   42|   34|   29|   48|  194|  129|
+|10_101274365_1-3 |alt    |TAACGATCGGTC |   33|   25|   14|    9|   11|  409|
 
 The specific format requirements for the input can be found on the help page for `?fit_mpra_model`. The code below will fit the basic malacoda model using a dataset that comes with the package:
 
@@ -71,14 +71,14 @@ fit_mpra_model(mpra_data = umpra_example,
 
 This will fit the model to each input in the assay (using some example variants from [Ulirsch et al., Cell, 2016](https://www.ncbi.nlm.nih.gov/pubmed/27259154) in the built-in dataset `umpra_example`) using a marginal prior, save the outputs for each variant at the specified directory, and return a data frame of summary statistics for each variant, including binary calls of functional/non-functional, posterior means on activity levels & transcription shift.
 
-|variant_id      | ts_post_mean| ref_post_mean| alt_post_mean|is_functional | hdi_lower| hdi_upper|
-|:---------------|------------:|-------------:|-------------:|:-------------|---------:|---------:|
-|1_203652141_2-3 |        -1.73|          3.91|          2.17|TRUE          |     -2.03|     -1.47|
-|4_122791601_2-3 |        -1.70|          4.04|          2.34|TRUE          |     -2.00|     -1.45|
-|17_76382791_1-2 |        -1.70|          4.04|          2.34|TRUE          |     -2.01|     -1.42|
-|11_8923528_1-2  |        -1.59|          3.79|          2.20|TRUE          |     -1.88|     -1.31|
-|17_42305699_1-3 |        -1.58|          3.88|          2.30|TRUE          |     -1.85|     -1.27|
-|15_78536924_1-2 |        -1.58|          3.81|          2.23|TRUE          |     -1.88|     -1.32|
+|variant_id       | ts_post_mean| ref_post_mean| alt_post_mean|is_functional | hdi_lower| hdi_upper|
+|:----------------|------------:|-------------:|-------------:|:-------------|---------:|---------:|
+|22_32880585_2-3  |         1.67|         -1.15|          0.52|TRUE          |      0.95|      2.32|
+|15_66068074_1-3  |         0.73|         -0.83|         -0.10|FALSE         |     -0.15|      1.56|
+|12_121167039_1-3 |         0.56|         -0.69|         -0.13|FALSE         |     -0.25|      1.26|
+|16_68092850_2-3  |        -0.44|          0.18|         -0.26|FALSE         |     -1.15|      0.40|
+|8_42424746_1-2   |         0.40|         -0.33|          0.07|FALSE         |     -0.12|      0.87|
+|19_33204544_1-3  |        -0.27|         -0.15|         -0.42|FALSE         |     -0.91|      0.44|
 
 More sophisticated analyses that use annotations to create informative priors for higher sensitivity are described in the MPRA Analysis vignette accessible with `vignette('mpra_vignette', package = 'malacoda')`. Other features like annotation checking and traditional NHST analysis are also explained in the vignette. Each function provided by the package have extensive help documentation that should help elucidate what they do and how to use them e.g. `?fit_mpra_model`.
 

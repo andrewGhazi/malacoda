@@ -47,16 +47,16 @@ of each allele of each variant with a column for each sequencing sample.
 This example only shows 8 rows, but realistic datasets will have
 thousands.
 
-| variant\_id       | allele | barcode      | DNA1 | DNA2 | RNA1 | RNA2 | RNA3 | RNA4 |
-| :---------------- | :----- | :----------- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 1\_203652141\_2-3 | ref    | TTCGCGTCTCAG |   68 |   37 |  517 |  259 |  951 | 1525 |
-| 1\_203652141\_2-3 | ref    | ACTTTCGATTTG |   11 |    7 |   75 |   43 |  104 |   96 |
-| 1\_203652141\_2-3 | alt    | TCGCGCACGTAT |    6 |    2 |   49 |    9 |    7 |   29 |
-| 1\_203652141\_2-3 | alt    | GAACGATCTATT |    5 |    7 |    3 |    0 |   58 |   12 |
-| 1\_47682017\_1-3  | ref    | GCTGTTATCTTT |   29 |   22 |   23 |   11 |   35 |   20 |
-| 1\_47682017\_1-3  | ref    | TAGTTTATCGCT |   29 |   25 |   15 |    6 |   92 |   14 |
-| 1\_47682017\_1-3  | alt    | TGGTAGCATAAG |   50 |   34 |    8 |   27 |  185 |   38 |
-| 1\_47682017\_1-3  | alt    | CACCTTAGAATG |   48 |   28 |   22 |    8 |    2 |    6 |
+| variant\_id        | allele | barcode      | DNA1 | DNA2 | RNA1 | RNA2 | RNA3 | RNA4 |
+| :----------------- | :----- | :----------- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1\_205247315\_2-3  | ref    | CGATATAGTTAC |   19 |   19 |    3 |    0 |   39 |    4 |
+| 1\_205247315\_2-3  | ref    | ACGCATTCACCT |   56 |   51 |   38 |   19 |   38 |   46 |
+| 1\_205247315\_2-3  | alt    | TAGTATCAACTA |   76 |   50 |   14 |   44 |   11 |   20 |
+| 1\_205247315\_2-3  | alt    | GTCGTCAGCGAT |  106 |   69 |   80 |   32 |  163 |   57 |
+| 10\_101274365\_1-3 | ref    | ATAAGCCGTCCG |   54 |   37 |   43 |    2 |   12 |   24 |
+| 10\_101274365\_1-3 | ref    | CCGACGGCGTTG |   61 |   35 |   18 |    7 |   19 |   10 |
+| 10\_101274365\_1-3 | alt    | GATACGAACACA |   42 |   34 |   29 |   48 |  194 |  129 |
+| 10\_101274365\_1-3 | alt    | TAACGATCGGTC |   33 |   25 |   14 |    9 |   11 |  409 |
 
 The specific format requirements for the input can be found on the help
 page for `?fit_mpra_model`. The code below will fit the basic malacoda
@@ -84,14 +84,14 @@ frame of summary statistics for each variant, including binary calls of
 functional/non-functional, posterior means on activity levels &
 transcription shift.
 
-| variant\_id       | ts\_post\_mean | ref\_post\_mean | alt\_post\_mean | is\_functional | hdi\_lower | hdi\_upper |
-| :---------------- | -------------: | --------------: | --------------: | :------------- | ---------: | ---------: |
-| 1\_203652141\_2-3 |         \-1.73 |            3.91 |            2.17 | TRUE           |     \-2.03 |     \-1.47 |
-| 4\_122791601\_2-3 |         \-1.70 |            4.04 |            2.34 | TRUE           |     \-2.00 |     \-1.45 |
-| 17\_76382791\_1-2 |         \-1.70 |            4.04 |            2.34 | TRUE           |     \-2.01 |     \-1.42 |
-| 11\_8923528\_1-2  |         \-1.59 |            3.79 |            2.20 | TRUE           |     \-1.88 |     \-1.31 |
-| 17\_42305699\_1-3 |         \-1.58 |            3.88 |            2.30 | TRUE           |     \-1.85 |     \-1.27 |
-| 15\_78536924\_1-2 |         \-1.58 |            3.81 |            2.23 | TRUE           |     \-1.88 |     \-1.32 |
+| variant\_id        | ts\_post\_mean | ref\_post\_mean | alt\_post\_mean | is\_functional | hdi\_lower | hdi\_upper |
+| :----------------- | -------------: | --------------: | --------------: | :------------- | ---------: | ---------: |
+| 22\_32880585\_2-3  |           1.67 |          \-1.15 |            0.52 | TRUE           |       0.95 |       2.32 |
+| 15\_66068074\_1-3  |           0.73 |          \-0.83 |          \-0.10 | FALSE          |     \-0.15 |       1.56 |
+| 12\_121167039\_1-3 |           0.56 |          \-0.69 |          \-0.13 | FALSE          |     \-0.25 |       1.26 |
+| 16\_68092850\_2-3  |         \-0.44 |            0.18 |          \-0.26 | FALSE          |     \-1.15 |       0.40 |
+| 8\_42424746\_1-2   |           0.40 |          \-0.33 |            0.07 | FALSE          |     \-0.12 |       0.87 |
+| 19\_33204544\_1-3  |         \-0.27 |          \-0.15 |          \-0.42 | FALSE          |     \-0.91 |       0.44 |
 
 More sophisticated analyses that use annotations to create informative
 priors for higher sensitivity are described in the MPRA Analysis
@@ -176,13 +176,17 @@ conditional priors.
     build_vignettes = TRUE)`)
 
   - Each function in the package has an associated help page that can be
-    accessed from R, for example `?fit_mpra_model`. These are generally
+    accessed from R, for example `?fit_mpra_model` . These are generally
     quite detailed.
 
   - You can see a list of the data objects included with the package
     using the command `data(package = 'malacoda')`. You can then access
     the description of each data object as you would the help
     documentation e.g. `?umpra_example` .
+
+  - A pdf manual containing all documentation for all exported functions
+    can be built during package installation by setting `build_manual =
+    TRUE` as an argument to `install_github`.
 
   - Don’t hesitate to open an issue on this Github repository or send me
     a direct message if things don’t work how you expect. Even if the

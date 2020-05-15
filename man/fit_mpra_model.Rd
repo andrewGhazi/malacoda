@@ -151,7 +151,7 @@ Sampler results for individual variants will be saved to the specified
 \examples{
 # This example fits the malacoda model on 3 variants with too-short MCMC chains
 
-example_variants = c("11_8839229_1-2", "15_75303554_2-3", "1_203652141_2-3")
+example_variants = c("1_205247315_2-3", "10_101274365_1-3", "10_45966422_2-3")
 
 examples_to_evaluate = umpra_example[umpra_example$variant_id \%in\% example_variants,]
 
