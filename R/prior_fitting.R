@@ -310,6 +310,10 @@ fit_marg_prior = function(mpra_data,
                                             verbose = verbose)
   }
 
+  if (!any(tolower(mpra_data$allele) == 'ref')) {
+    stop('Cannot identify which alleles are reference or alternate. Map existing values onto "ref" or "alt" and try again. The function stringr::str_replace_all might help with this. Try str_replace_all(allele, c("A" = "ref", "B" = "alt")) where allele is the existing allele column and "A" and "B" are the current allele indicators.')
+  }
+
   if (verbose) {
     message('Fitting negative binomial MLEs...')
   }
@@ -411,6 +415,10 @@ fit_grouped_prior = function(mpra_data,
 
   if (!enough_per_group) {
     stop('Not enough variants in all the groups!')
+  }
+
+  if (!any(tolower(mpra_data$allele) == 'ref')) {
+    stop('Cannot identify which alleles are reference or alternate. Map existing values onto "ref" or "alt" and try again. The function stringr::str_replace_all might help with this. Try str_replace_all(allele, c("A" = "ref", "B" = "alt")) where allele is the existing allele column and "A" and "B" are the current allele indicators.')
   }
 
   # Not too many groups?
@@ -515,6 +523,10 @@ fit_cond_prior = function(mpra_data,
   # Input checks ----
   if(!all(mpra_data$variant_id %in% annotations$variant_id)){
     stop('There aren\'t annotations for each variant!')
+  }
+
+  if (!any(tolower(mpra_data$allele) == 'ref')) {
+    stop('Cannot identify which alleles are reference or alternate. Map existing values onto "ref" or "alt" and try again. The function stringr::str_replace_all might help with this. Try str_replace_all(allele, c("A" = "ref", "B" = "alt")) where allele is the existing allele column and "A" and "B" are the current allele indicators.')
   }
 
   if(any(duplicated(annotations$variant_id))){

@@ -248,6 +248,10 @@ fit_mpra_model = function(mpra_data,
     stop('Non-biallelic variants detected. This may be due to an ill-formatted variant_id column. Note that the variant_id column should be the same for both alleles of a given variant.')
   }
 
+  if (!any(tolower(mpra_data$allele) == 'ref')) {
+    stop('Cannot identify which alleles are reference or alternate. Map existing values onto "ref" or "alt" and try again. The function stringr::str_replace_all might help with this. Try str_replace_all(allele, c("A" = "ref", "B" = "alt")) where allele is the existing allele column and "A" and "B" are the current allele indicators.')
+  }
+
   if (vb_pass & verbose) {
     message('Using variantional approximation first pass. Set vb_pass = FALSE for publication quality analyses.')
   }
