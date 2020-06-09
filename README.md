@@ -202,6 +202,8 @@ conditional priors.
       - ~~model code~~ ✓
       - model interface
       - tissue level informative prior estimation
+  - single-step hierarchical model with efficient, within-chain
+    parallelization via `reduce_sum`
 
 ## Contact
 
