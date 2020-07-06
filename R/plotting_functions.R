@@ -452,7 +452,7 @@ mpra_tile_plot = function(variant_id, variant_counts,
 
     act_ints = fit_summary %>% .[1:2,] %>%
       mutate(param = c('alt', 'ref')) %>%
-      ggplot(aes(`0.5`, param)) +
+      ggplot(aes(.data$`0.5`, .data$param)) +
       geom_segment(aes(x = .data$`0.025`, xend = .data$`0.975`,
                        yend = .data$param,
                        y = .data$param)) +
@@ -513,7 +513,7 @@ mpra_tile_plot = function(variant_id, variant_counts,
     newcols = summary_input$new_color[is.finite(summary_input$new_color)]
     color_breaks = seq(min(newcols), max(newcols), length.out = 7)[c(2,4,6)]
     summary_color = summary_input %>%
-      ggplot(aes('RNA1', barcode)) +
+      ggplot(aes('RNA1', .data$barcode)) +
       geom_tile(aes(color = .data$new_color, fill = .data$new_color)) +
       geom_segment(aes(x = .5,
                        xend = 1.5,
