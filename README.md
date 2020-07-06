@@ -161,7 +161,7 @@ summary metrics):
 And `malacoda_intervals()` can help to visualize the posterior from the
 malacoda model fit:
 
-<img src="man/figures/interval_example.png" width="2700" />
+<img src="man/figures/interval_example.png" width="3600" />
 
 Other visualization functions are available for annotation checking.
 These help visualize the improvement induced by the use of informative
