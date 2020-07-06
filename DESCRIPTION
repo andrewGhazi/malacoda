@@ -53,5 +53,6 @@ SystemRequirements: GNU make, FASTX-Toolkit, sed, FreeBarcodes
 RoxygenNote: 7.0.2
 Suggests: knitr,
     rmarkdown,
-    kdensity
+    kdensity,
+    gridExtra
 VignetteBuilder: knitr

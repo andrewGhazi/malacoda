@@ -334,3 +334,228 @@ plot_prior_samples = function(prior_draws){
          y = 'Prior density')
 
 }
+
+#' Make a MPRA tile plot
+#' @description Make a tile plot of the MPRA counts for a given variant
+#' @param variant_id variant ID
+#' @param variant_counts a data frame of counts for one variant
+#' @param show_barcodes a logical indicating whether to show the barcodes on the
+#'   left side of the tile plot
+#' @param composite a logicial indicating whether or not to include the extra
+#'   plot components on the right sides
+#' @param sampler_res A stanfit object for one variant
+#' @param prob if composite = TRUE, a fraction between 0 and 1 indicating the
+#'   posterior probability mass to include in the inner intervals.
+#' @param prob_outer if composite = TRUE, a fraction between 0 and 1 indicating
+#'   the posterior probability mass to include in the outer intervals.
+#' @details The barcodes in the output tile plot are sorted according the their
+#'   average DNA representation.
+#'
+#'   The barcodes in variant_counts need to be in the same order that they were
+#'   presented to the malacoda sampler. malacoda tries to preserve the ordering
+#'   present in the original mpra_data dataset (not including removed poorly
+#'   represented barcodes), but if you're unsure you can pull from the
+#'   variant_data column in the analysis_res object. Currently it's necessary
+#'   that the allele be encoded by 'alt' and 'ref'.
+#'
+#'   Setting composite = TRUE will include three additional components: a column
+#'   of tiles whose color indicates the log(mean(RNA)/ mean(DNA)) by row, and
+#'   posterior interval plots for the variant's activities and transcription
+#'   shift.
+#' @export
+mpra_tile_plot = function(variant_id, variant_counts,
+                          show_barcodes = FALSE,
+                          composite = FALSE,
+                          sampler_res = NULL,
+                          prob = .5,
+                          prob_outer = .95){
+
+  # TODO make these robust against other encodings of allele
+  nref = sum(variant_counts$allele == 'ref')
+  nalt = sum(variant_counts$allele != 'ref')
+
+  dna_rep = variant_counts %>%
+    select(.data$barcode, matches('DNA')) %>%
+    gather("sample_id", "count", -.data$barcode) %>%
+    group_by(.data$barcode) %>%
+    summarise(dna_rep = mean(.data$count))
+
+  var_tile_input = variant_counts %>%
+    left_join(dna_rep, by = 'barcode') %>%
+    gather("sample_id", "count", matches('[DR]NA', ignore.case = FALSE)) %>%
+    arrange(.data$allele, .data$dna_rep) %>%
+    mutate(barcode = factor(.data$barcode,
+                            levels = unique(.data$barcode)))
+
+  var_color_breaks = seq(min(var_tile_input$count),
+                         max(var_tile_input$count),
+                         length.out = 3)
+
+  n_dna = names(variant_counts) %>% stringr::str_count('DNA') %>% sum
+  n_rna = names(variant_counts) %>% stringr::str_count('RNA') %>% sum
+
+
+  leg_pos = ifelse(composite, 'bottom', 'right' )
+  axis_text_y = if (show_barcodes){
+    element_text(hjust = 0)
+  } else {
+    element_blank()
+  }
+
+  var_tile_plot = var_tile_input %>%
+    ggplot(aes(.data$sample_id, .data$barcode)) +
+    geom_tile(aes(fill = .data$count)) +
+    geom_segment(aes(x = .5,
+                     xend = n_dna + n_rna + .5,
+                     y = nalt+.5,
+                     yend = nalt+.5),
+                 lwd = 1.3,
+                 color = 'grey50') +
+    geom_vline(xintercept = n_dna + .5, color = 'white',
+               lwd = 2) +
+    scale_fill_viridis_c(na.value = 'black',
+                         trans = 'log10',
+                         guide = guide_colorbar(title.position = 'top')) +
+    theme(axis.text.y = axis_text_y,
+          axis.ticks.y = element_blank(),
+          axis.text.x = element_text(angle = 90, vjust = .5),
+          panel.border = element_blank(),
+          panel.grid = element_blank(),
+          legend.position = leg_pos) +
+    coord_cartesian(expand = FALSE) +
+    labs(title = variant_id,
+         x = 'sample ID',
+         fill = 'barcode count',
+         y = 'alt   |   ref')
+
+  if (composite) {
+    if (missing(sampler_res)){
+      stop('Composite plots require a sampler_res input.')
+    }
+
+    plot_probs = c((1 - prob_outer[1])/2,
+                   (1 - prob) / 2,
+                   .5,
+                   (1 - prob) / 2 + prob,
+                   (1 - prob_outer[1])/2 + prob_outer)
+
+    fit_summary = sampler_res %>%
+      as.data.frame() %>%
+      as_tibble %>%
+      select(.data$ref_act:.data$transcription_shift) %>%
+      map_dfc(~quantile(.x, probs = plot_probs)) %>%
+      mutate(quantile = plot_probs) %>%
+      gather("param", "value", 1:3) %>%
+      mutate(is_act = !grepl('act', .data$param)) %>%
+      spread("quantile", "value") %>%
+      mutate(param = factor(c('alt activity', 'ref activity', 'transcription\nshift')))
+
+    act_ints = fit_summary %>% .[1:2,] %>%
+      mutate(param = c('alt', 'ref')) %>%
+      ggplot(aes(`0.5`, param)) +
+      geom_segment(aes(x = .data$`0.025`, xend = .data$`0.975`,
+                       yend = .data$param,
+                       y = .data$param)) +
+      geom_segment(aes(x = .data$`0.25`, xend = .data$`0.75`,
+                       yend = .data$param,
+                       y = .data$param),
+                   color = 'deepskyblue2',
+                   lwd = 2) +
+      geom_point(size = 2) +
+      theme_light() +
+      theme(strip.text = element_blank(),
+            axis.text.y = element_text(size = 16),
+            panel.grid.major.y = element_blank(),
+            panel.grid.minor.y = element_blank(),
+            plot.margin = margin(c(35, 5.5, 5.5, 5.5), unit = 'pt')) +
+      labs(x = 'activity',
+           y = NULL)
+
+    ts_int = fit_summary %>%
+      .[3,] %>%
+      ggplot(aes(.data$`0.5`, 1)) +
+      geom_segment(aes(x = .data$`0.025`, xend = .data$`0.975`,
+                       yend = 1, y = 1)) +
+      geom_segment(aes(x = .data$`0.25`, xend = .data$`0.75`,
+                       yend = 1, y = 1),
+                   color = 'deepskyblue2',
+                   lwd = 2) +
+      geom_point() +
+      geom_vline(xintercept = 0,
+                 lty = 2,
+                 color = 'grey50') +
+      labs(y = '   ',
+           x = 'transcription shift') +
+      theme_light() +
+      theme(axis.ticks.y = element_blank(),
+            axis.title.y = element_text(color = 'white'),
+            axis.text.y = element_blank(),
+            panel.grid.major.y = element_blank(),
+            panel.grid.minor.y = element_blank(),
+            plot.margin = margin(c(25, 5.5, 35, 5.5), unit = 'pt'))
+
+    int_grob = gridExtra::arrangeGrob(grobs = list(act_ints, ts_int), ncol = 1, heights = c(1.5,1))
+
+    v_rna = variant_counts %>%
+      select(matches('RNA')) %>%
+      rowMeans()
+    v_dna = variant_counts %>%
+      select(matches('DNA')) %>%
+      rowMeans()
+
+    summary_input = variant_counts %>%
+      mutate(avg_rna = v_rna,
+             avg_dna = v_dna) %>%
+      mutate(new_color = log10(.data$avg_rna / .data$avg_dna)) %>%
+      mutate(barcode = factor(.data$barcode,
+                              levels = levels(var_tile_input$barcode)))
+
+    newcols = summary_input$new_color[is.finite(summary_input$new_color)]
+    color_breaks = seq(min(newcols), max(newcols), length.out = 7)[c(2,4,6)]
+    summary_color = summary_input %>%
+      ggplot(aes('RNA1', barcode)) +
+      geom_tile(aes(color = .data$new_color, fill = .data$new_color)) +
+      geom_segment(aes(x = .5,
+                       xend = 1.5,
+                       y = nalt+.5,
+                       yend = nalt+.5),
+                   lwd = 1.3,
+                   color = 'grey40') +
+      scale_fill_viridis_c(option = 'plasma',
+                           guide = guide_colorbar(title.position = 'top'),
+                           breaks = color_breaks,
+                           labels = round(color_breaks, digits = 2),
+                           na.value = 'black') +
+      scale_color_viridis_c(option = 'plasma',
+                            guide = guide_colorbar(title.position = 'top'),
+                            breaks = color_breaks,
+                            labels = round(color_breaks, digits = 2),
+                            na.value = 'black') +
+      theme_light() +
+      coord_cartesian(expand = FALSE,
+                      xlim = c(0,2)) +
+      labs(title = '',
+           y = NULL,
+           x = 'sample ID',
+           color = 'log(RNA/DNA)',
+           fill = 'log(RNA/DNA)') +
+      theme(axis.text.y = element_blank(),
+            axis.ticks.y = element_blank(),
+            axis.text.x = element_text(angle = 90, color = 'white'),
+            axis.title.x = element_text(color = 'white'),
+            legend.position = 'bottom',
+            panel.grid = element_blank(),
+            panel.border = element_blank(),
+            axis.ticks.x = element_line(color = 'white'),
+            plot.margin = margin(c(5.5, 11, 5.5, 0), unit = 'pt'),
+            legend.box.margin = margin(c(0,0,0,0), unit = 'cm'))
+
+    result_plot = gridExtra::grid.arrange(grobs = list(var_tile_plot, summary_color, int_grob), nrow = 1, widths = c(9,1.5, 3),
+                                             newpage = FALSE)
+  } else {
+    result_plot = var_tile_plot
+  }
+
+  return(result_plot)
+}
+
