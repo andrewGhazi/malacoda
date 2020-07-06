@@ -304,7 +304,7 @@ summary_df %>%
                  color = 'black',
                  size = 0.5, lineend = 'butt') +
     geom_segment(aes(x = .data$inner_left, xend = .data$inner_right, yend = .data$parameter),
-                 color = 'skyblue',
+                 color = 'deepskyblue2',
                  size = 1.5, lineend = 'butt') +
     geom_point(size = 1) +
     facet_wrap('par_type', scales = 'free') +
