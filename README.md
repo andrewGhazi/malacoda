@@ -153,7 +153,8 @@ tools provided in packages like
 [bayesplot](http://mc-stan.org/users/interfaces/bayesplot).
 
 `malacoda` also provides several plotting function of its own.
-`mpra_tile_plot` can help to visualize both the raw MPRA counts:
+`mpra_tile_plot` can help to visualize the raw MPRA counts (and some
+summary metrics):
 
 <img src="man/figures/tile_example.png" width="2700" />
 
