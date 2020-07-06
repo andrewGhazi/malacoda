@@ -119,13 +119,13 @@ In addition to the summary statistics table output above, the sampler outputs fo
 
 `malacoda` also provides several plotting function of its own. `mpra_tile_plot` can help to visualize the raw MPRA counts (and some summary metrics):
 
-```{r,echo=FALSE}
+```{r, echo=FALSE}
 knitr::include_graphics('man/figures/tile_example.png')
 ```
 
 And `malacoda_intervals()` can help to visualize the posterior from the malacoda model fit:
 
-```{r}
+```{r, echo=FALSE}
 knitr::include_graphics('man/figures/interval_example.png')
 ```
 

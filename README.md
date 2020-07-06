@@ -161,10 +161,6 @@ summary metrics):
 And `malacoda_intervals()` can help to visualize the posterior from the
 malacoda model fit:
 
-``` r
-knitr::include_graphics('man/figures/interval_example.png')
-```
-
 <img src="man/figures/interval_example.png" width="2700" />
 
 Other visualization functions are available for annotation checking.
