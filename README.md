@@ -152,16 +152,19 @@ These are stanfit objects, thus they can be visualized using all the
 tools provided in packages like
 [bayesplot](http://mc-stan.org/users/interfaces/bayesplot).
 
-`malacoda` also provides several plotting function of its own, including
-`posterior_beeswarm()`. This plots the traditional activity measurements
-as points in a beeswarm plot along with violins for posteriors on means
-for each allele. Optional colors can help diagnose unwanted
-sample-specific bias. That is, all the colors should be mixed within
-each allele, indicating that activity measurements are not influenced by
-sample.
+`malacoda` also provides several plotting function of its own.
+`mpra_tile_plot` can help to visualize both the raw MPRA counts:
 
-![An example activity beeswarm with overlaid activity mean
-posteriors](man/figures/posterior_beeswarm_example.png)
+<img src="man/figures/tile_example.png" width="2700" />
+
+And `malacoda_intervals()` can help to visualize the posterior from the
+malacoda model fit:
+
+``` r
+knitr::include_graphics('man/figures/interval_example.png')
+```
+
+<img src="man/figures/interval_example.png" width="2700" />
 
 Other visualization functions are available for annotation checking.
 These help visualize the improvement induced by the use of informative
