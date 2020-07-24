@@ -39,6 +39,21 @@ Other features include:
 
 <img src="man/figures/kruschke_latex.png" width="100%" />
 
+## Cite
+
+The manuscript associated with this work was published in PLOS
+Computational Biology on July 21, 2020. If you use this software, please
+cite this source:
+
+> Article Source: Bayesian modelling of high-throughput sequencing
+> assays with malacoda Ghazi AR, Kong X, Chen ES, Edelstein LC, Shaw CA
+> (2020) Bayesian modelling of high-throughput sequencing assays with
+> malacoda. PLOS Computational Biology 16(7): e1007504.
+> <https://doi.org/10.1371/journal.pcbi.1007504>
+
+The HTML versions of the supplements for the manuscript are available in
+this repository’s man/supplements/ directory.
+
 ## Example
 
 This is a basic example which shows you how to fit the simplest form of
