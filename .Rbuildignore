@@ -16,3 +16,5 @@
 ^Meta$
 ^README\.md$
 ^data/filtered_example_data\.RData$
+^man/supplements$
+^man/supplements/*\.html$
